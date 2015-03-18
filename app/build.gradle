@@ -1,0 +1,36 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 21
+    buildToolsVersion "21.1.2"
+
+    defaultConfig {
+        applicationId "com.kanditag.kanditag"
+        minSdkVersion 15
+        targetSdkVersion 21
+        versionCode 1
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:appcompat-v7:21.0.3'
+    compile files(':libs/core.jar')
+    compile project(':libraries:facebook')
+    compile files(':libraries/json-simple-1.1.1')
+    compile files('json-simple-1.1.1')
+    compile files('/Users/Jim/Development/KandiTag/libraries/gson-2.3.1.jar')
+    compile files('/Users/Jim/Development/KandiTag/libraries/android-directionalviewpager-1.2.0.jar')
+    compile 'com.github.nkzawa:socket.io-client:0.4.1'
+    compile files('/Users/Jim/Development/KandiTag/libraries/core-3.2.0.jar')
+    compile "com.google.android.gms:play-services:3.1.+"
+}
+

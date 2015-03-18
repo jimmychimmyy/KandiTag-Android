@@ -1,0 +1,20 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/cameraPreviewRelativeLayout"
+    tools:context="com.kanditag.kanditag.CameraPreview">
+
+    <!--
+
+    <ImageView
+        android:id="@+id/takeGifIV"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/golden_kt_logo"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"/>
+
+       -->
+
+</RelativeLayout>

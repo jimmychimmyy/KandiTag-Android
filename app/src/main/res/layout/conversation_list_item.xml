@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/conversationListItem_bubble"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"/>
+
+    <ImageView
+        android:id="@+id/conversationListItem_otherUserPic"
+        android:paddingRight="20dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="15dp"
+        android:layout_alignStart="@+id/conversationListItem_bubble"
+        android:layout_alignLeft="@+id/conversationListItem_bubble"/>
+
+    <ImageView
+        android:paddingRight="20dp"
+        android:id="@+id/conversationListItem_myPic"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="15dp"/>
+
+    <TextView
+        android:layout_toLeftOf="@+id/conversationListItem_myPic"
+        android:gravity="center_vertical|right"
+        android:id="@+id/conversationListItem_myMessage"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="70dp" />
+
+    <TextView
+        android:layout_toRightOf="@+id/conversationListItem_otherUserPic"
+        android:gravity="center_vertical|left"
+        android:id="@+id/conversationListItem_otherUserMessage"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_marginTop="10dp"/>
+
+</RelativeLayout>

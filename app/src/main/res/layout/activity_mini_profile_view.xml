@@ -1,0 +1,80 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#8C000000"
+    tools:context="com.kanditag.kanditag.MiniProfileView">
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/miniProfileView_viewPager"
+        android:layout_width="fill_parent"
+        android:layout_height="130dp"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="45dp"
+        android:layout_marginRight="45dp"/>
+
+    <ImageView
+        android:id="@+id/miniProfileView_background"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="45dp"
+        android:layout_marginRight="45dp"
+        android:layout_width="fill_parent"
+        android:layout_height="150dp"
+        android:background="@color/white"/>
+
+    <ImageView
+        android:src="@drawable/splash_screen_kt_logo_universal"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:paddingBottom="12dp"
+        android:id="@+id/miniProfileView_profilePic"
+        android:layout_centerHorizontal="true"
+        android:layout_centerInParent="true" />
+
+    <TextView
+        android:text="message goes here"
+        android:id="@+id/miniProfileView_infoTextView"
+        android:layout_width="fill_parent"
+        android:layout_height="30dp"
+        android:gravity="center_horizontal"
+        android:layout_below="@+id/miniProfileView_profilePic"
+        android:paddingTop="2dp"/>
+
+    <EditText
+        android:hint="Please Name Me!"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:id="@+id/miniProfileView_editText"
+        android:layout_below="@+id/miniProfileView_profilePic"
+        android:gravity="center_horizontal"
+        android:layout_centerHorizontal="true"/>
+
+    <Button
+        android:id="@+id/miniProfileView_saveButton"
+        android:text="save"
+        android:layout_marginLeft="180dp"
+        android:layout_marginRight="42dp"
+        android:layout_centerVertical="true"
+        android:layout_below="@id/miniProfileView_background"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp" />
+
+    <Button
+        android:id="@+id/miniProfileView_dismissButton"
+        android:text="dismiss"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:layout_marginLeft="42dp"
+        android:layout_marginRight="180dp"
+        android:layout_below="@+id/miniProfileView_background"/>
+
+    <Button
+        android:text="Continue"
+        android:id="@+id/miniProfileView_continueButton"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:layout_below="@+id/miniProfileView_background"
+        android:layout_marginLeft="42dp"
+        android:layout_marginRight="42dp"/>
+
+</RelativeLayout>

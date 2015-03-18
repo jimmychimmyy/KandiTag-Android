@@ -1,0 +1,5 @@
+include ':app'
+include ":libraries:core-2.2"
+include ":libraries:QRCodeReaderView"
+include ":libraries:facebook"
+include ":libraries:json-simple-1.1.1"

@@ -1,0 +1,71 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#8C000000"
+    tools:context="com.kanditag.kanditag.Settings">
+
+    <com.facebook.widget.LoginButton
+        android:id="@+id/login_fbLoginButton"
+        android:layout_width="wrap_content"
+        android:layout_height="1dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"/>
+
+    <ImageView
+        android:layout_width="140dp"
+        android:layout_height="200dp"
+        android:id="@+id/back"
+        android:src="@drawable/border_up_left_back"
+        android:layout_marginTop="70dp"
+        android:layout_marginLeft="15dp"/>
+
+    <ImageView
+        android:layout_width="140dp"
+        android:layout_height="200dp"
+        android:id="@+id/toMessage"
+        android:src="@drawable/border_up_right"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="70dp"/>
+
+
+    <ImageView
+        android:layout_width="140dp"
+        android:layout_height="200dp"
+        android:id="@+id/toFollow"
+        android:src="@drawable/border_down_left"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="15dp"
+        android:layout_marginBottom="70dp"/>
+
+    <ImageView
+        android:layout_width="140dp"
+        android:layout_height="200dp"
+        android:id="@+id/customLogoutButton"
+        android:src="@drawable/border_down_right_logout"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="15dp"
+        android:layout_marginBottom="70dp"/>
+
+    <ImageView
+        android:id="@+id/profileImageBackground"
+        android:layout_width="138dp"
+        android:layout_height="138dp"
+        android:background="@drawable/camera_button"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"/>
+
+    <ImageView
+        android:id="@+id/login_logo"
+        android:layout_width="130dp"
+        android:layout_height="130dp"
+        android:background="@color/transparent"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"/>
+
+
+
+
+
+</RelativeLayout>

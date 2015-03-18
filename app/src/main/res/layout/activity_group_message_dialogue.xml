@@ -1,0 +1,50 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#8C000000"
+    tools:context="com.kanditag.kanditag.GroupMessageDialogue">
+
+    <ScrollView
+        android:id="@+id/GroupMessageDialogue_ScrollView"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="45dp"
+        android:scrollbars="vertical"/>
+
+    <ListView
+        android:stackFromBottom="true"
+        android:divider="@null"
+        android:dividerHeight="0dp"
+        android:layout_below="@+id/MessageDialogue_UserName"
+        android:id="@+id/GroupMessageDialogue_ListView"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_marginBottom="55dp"/>
+
+
+    <TextView
+        android:layout_marginTop="10dp"
+        android:gravity="center_vertical"
+        android:id="@+id/GroupMessageDialogue_GroupName"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_centerHorizontal="true"/>
+
+    <EditText
+        android:id="@+id/GroupMessageDialogue_EditText"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"/>
+
+    <Button
+        android:id="@+id/GroupMessageDialogue_SendButton"
+        android:layout_width="80dp"
+        android:layout_height="50dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"/>
+
+
+
+</RelativeLayout>

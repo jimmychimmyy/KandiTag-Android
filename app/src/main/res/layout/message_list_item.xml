@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!--
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="100dp"
+        android:src="@drawable/message_bubble_empty"/>
+        -->
+
+    <TextView
+        android:id="@+id/MessageListItem_userfbid"
+        android:layout_width="0dp"
+        android:layout_height="0dp" />
+
+    <ImageView
+        android:id="@+id/MessageListItem_profilePic"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="10dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginTop="11dp"/>
+
+    <TextView
+        android:id="@+id/MessageListItem_name"
+        android:layout_marginTop="21dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/MessageListItem_profilePic"
+        android:paddingBottom="10dp"
+        android:textColor="@color/white"
+        android:textSize="16dp" />
+
+    <TextView
+        android:id="@+id/MessageListItem_description"
+        android:layout_marginTop="1dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/MessageListItem_name"
+        android:layout_toRightOf="@+id/MessageListItem_profilePic"
+        android:textColor="@color/white"
+        android:textSize="14dp" />
+
+</RelativeLayout>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/GroupMessageListItem_Bubble"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"/>
+
+    <ImageView
+        android:id="@+id/GroupMessageListItem_TheirPic"
+        android:paddingRight="20dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_marginTop="15dp"
+        android:layout_alignStart="@+id/GroupMessageListItem_Bubble"
+        android:layout_alignLeft="@+id/GroupMessageListItem_Bubble"/>
+
+    <ImageView
+        android:paddingRight="20dp"
+        android:id="@+id/GroupMessageListItem_MyPic"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="15dp"/>
+
+    <TextView
+        android:layout_toLeftOf="@+id/GroupMessageListItem_MyPic"
+        android:gravity="center_vertical|right"
+        android:id="@+id/GroupMessageListItem_MyMessage"
+        android:layout_marginTop="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="70dp" />
+
+    <TextView
+        android:layout_toRightOf="@+id/GroupMessageListItem_TheirPic"
+        android:gravity="center_vertical|left"
+        android:id="@+id/GroupMessageListItem_TheirMessage"
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:layout_marginTop="10dp"/>
+
+</RelativeLayout>

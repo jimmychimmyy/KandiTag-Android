@@ -1,0 +1,41 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#8C000000"
+    tools:context="com.kanditag.kanditag.Browse">
+
+
+
+    <Button
+        android:layout_width="180dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:text="Featured"
+        android:textColor="@color/charcoal"
+        android:background="@color/gold"
+        android:id="@+id/featured"
+        />
+    <Button
+        android:layout_width="180dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="Browse"
+        android:textColor="@color/charcoal"
+        android:background="@color/gold"
+        android:id="@+id/browse"
+        />
+
+    <GridView
+        android:id="@+id/browseGridView"
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:background="@color/transparent"
+        android:layout_marginTop="12dp"
+        android:columnWidth="45dp"
+        android:stretchMode="columnWidth"
+        android:numColumns="4"
+        android:minHeight="50dp"
+        android:backgroundTint="@color/white"/>
+
+</RelativeLayout>

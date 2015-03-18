@@ -1,0 +1,43 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#8C000000"
+    tools:context="com.kanditag.kanditag.Kandi">
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/kandiViewPager"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"/>
+
+    <Button
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:text="Following"
+        android:textColor="@color/white"
+        android:background="@color/gold"
+        android:id="@+id/following"
+        />
+    <Button
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="Followers"
+        android:textColor="@color/white"
+        android:background="@color/gold"
+        android:id="@+id/followers"
+        />
+
+    <Button
+        android:layout_width="120dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="Feed"
+        android:background="@color/gold"
+        android:textColor="@color/white"
+        android:id="@+id/feed"
+        />
+
+</RelativeLayout>

@@ -1,0 +1,79 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:background="@color/parent_charcoal"
+    android:id="@+id/main_relativeLayout"
+    tools:context=".MainActivity">
+
+    <!--
+
+    <com.dlazaro66.qrcodereaderview.QRCodeReaderView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/mainPreview"/>
+
+        -->
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
+
+    <FrameLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/main_frameLayoutPreview"/>
+
+    <com.kanditag.kanditag.VerticalViewPager
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/main_viewPager"/>
+
+    <ImageView
+        android:id="@+id/main_CameraButton"
+        android:layout_width="88dp"
+        android:layout_height="88dp"
+        android:src="@drawable/camera_button"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"/>
+
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/main_takenPictureContainer"/>
+
+    <ImageView
+        android:src="@drawable/do_not_save"
+        android:id="@+id/main_closePictureDisplay"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="35dp"
+        android:layout_marginLeft="15dp"/>
+
+    <ImageView
+        android:src="@drawable/save"
+        android:id="@+id/main_saveAndClosePictureDisplay"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="35dp"
+        android:layout_marginRight="15dp"
+        android:layout_alignParentRight="true"/>
+
+    <ImageView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/main_shadedBackground"
+        android:background="@color/transparent_gray"/>
+
+    <FrameLayout
+        android:id="@+id/main_miniProfileViewFrameLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"/>
+
+
+</RelativeLayout>

@@ -1,0 +1,66 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.kanditag.kanditag.QRScanner">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/text"/>
+
+
+    <view
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        class="com.dlazaro66.qrcodereaderview.QRCodeReaderView"
+        android:id="@+id/decoder"
+        android:orientation="vertical"
+        android:layout_centerHorizontal="true" />
+
+    <ImageView
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="8dp"/>
+
+    <Button
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="8dp"
+        android:layout_alignParentBottom="true"
+        android:id="@+id/toSettings"
+        android:background="@android:color/transparent"/>
+
+    <ImageView
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:src="@drawable/profile_drawer_bar"/>
+
+    <Button
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:id="@+id/profileDrawer"
+        android:background="@android:color/transparent"/>
+
+    <ImageView
+        android:layout_width="47dp"
+        android:layout_height="47dp"
+        android:src="@drawable/to_message"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="7dp"
+        android:layout_marginRight="8dp"/>
+
+    <Button
+        android:id="@+id/toMessages"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="1.5dp"
+        android:background="@android:color/transparent"/>
+
+</RelativeLayout>

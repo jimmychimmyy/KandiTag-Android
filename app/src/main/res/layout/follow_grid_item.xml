@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/followGridItem_NAME"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:textColor="@color/transparent"/>
+
+    <TextView
+        android:id="@+id/followGridItem_KTID"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:textColor="@color/transparent"/>
+
+    <TextView
+        android:id="@+id/followGridItem_FBID"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:textColor="@color/transparent"/>
+
+    <ImageView
+        android:id="@+id/followGridItem_PICTURE"
+        android:layout_width="110dp"
+        android:layout_height="110dp" />
+
+</RelativeLayout>
