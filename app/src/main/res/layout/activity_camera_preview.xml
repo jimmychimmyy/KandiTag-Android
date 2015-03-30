@@ -17,4 +17,13 @@
 
        -->
 
+    <ImageView
+        android:id="@+id/Preview_CameraButton"
+        android:layout_width="88dp"
+        android:layout_height="88dp"
+        android:src="@drawable/camera_button"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"/>
+
 </RelativeLayout>

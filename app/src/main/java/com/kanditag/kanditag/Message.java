@@ -164,7 +164,7 @@ public class Message extends Activity {
 
     private ArrayList<KtUserObjectParcelable> usersForNewMessageList = new ArrayList<>();
     //this returns a list of all users you are connected to
-    GetAllUsersFromLocalDbAsyncTask getAllUsersFromLocalDbAsyncTask = new GetAllUsersFromLocalDbAsyncTask(Message.this, new GetAllUsersFromLocalDbAsyncResponse() {
+    GetAllUsersFromLocalDbAsyncTask getAllUsersFromLocalDbAsyncTask = new GetAllUsersFromLocalDbAsyncTask(Message.this, new ReturnKtUserObjectParcelableArrayListAsyncResponse() {
         @Override
         public void processFinish(ArrayList<KtUserObjectParcelable> output) {
             System.out.println("Message.getAllUsersFromLocalDbAsyncTask.processFinish.output.size() = " + output.size());

@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import com.facebook.Session;
@@ -50,6 +51,8 @@ import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
 import android.content.Intent;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
@@ -66,6 +69,12 @@ import org.apache.http.protocol.HTTP;
 
 
 public class MainActivity extends FragmentActivity {
+
+    //Sidebar Buttons
+    private ImageView toProfileSidebar, toMessageSidebar, toFeedSidebar, toTicketSidebar, toSettingSidebar;
+    //Sidebar Buttons End
+
+    private ViewPager myViewPager;
 
     //Gcm variables
     public static final String EXTRA_MESSAGE = "message";
@@ -120,8 +129,8 @@ public class MainActivity extends FragmentActivity {
     private static final String DATABASE_NAME = "myData";
     private static final String CREATE_TABLE_IF_NOT = "CREATE TABLE IF NOT EXISTS ";
 
-    VerticalViewPager mainViewPager;
-    MyPageAdapter pageAdapter;
+    //VerticalViewPager mainViewPager;
+    MyPageAdapter myPageAdapter;
 
     Camera myCamera;
     Preview preview;
@@ -242,10 +251,47 @@ public class MainActivity extends FragmentActivity {
 
         main_rootView = (RelativeLayout) findViewById(R.id.main_relativeLayout);
 
-        mainViewPager = (VerticalViewPager) findViewById(R.id.main_viewPager);
+        toProfileSidebar = (ImageView) findViewById(R.id.Main_toProfileSideBar);
+        toSettingSidebar = (ImageView) findViewById(R.id.Main_toSettingsSideBar);
+        toFeedSidebar = (ImageView) findViewById(R.id.Main_toFeedSideBar);
+        toMessageSidebar = (ImageView) findViewById(R.id.Main_toMessageSideBar);
+        toTicketSidebar = (ImageView) findViewById(R.id.Main_toTicketSideBar);
+
+        toProfileSidebar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println("clicked on toProfileSidebar");
+                FragmentManager fragmentManager = getFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
+                ProfileFragment profileFragment = new ProfileFragment();
+                fragmentTransaction.add(R.id.main_miniProfileViewFrameLayout, profileFragment);
+                fragmentTransaction.commit();
+            }
+        });
+
+        toMessageSidebar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FragmentManager fragmentManager = getFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
+                MessageFragment messageFragment = new MessageFragment();
+                fragmentTransaction.add(R.id.main_miniProfileViewFrameLayout, messageFragment);
+                fragmentTransaction.commit();
+                //Intent toMessage = new Intent(MainActivity.this, Message.class);
+                //startActivity(toMessage);
+            }
+        });
+
+        //mainViewPager = (VerticalViewPager) findViewById(R.id.main_viewPager);
         List<Fragment> fragments = getFragments();
-        pageAdapter = new MyPageAdapter(getSupportFragmentManager(), fragments);
-        mainViewPager.setAdapter(pageAdapter);
+        myPageAdapter = new MyPageAdapter(getSupportFragmentManager(), fragments);
+        //mainViewPager.setAdapter(myPageAdapter);
+
+        myViewPager = (ViewPager) findViewById(R.id.Main_ViewPager);
+        //myViewPager.setAdapter(myPageAdapter);
+        //myViewPager.setCurrentItem(1);
 
         myCamera = getCameraInstance();
         myPreview = new Preview(this, myCamera);
@@ -280,6 +326,42 @@ public class MainActivity extends FragmentActivity {
         saveAndClosePictureDisplay = (ImageView) findViewById(R.id.main_saveAndClosePictureDisplay);
         saveAndClosePictureDisplay.setVisibility(View.GONE);
 
+/**
+        myViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                System.out.println("Main.myViewPager.onPageScrolled.offSet= " + positionOffset);
+                System.out.println("Main.myViewPager.onPageScrolled.position=" + position);
+                System.out.println("Main.myViewPager.onPageScrolled.positionOffsetPixels= " + positionOffsetPixels);
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                switch (position) {
+                    case 0: //System.out.println("0");
+                        takePicture.setVisibility(View.GONE);
+                        break;
+                    case 1: //System.out.println("1");
+                        takePicture.setVisibility(View.VISIBLE);
+                        break;
+                    case 2:
+                        takePicture.setVisibility(View.GONE);
+                        break;
+                    case 3:
+                        break;
+
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        **/
+        /**
+
         mainViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -313,6 +395,8 @@ public class MainActivity extends FragmentActivity {
 
             }
         });
+
+         **/
 
         //TODO make sure this check works
         boolean openedBefore = sharedPreferences.getBoolean(OPENED_BEFORE, false);
@@ -465,7 +549,14 @@ public class MainActivity extends FragmentActivity {
 
     byte[] convertPNG(byte[] data) {
         Bitmap original = BitmapFactory.decodeByteArray(data, 0, data.length);
-        Bitmap resize = Bitmap.createScaledBitmap(original, PHOTO_WIDTH, PHOTO_HEIGHT, true);
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int height = displayMetrics.heightPixels;
+        int width = displayMetrics.widthPixels;
+
+        Bitmap resize = Bitmap.createScaledBitmap(original, width, height, true);
+        //Bitmap resize = Bitmap.createScaledBitmap(original, PHOTO_WIDTH, PHOTO_HEIGHT, true);
 
         ByteArrayOutputStream blob = new ByteArrayOutputStream();
         resize.compress(Bitmap.CompressFormat.PNG, 100, blob);
@@ -477,8 +568,11 @@ public class MainActivity extends FragmentActivity {
 
     private List<Fragment> getFragments() {
         List<Fragment> fList = new ArrayList<Fragment>();
+        fList.add(KandiFragment.newInstance());
         fList.add(CameraPreview.instantiate(this, CameraPreview.class.getName()));
-        fList.add(Menu.instantiate(this, Menu.class.getName()));
+        //fList.add(MessageFragment.newInstance());
+        fList.add(NewMessageFragment.newInstance());
+        //fList.add(Menu.instantiate(this, Menu.class.getName()));
         return fList;
     }
 

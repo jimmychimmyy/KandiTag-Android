@@ -70,6 +70,7 @@ public class Kandi extends FragmentActivity {
 
     private TextView kandiTagTitle;
 
+    /**
     private List<Fragment> getFragments() {
         List<Fragment> fList = new ArrayList<Fragment>();
         fList.add(new KandiFragment(KandiTagConstants.FRAGMENT_FOLLOWING));
@@ -77,6 +78,8 @@ public class Kandi extends FragmentActivity {
         fList.add(new KandiFragment(KandiTagConstants.FRAGMENT_FEED));
         return fList;
     }
+
+     **/
 
 
 

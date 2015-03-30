@@ -70,8 +70,7 @@ public class MessageDialogue extends Activity {
 
     private Button messageUISendButton;
 
-    private com.github.nkzawa.socketio.client.Socket socket;
-
+    private static com.github.nkzawa.socketio.client.Socket socket;
 
     private ArrayList<ConversationListItem> messagingUIListViewArrayItems = new ArrayList<>();
 
@@ -189,7 +188,7 @@ public class MessageDialogue extends Activity {
         MY_USER_NAME = sharedPreferences.getString(Name, "");
         MY_FB_ID = sharedPreferences.getString(FbId, "");
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(newMessageBroadcastReceiver, new IntentFilter("new_message"));
+        //LocalBroadcastManager.getInstance(this).registerReceiver(newMessageBroadcastReceiver, new IntentFilter("new_message"));
 
         Bundle bundleParams = getIntent().getExtras();
         //kt_id = bundleParams.getString("kt_id");
@@ -198,7 +197,6 @@ public class MessageDialogue extends Activity {
 
         getSingleUserForMessageAsyncTask.execute(fb_id);
 
-        connectSocket();
         messagingUIListView = (ListView) findViewById(R.id.MessageDialogue_ListView);
         messagingUIListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         //messagingUIListView.setOnScrollListener(messageWithUserScrollListener);
@@ -258,8 +256,7 @@ public class MessageDialogue extends Activity {
                     Animation anim = AnimationUtils.loadAnimation(MessageDialogue.this, R.anim.left_slide_out);
                     messageUISendButton.startAnimation(anim);
                     //Sending the message
-                    Message message = new Message();
-                    message.newMessage(messageToSend, fb_id, MY_FB_ID, user_name, MY_USER_NAME);
+                    newMessage(messageToSend, fb_id, MY_FB_ID, user_name, MY_USER_NAME);
 
                     if (messageToSend != null) {
                         messageUIEditText.setText("");
@@ -301,13 +298,47 @@ public class MessageDialogue extends Activity {
 
     private void connectSocket() {
         try {
-            socket = IO.socket(HOST);
-        } catch (URISyntaxException UriEx) {
-            UriEx.printStackTrace();
+            IO.Options options = new IO.Options();
+            options.forceNew = true;
+            socket = IO.socket(HOST, options);
+            socket.on("privatemessage", onNewMessage);
+            socket.on(com.github.nkzawa.socketio.client.Socket.EVENT_CONNECT, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+
+                }
+            }).on(com.github.nkzawa.socketio.client.Socket.EVENT_DISCONNECT, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    System.out.println("socket disconnected");
+                }
+            }).on("sign_in", new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    String message = (String) args[0];
+                    System.out.println(message);
+                }
+            });
+        } catch (URISyntaxException use) {
+            use.printStackTrace();
         }
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Log.i(TAG, "connecting socket");
+                socket.connect();
+                socket.emit("sign_in", MY_FB_ID, MY_KT_ID);
+            }
+        }).start();
     }
 
-    public Emitter.Listener onNewMessage = new Emitter.Listener() {
+    private void newMessage(String message, String toFb_id, String myFb_id, String toName, String fromName) {
+        System.out.println("MessageDialogue.class.newMessage");
+        socket.emit("privatemessage", message, toFb_id, myFb_id, toName, fromName);
+    }
+
+    private Emitter.Listener onNewMessage = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
             runOnUiThread(new Runnable() {
@@ -343,6 +374,20 @@ public class MessageDialogue extends Activity {
                             System.out.println("does not exist");
                             myDatabase.saveMessage(ktMessageObject);
 
+                            ConversationListItem conversationListItem = new ConversationListItem();
+
+                            conversationListItem.setMessage(ktMessageObject.getMessage());
+                            conversationListItem.setSenderID(ktMessageObject.getFrom_id());
+                            conversationListItem.setSenderName(ktMessageObject.getFrom_name());
+                            conversationListItem.setRecipientID(ktMessageObject.getTo_id());
+                            conversationListItem.setRecipientName(ktMessageObject.getTo_name());
+                            conversationListItem.setTime(ktMessageObject.getTime());
+
+                            messagingUIListViewArrayItems.add(conversationListItem);
+                            conversationListAdapter.notifyDataSetChanged();
+                            messagingUIListView.invalidate();
+
+                            /**
                             Intent new_message_intent = new Intent("new_message");
                             new_message_intent.putExtra("message", ktMessageObject.getMessage());
                             new_message_intent.putExtra("from_id", ktMessageObject.getFrom_id());
@@ -355,6 +400,7 @@ public class MessageDialogue extends Activity {
                             //TODO cannot do this because the objects inside invalidate..method are null without context
                             //MessageWithUser messageWithUser = new MessageWithUser();
                             //messageWithUser.invalidateMessageUIListView();
+                             **/
 
                         }
                     }
@@ -387,12 +433,15 @@ public class MessageDialogue extends Activity {
 
     @Override
     public void onDestroy() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(newMessageBroadcastReceiver);
+        socket.disconnect();
+        socket.close();
+        //LocalBroadcastManager.getInstance(this).unregisterReceiver(newMessageBroadcastReceiver);
         super.onDestroy();
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        socket.disconnect();
     }
 }

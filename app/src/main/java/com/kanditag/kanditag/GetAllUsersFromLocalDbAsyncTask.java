@@ -13,7 +13,7 @@ public class GetAllUsersFromLocalDbAsyncTask extends AsyncTask<Void, Void, Array
 
     private Context context;
 
-    public GetAllUsersFromLocalDbAsyncResponse delegate = null;
+    public ReturnKtUserObjectParcelableArrayListAsyncResponse delegate = null;
 
     private KtDatabase myDatabase;
 
@@ -28,7 +28,7 @@ public class GetAllUsersFromLocalDbAsyncTask extends AsyncTask<Void, Void, Array
     public static final String UserId = "userIdKey";
 
 
-    public GetAllUsersFromLocalDbAsyncTask(Context context, GetAllUsersFromLocalDbAsyncResponse response) {
+    public GetAllUsersFromLocalDbAsyncTask(Context context, ReturnKtUserObjectParcelableArrayListAsyncResponse response) {
         this.context = context;
         this.delegate = response;
     }

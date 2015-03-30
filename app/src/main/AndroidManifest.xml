@@ -167,7 +167,11 @@
         <activity
             android:name=".GroupMessageDialogue"
             android:label="@string/title_activity_group_message_dialogue"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen">
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" >
+        </activity>
+        <activity
+            android:name=".ProfileFragment"
+            android:label="@string/title_activity_profile_fragment" >
         </activity>
     </application>
 

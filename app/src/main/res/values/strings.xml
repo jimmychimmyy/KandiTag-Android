@@ -37,5 +37,7 @@
     <string name="title_activity_mini_profile_view">MiniProfileView</string>
     <string name="title_activity_display_users_for_new_message">DisplayUsersForNewMessage</string>
     <string name="title_activity_group_message_dialogue">GroupMessageDialogue</string>
+    <string name="title_activity_kandi_group_list_item">KandiGroupListItem</string>
+    <string name="title_activity_profile_fragment">ProfileFragment</string>
 
 </resources>

@@ -1,5 +1,6 @@
 package com.kanditag.kanditag;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.support.v4.app.Fragment;
@@ -16,12 +17,14 @@ import java.util.ArrayList;
 public class KandiFragment extends Fragment {
 
     KtDatabase myDatabase;
-
     SharedPreferences sharedPreferences;
     public static final String MyPreferences = "MyPrefs";
     public static final String Name = "nameKey";
     public static final String FbId = "fbidKey";
     public static final String UserId = "userIdKey";
+    private String MY_KT_ID, MY_FB_ID, MY_USER_NAME;
+
+    private Context context;
 
     private int CONTAINER_TYPE;
 
@@ -32,8 +35,9 @@ public class KandiFragment extends Fragment {
     private ArrayList<FollowGridItem> followerArray, followingArray;
     private FollowGridViewAdapter followerGridViewAdapter, followingGridViewAdapter;
 
-    public KandiFragment(int type) {
-        this.CONTAINER_TYPE = type;
+    public static final KandiFragment newInstance() {
+        KandiFragment kandiFragment = new KandiFragment();
+        return kandiFragment;
     }
 
     @Override
@@ -45,17 +49,24 @@ public class KandiFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.activity_kandi_fragment, container, false);
 
+        this.context = getActivity();
+
+        myDatabase = new KtDatabase(context);
+        sharedPreferences = getActivity().getSharedPreferences(MyPreferences, Context.MODE_PRIVATE);
+        MY_KT_ID = sharedPreferences.getString(UserId, "");
+        MY_USER_NAME = sharedPreferences.getString(Name, "");
+        MY_FB_ID = sharedPreferences.getString(FbId, "");
+
         rootView.setId(CONTAINER_TYPE);
 
         kandiGridView = (GridView) rootView.findViewById(R.id.kandiGridView);
 
         kandiTitleTextView = (TextView) rootView.findViewById(R.id.kandiTagTextView);
         kandiTitleTextView.setTextSize(40);
-        Typeface typeface = Typeface.createFromAsset(getActivity().getAssets(),"fonts/rancho_regular.ttf");
+        Typeface typeface = Typeface.createFromAsset(getActivity().getAssets(),"fonts/stalemate_regular.ttf");
         kandiTitleTextView.setTypeface(typeface);
 
-        myDatabase = new KtDatabase(getActivity());
-
+        /**
         followerGridViewAdapter = new FollowGridViewAdapter(getActivity(), R.id.list_item, followerArray);
         followingGridViewAdapter = new FollowGridViewAdapter(getActivity(), R.id.list_item, followingArray);
 
@@ -73,6 +84,8 @@ public class KandiFragment extends Fragment {
             kandiGridView.setAdapter(null);
             kandiTitleTextView.setText("Feed");
         }
+
+         **/
 
         return rootView;
     }

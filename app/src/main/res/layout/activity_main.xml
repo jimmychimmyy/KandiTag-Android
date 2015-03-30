@@ -3,18 +3,9 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    android:background="@color/parent_charcoal"
+    android:background="@color/white"
     android:id="@+id/main_relativeLayout"
     tools:context=".MainActivity">
-
-    <!--
-
-    <com.dlazaro66.qrcodereaderview.QRCodeReaderView
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:id="@+id/mainPreview"/>
-
-        -->
 
     <LinearLayout
         android:orientation="vertical"
@@ -26,16 +17,77 @@
         android:layout_height="fill_parent"
         android:id="@+id/main_frameLayoutPreview"/>
 
+    <android.support.v4.view.ViewPager
+        android:id="@+id/Main_ViewPager"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"/>
+
+    <ImageView
+        android:id="@+id/Main_CameraButton"
+        android:layout_width="88dp"
+        android:layout_height="88dp"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/kanditag_camerabutton"/>
+
+    <ImageView
+        android:id="@+id/Main_toProfileSideBar"
+        android:layout_width="35dp"
+        android:layout_height="90dp"
+        android:background="@drawable/kanditagsidebar_profile"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"/>
+
+    <ImageView
+        android:id="@+id/Main_toMessageSideBar"
+        android:layout_width="28dp"
+        android:layout_height="75dp"
+        android:background="@drawable/kanditagsidebar_message"
+        android:layout_alignParentRight="true"
+        android:layout_above="@+id/Main_toProfileSideBar"
+        android:layout_marginTop="5dp"/>
+
+    <ImageView
+        android:id="@+id/Main_toFeedSideBar"
+        android:layout_width="28dp"
+        android:layout_height="75dp"
+        android:background="@drawable/kanditagsidebar_feed"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/Main_toProfileSideBar"
+        android:layout_marginBottom="5dp"/>
+
+    <ImageView
+        android:id="@+id/Main_toTicketSideBar"
+        android:layout_width="28dp"
+        android:layout_height="75dp"
+        android:background="@drawable/kanditagsidebar_empty"
+        android:layout_alignParentRight="true"
+        android:layout_above="@+id/Main_toMessageSideBar"/>
+
+    <ImageView
+        android:id="@+id/Main_toSettingsSideBar"
+        android:layout_width="28dp"
+        android:layout_height="75dp"
+        android:background="@drawable/kanditagsidebar_settings"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/Main_toFeedSideBar"/>
+
+    <!--
+
     <com.kanditag.kanditag.VerticalViewPager
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:id="@+id/main_viewPager"/>
 
+       -->
+
     <ImageView
         android:id="@+id/main_CameraButton"
         android:layout_width="88dp"
         android:layout_height="88dp"
-        android:src="@drawable/camera_button"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="20dp"/>

@@ -35,6 +35,7 @@ public class GetAllGroupsFromLocalDbAsyncTask extends AsyncTask<ArrayList<KandiO
             KandiGroupObjectParcelable kandiGroupObject = new KandiGroupObjectParcelable();
             kandiGroupObject.setQrCode(tempKandiObjectList.get(i).getQrCode());
             kandiGroupObject.setGroupName(tempKandiObjectList.get(i).getKandi_name());
+            kandiGroupObject.setListOfUsers(ktUserObjectArrayList);
             kandiGroupObjectArrayList.add(kandiGroupObject);
         }
 

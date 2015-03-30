@@ -47,6 +47,8 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
             myCamera.startPreview();
         } catch (IOException ioe) {
             ioe.printStackTrace();
+        } catch (NullPointerException nullEx) {
+            System.out.println(nullEx.toString());
         }
     }
 

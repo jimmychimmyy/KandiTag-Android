@@ -18,31 +18,31 @@
 
     <ImageView
         android:id="@+id/MessageListItem_profilePic"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:paddingLeft="5dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:paddingRight="10dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="11dp"/>
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="8dp"/>
 
     <TextView
+        android:text="NAME"
         android:id="@+id/MessageListItem_name"
-        android:layout_marginTop="21dp"
+        android:layout_marginTop="15dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/MessageListItem_profilePic"
-        android:paddingBottom="10dp"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="16dp" />
 
     <TextView
+        android:text="message"
         android:id="@+id/MessageListItem_description"
-        android:layout_marginTop="1dp"
+        android:layout_marginTop="0dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/MessageListItem_name"
         android:layout_toRightOf="@+id/MessageListItem_profilePic"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="14dp" />
 
 </RelativeLayout>

@@ -13,6 +13,7 @@
     <TextView
         android:paddingTop="26dp"
         android:paddingLeft="5dp"
+        android:textColor="@color/white"
         android:id="@+id/GroupsForNewMessageListItem_KandiName"
         android:layout_toRightOf="@+id/GroupsForNewMessageListItem_ImageView"
         android:layout_width="fill_parent"

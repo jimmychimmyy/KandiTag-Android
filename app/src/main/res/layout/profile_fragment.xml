@@ -1,0 +1,38 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/white"
+    tools:context="com.kanditag.kanditag.ProfileFragment">
+
+    <ImageView
+        android:id="@+id/ProfileFragment_ProfilePicture"
+        android:layout_width="fill_parent"
+        android:layout_height="200dp"
+        android:scaleType="centerCrop"
+        android:background="@drawable/modernsplash_goldongold_dark_640x1136"/>
+
+    <ImageView
+        android:id="@+id/ProfileFragment_CircularProfilePicture"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="60dp"/>
+
+    <TextView
+        android:id="@+id/ProfileFragment_Username"
+        android:text="NAME GOES HERE"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/ProfileFragment_ProfilePicture"/>
+
+    <ImageView
+        android:id="@+id/ProfileFragment_ExitButton"
+        android:layout_width="35dp"
+        android:layout_height="80dp"
+        android:background="@drawable/kanditagsidebar_profile"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="50dp"/>
+
+</RelativeLayout>

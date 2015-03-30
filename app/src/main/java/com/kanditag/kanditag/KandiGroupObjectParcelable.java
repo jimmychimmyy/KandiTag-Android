@@ -20,12 +20,21 @@ public class KandiGroupObjectParcelable implements Parcelable{
     }
 
     @Override
-    public void writeToParcel(Parcel parcel, int i) {
+    public void writeToParcel(Parcel parcel, int flags) {
         parcel.writeString(qrCode);
         parcel.writeString(groupName);
+        parcel.writeList(users);
     }
 
     public KandiGroupObjectParcelable() {}
+
+    public void setListOfUsers(ArrayList<KtUserObject> users) {
+        this.users = users;
+    }
+
+    public ArrayList<KtUserObject> getListOfUsers() {
+        return users;
+    }
 
     public KandiGroupObjectParcelable(String qrCode, String groupName) {
         this.qrCode = qrCode;
