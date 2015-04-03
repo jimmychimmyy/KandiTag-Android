@@ -18,6 +18,7 @@ import android.hardware.Camera;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
+import android.os.Handler;
 import android.os.StrictMode;
 
 import android.support.v4.app.FragmentActivity;
@@ -32,6 +33,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import android.util.DisplayMetrics;
@@ -232,6 +235,16 @@ public class MainActivity extends FragmentActivity {
 
     float initialX, initialY;
 
+    private Handler myHandler = new Handler();
+
+    private Runnable shrinkNavBarRunnable = new Runnable() {
+        @Override
+        public void run() {
+            NavigationBarFragment navFragment = (NavigationBarFragment) getSupportFragmentManager().findFragmentById(R.id.Main_NavigationBarFrameLayout);
+            navFragment.shrinkNavBar();
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -305,8 +318,9 @@ public class MainActivity extends FragmentActivity {
                             float deltaY = finalY - initialY;
                             System.out.println(deltaY);
                             if (deltaY > 500.0) {
-                                NavigationBarFragment navFragment = (NavigationBarFragment) getSupportFragmentManager().findFragmentById(R.id.Main_NavigationBarFrameLayout);
+                                final NavigationBarFragment navFragment = (NavigationBarFragment) getSupportFragmentManager().findFragmentById(R.id.Main_NavigationBarFrameLayout);
                                 navFragment.expandNavBar();
+                                myHandler.postDelayed(shrinkNavBarRunnable, 5000);
                             }
                         }
 
