@@ -3,10 +3,8 @@ package com.kanditag.kanditag;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -38,7 +36,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class Kandi extends FragmentActivity {
@@ -64,9 +61,9 @@ public class Kandi extends FragmentActivity {
 
     private String MY_KT_ID, MY_FB_ID, MY_USER_NAME;
 
-    private ArrayList<FollowGridItem> followerArray, followingArray;
+    private ArrayList<FriendsGridItem> followerArray, followingArray;
 
-    private FollowGridViewAdapter followerGridViewAdapter, followingGridViewAdapter;
+    private FriendsGridViewAdapter followerGridViewAdapter, followingGridViewAdapter;
 
     private TextView kandiTagTitle;
 

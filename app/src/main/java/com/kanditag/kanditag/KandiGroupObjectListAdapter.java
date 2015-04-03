@@ -43,7 +43,7 @@ public class KandiGroupObjectListAdapter extends ArrayAdapter<KandiGroupObjectPa
             holder = new Holder();
             LayoutInflater vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView1 = vi.inflate(R.layout.groups_for_new_message_list_item, null);
-            holder.kandi_name = (TextView) convertView1.findViewById(R.id.GroupsForNewMessageListItem_KandiName);
+            holder.kandi_name = (TextView) convertView1.findViewById(R.id.GroupsForNewMessageListItem_KandiGroupName);
             holder.qrCode = (TextView) convertView1.findViewById(R.id.GroupsForNewMessageListItem_qrCode);
             holder.groupImage = (ImageView) convertView1.findViewById(R.id.GroupsForNewMessageListItem_ImageView);
             convertView1.setTag(holder);
@@ -55,6 +55,10 @@ public class KandiGroupObjectListAdapter extends ArrayAdapter<KandiGroupObjectPa
 
         holder.kandi_name.setText(object.getGroupName());
         holder.qrCode.setText(object.getQrCode());
+        holder.groupImage.setImageResource(R.drawable.splash_screen_kt_logo_universal);
+
+        //change the layout of the xml file if there is under 5 kandi groups the user is in
+        //keep the kandigroup icon centered at all times if kandigroupcount > 5
 
         /**
 

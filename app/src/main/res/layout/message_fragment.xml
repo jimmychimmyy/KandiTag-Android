@@ -3,15 +3,24 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/white" >
+    android:background="@color/transparent_charcoal" >
 
+    <FrameLayout
+        android:id="@+id/MessageFragment_FrameLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="70dp"/>
+
+    <!--
     <ImageView
         android:id="@+id/MessageFragment_ExitButton"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginLeft="15dp"
-        android:background="@drawable/do_not_save"/>
+        android:layout_width="40dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/kanditagsidebar_rightexit"/>
+        -->
+
+    <!--
 
     <TextView
         android:text="Messages"
@@ -22,10 +31,11 @@
         android:layout_width="wrap_content"
         android:layout_height="65dp" />
 
+        -->
+
     <ListView
         android:id="@+id/MessageFragment_ListView"
-        android:layout_marginTop="3dp"
-        android:layout_below="@+id/MessageFragment_TitleTextView"
+        android:layout_marginTop="78dp"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"></ListView>
 

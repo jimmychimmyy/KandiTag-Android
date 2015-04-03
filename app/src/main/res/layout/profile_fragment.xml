@@ -21,11 +21,13 @@
 
     <TextView
         android:id="@+id/ProfileFragment_Username"
-        android:text="NAME GOES HERE"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:text="USERNAME"
+        android:gravity="center"
+        android:background="@drawable/username_holder"
+        android:layout_width="210dp"
+        android:layout_height="40dp"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/ProfileFragment_ProfilePicture"/>
+        android:layout_marginTop="175dp"/>
 
     <ImageView
         android:id="@+id/ProfileFragment_ExitButton"
@@ -34,5 +36,23 @@
         android:background="@drawable/kanditagsidebar_profile"
         android:layout_alignParentRight="true"
         android:layout_marginTop="50dp"/>
+
+    <GridView
+        android:id="@+id/ProfileFragment_KandiGroupsGridView"
+        android:layout_marginTop="8dp"
+        android:layout_below="@+id/ProfileFragment_ProfilePicture"
+        android:layout_width="fill_parent"
+        android:layout_height="100dp"
+        android:numColumns="5"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:verticalSpacing="1dp"/>
+
+    <GridView
+        android:id="@+id/ProfileFragment_GalleryGridView"
+        android:layout_below="@+id/ProfileFragment_KandiGroupsGridView"
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:numColumns="4"/>
 
 </RelativeLayout>

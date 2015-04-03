@@ -32,8 +32,8 @@ public class KandiFragment extends Fragment {
     GridView kandiGridView;
     TextView kandiTitleTextView;
 
-    private ArrayList<FollowGridItem> followerArray, followingArray;
-    private FollowGridViewAdapter followerGridViewAdapter, followingGridViewAdapter;
+    private ArrayList<FriendsGridItem> followerArray, followingArray;
+    private FriendsGridViewAdapter followerGridViewAdapter, followingGridViewAdapter;
 
     public static final KandiFragment newInstance() {
         KandiFragment kandiFragment = new KandiFragment();

@@ -16,5 +16,6 @@
     <color name="parent_charcoal">#252525</color>
     <color name="transparent">#0000</color>
     <color name="dark_charcoal_gray">#141414</color>
+    <color name="transparent_charcoal">#8C000000</color>
 
 </resources>

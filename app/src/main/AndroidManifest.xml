@@ -173,6 +173,14 @@
             android:name=".ProfileFragment"
             android:label="@string/title_activity_profile_fragment" >
         </activity>
+        <activity
+            android:name=".BannerFragment"
+            android:label="@string/title_activity_banner_fragment" >
+        </activity>
+        <activity
+            android:name=".NavigationBarFragment"
+            android:label="@string/title_activity_navigation_bar_fragment" >
+        </activity>
     </application>
 
 </manifest>

@@ -1,6 +1,5 @@
 package com.kanditag.kanditag;
 
-import android.app.Fragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -9,18 +8,20 @@ import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Shader;
+import android.graphics.Typeface;
 import android.os.StrictMode;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.net.URL;
+import java.util.ArrayList;
 
 
 public class ProfileFragment extends Fragment {
@@ -31,7 +32,13 @@ public class ProfileFragment extends Fragment {
     //Layout Vars
     private ImageView profileImageBackground, exitButton, circularProfileImage;
     private TextView usernameTextView;
+    private GridView galleryGridView, kandiGroupsGridView;
     //Layout Vars End
+
+    //Adapters for Grids
+    private KandiGroupObjectListAdapter kandiGroupAdapter;
+    private GalleryGridAdapter galleryGridAdapter;
+    //Adapters for Grids End
 
     private Bundle extras;
 
@@ -43,6 +50,7 @@ public class ProfileFragment extends Fragment {
     public static final String UserId = "userIdKey";
     public static final String NEW_MESSAGE = "NEW_MESSAGE";
 
+    private String kt_id, user_name, fb_id;
     private String MY_KT_ID, MY_FB_ID, MY_USER_NAME;
 
     public static final ProfileFragment newInstance() {
@@ -61,22 +69,87 @@ public class ProfileFragment extends Fragment {
         MY_USER_NAME = sharedPreferences.getString(Name, "");
         MY_FB_ID = sharedPreferences.getString(FbId, "");
 
+        kandiGroupsGridView = (GridView) rootView.findViewById(R.id.ProfileFragment_KandiGroupsGridView);
+        galleryGridView = (GridView) rootView.findViewById(R.id.ProfileFragment_GalleryGridView);
+
+        //galleryGridAdapter = new GalleryGridAdapter(getActivity(), R.layout.gallery_grid_item, "list");
+
         try {
             extras = getArguments();
+            user_name = extras.getString("user_name");
+            fb_id = extras.getString("user_fbid");
+            kt_id = extras.getString("user_ktid");
         } catch (NullPointerException nullEx) {}
+
+
+        final GetAllGroupsFromLocalDbAsyncTask getAllGroups = new GetAllGroupsFromLocalDbAsyncTask(getActivity(), new ReturnKandiGroupObjectParcelableArrayList() {
+            @Override
+            public void processFinish(final ArrayList<KandiGroupObjectParcelable> output) {
+                System.out.println("ProfileFragment.getAllGroups.output.size() = " + output.size());
+                if (output.size() < 5) {
+                    kandiGroupsGridView.setNumColumns(output.size());
+                }
+                kandiGroupAdapter = new KandiGroupObjectListAdapter(getActivity(), R.layout.kandi_group_list_item, output);
+                kandiGroupsGridView.setAdapter(kandiGroupAdapter);
+                kandiGroupsGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                        System.out.println("Kandi Group Selected: " + output.get(position).getGroupName());
+                    }
+                });
+                //getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.left_slide_in, R.anim.left_slide_out).remove(ProfileFragment.this).commit();
+                //getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.left_slide_in, R.anim.left_slide_out).add(R.id.main_miniProfileViewFrameLayout, profileFragment, output.get(position).getKt_id()).commit();
+            }
+        });
+
+        GetAllKandiFromLocalAsyncTask getAllKandi = new GetAllKandiFromLocalAsyncTask(getActivity(), new ReturnKandiObjectArrayAsyncResponse() {
+            @Override
+            public void processFinish(ArrayList<KandiObject> output) {
+                getAllGroups.execute(output);
+            }
+        });
+
 
         profileImageBackground = (ImageView) rootView.findViewById(R.id.ProfileFragment_ProfilePicture);
         circularProfileImage = (ImageView) rootView.findViewById(R.id.ProfileFragment_CircularProfilePicture);
         usernameTextView = (TextView) rootView.findViewById(R.id.ProfileFragment_Username);
+        //usernameTextView.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_START);
+        Typeface typeface = Typeface.createFromAsset(getActivity().getAssets(), "fonts/stalemate_regular.ttf");
+        usernameTextView.setTypeface(typeface);
+        usernameTextView.setTextSize(30);
+        usernameTextView.setTextColor(getResources().getColor(R.color.vegas_gold));
 
 
         if (extras == null) {
+            getAllKandi.execute();
             usernameTextView.setText(MY_USER_NAME);
             URL img_value = null;
             try {
                 StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
                 StrictMode.setThreadPolicy(policy);
                 img_value = new URL("https://graph.facebook.com/" + MY_FB_ID + "/picture?width=500&height=500");
+                Bitmap mIcon = BitmapFactory.decodeStream(img_value.openConnection().getInputStream());
+                profileImageBackground.setImageBitmap(mIcon);
+
+                //make bitmap circular
+                Bitmap circleBitmap = Bitmap.createBitmap(mIcon.getWidth(), mIcon.getHeight(), Bitmap.Config.ARGB_8888);
+                BitmapShader shader = new BitmapShader(mIcon, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+                Paint paint = new Paint();
+                paint.setShader(shader);
+                Canvas canvas = new Canvas(circleBitmap);
+                canvas.drawCircle(mIcon.getWidth()/2, mIcon.getHeight()/2, mIcon.getWidth()/2, paint);
+                circularProfileImage.setImageBitmap(circleBitmap);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } else {
+            usernameTextView.setText(user_name);
+            URL img_value = null;
+            try {
+                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                StrictMode.setThreadPolicy(policy);
+                img_value = new URL("https://graph.facebook.com/" + fb_id + "/picture?width=500&height=500");
                 Bitmap mIcon = BitmapFactory.decodeStream(img_value.openConnection().getInputStream());
                 profileImageBackground.setImageBitmap(mIcon);
 
@@ -99,10 +172,11 @@ public class ProfileFragment extends Fragment {
         exitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().getFragmentManager().beginTransaction().remove(ProfileFragment.this).commit();
+                getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.left_slide_in, R.anim.right_slide_out).remove(ProfileFragment.this).commit();
             }
         });
 
         return rootView;
     }
+
 }

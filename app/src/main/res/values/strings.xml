@@ -39,5 +39,7 @@
     <string name="title_activity_group_message_dialogue">GroupMessageDialogue</string>
     <string name="title_activity_kandi_group_list_item">KandiGroupListItem</string>
     <string name="title_activity_profile_fragment">ProfileFragment</string>
+    <string name="title_activity_banner_fragment">BannerFragment</string>
+    <string name="title_activity_navigation_bar_fragment">NavigationBarFragment</string>
 
 </resources>

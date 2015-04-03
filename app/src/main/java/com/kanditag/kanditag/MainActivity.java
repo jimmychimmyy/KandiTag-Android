@@ -1,8 +1,8 @@
 package com.kanditag.kanditag;
 
 
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+import android.content.ClipData;
+import android.content.ClipDescription;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -11,7 +11,9 @@ import android.content.res.Configuration;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Typeface;
 import android.hardware.Camera;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -19,6 +21,8 @@ import android.os.Bundle;
 import android.os.StrictMode;
 
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v4.app.Fragment;
 
@@ -51,10 +55,13 @@ import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
 import android.content.Intent;
+import android.view.DragEvent;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -70,9 +77,11 @@ import org.apache.http.protocol.HTTP;
 
 public class MainActivity extends FragmentActivity {
 
-    //Sidebar Buttons
-    private ImageView toProfileSidebar, toMessageSidebar, toFeedSidebar, toTicketSidebar, toSettingSidebar;
-    //Sidebar Buttons End
+    //bottom and top of the preview
+    private View previewTopBar, previewBottomBar;
+
+    //Main_NavBarFrameLayout
+    private FrameLayout main_navBarFrameLayout;
 
     private ViewPager myViewPager;
 
@@ -106,8 +115,8 @@ public class MainActivity extends FragmentActivity {
     ImageView backToCamera;
 
     private ImageView takenPictureContainer;
-    private ImageView closePictureDisplay;
-    private ImageView saveAndClosePictureDisplay;
+    private Button closePictureDisplay;
+    private Button saveAndClosePictureDisplay;
 
     private static final String TAG = "MainActivity:";
 
@@ -221,6 +230,8 @@ public class MainActivity extends FragmentActivity {
 
     }
 
+    float initialX, initialY;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -251,38 +262,16 @@ public class MainActivity extends FragmentActivity {
 
         main_rootView = (RelativeLayout) findViewById(R.id.main_relativeLayout);
 
-        toProfileSidebar = (ImageView) findViewById(R.id.Main_toProfileSideBar);
-        toSettingSidebar = (ImageView) findViewById(R.id.Main_toSettingsSideBar);
-        toFeedSidebar = (ImageView) findViewById(R.id.Main_toFeedSideBar);
-        toMessageSidebar = (ImageView) findViewById(R.id.Main_toMessageSideBar);
-        toTicketSidebar = (ImageView) findViewById(R.id.Main_toTicketSideBar);
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.anim.abc_slide_in_top, R.anim.abc_slide_out_top);
+        fragmentTransaction.add(R.id.Main_NavigationBarFrameLayout, NavigationBarFragment.newInstance());
+        fragmentTransaction.commit();
 
-        toProfileSidebar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                System.out.println("clicked on toProfileSidebar");
-                FragmentManager fragmentManager = getFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
-                ProfileFragment profileFragment = new ProfileFragment();
-                fragmentTransaction.add(R.id.main_miniProfileViewFrameLayout, profileFragment);
-                fragmentTransaction.commit();
-            }
-        });
-
-        toMessageSidebar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FragmentManager fragmentManager = getFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out);
-                MessageFragment messageFragment = new MessageFragment();
-                fragmentTransaction.add(R.id.main_miniProfileViewFrameLayout, messageFragment);
-                fragmentTransaction.commit();
-                //Intent toMessage = new Intent(MainActivity.this, Message.class);
-                //startActivity(toMessage);
-            }
-        });
+        previewTopBar = findViewById(R.id.Main_PreviewTop);
+        previewBottomBar = findViewById(R.id.Main_PreviewBottom);
+        previewTopBar.setVisibility(View.GONE);
+        previewBottomBar.setVisibility(View.GONE);
 
         //mainViewPager = (VerticalViewPager) findViewById(R.id.main_viewPager);
         List<Fragment> fragments = getFragments();
@@ -290,8 +279,95 @@ public class MainActivity extends FragmentActivity {
         //mainViewPager.setAdapter(myPageAdapter);
 
         myViewPager = (ViewPager) findViewById(R.id.Main_ViewPager);
-        //myViewPager.setAdapter(myPageAdapter);
-        //myViewPager.setCurrentItem(1);
+        myViewPager.setAdapter(myPageAdapter);
+        myViewPager.setCurrentItem(1);
+
+        myViewPager.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                //System.out.println(event.toString());
+
+                int action = event.getActionMasked();
+
+                switch (action) {
+                    case MotionEvent.ACTION_DOWN:
+                        initialX = event.getX();
+                        initialY = event.getY();
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        float finalX = event.getX();
+                        float finalY = event.getY();
+
+                        if (initialY < finalY) {
+                            System.out.println("swiped down");
+                            float deltaY = finalY - initialY;
+                            System.out.println(deltaY);
+                            if (deltaY > 500.0) {
+                                NavigationBarFragment navFragment = (NavigationBarFragment) getSupportFragmentManager().findFragmentById(R.id.Main_NavigationBarFrameLayout);
+                                navFragment.expandNavBar();
+                            }
+                        }
+
+                        if (initialY > finalY) {
+                            System.out.println("swiped up");
+                            float deltaY = initialY - finalY;
+                            System.out.println(deltaY);
+                            if (deltaY > 500.0) {
+                                NavigationBarFragment navFragment = (NavigationBarFragment) getSupportFragmentManager().findFragmentById(R.id.Main_NavigationBarFrameLayout);
+                                navFragment.shrinkNavBar();
+                            }
+                        }
+
+                        break;
+                    case MotionEvent.ACTION_CANCEL:
+                        break;
+                    case MotionEvent.ACTION_OUTSIDE:
+                        break;
+                }
+
+                return false;
+            }
+        });
+
+        myViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+                NavigationBarFragment navFragment = (NavigationBarFragment) getSupportFragmentManager().findFragmentById(R.id.Main_NavigationBarFrameLayout);
+
+                switch (position) {
+                    case 0:
+                        System.out.println("0");
+                        navFragment.removeHighlight();
+                        navFragment.highlightFeedNavBar();
+                        break;
+                    case 1:
+                        System.out.println("1");
+                        navFragment.removeHighlight();
+                        navFragment.highlightMainNavBar();
+                        break;
+                    case 2:
+                        System.out.println("2");
+                        navFragment.removeHighlight();
+                        navFragment.highlightMessageNavBar();
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
 
         myCamera = getCameraInstance();
         myPreview = new Preview(this, myCamera);
@@ -311,19 +387,29 @@ public class MainActivity extends FragmentActivity {
         takenPictureContainer = (ImageView) findViewById(R.id.main_takenPictureContainer);
         takenPictureContainer.setVisibility(View.GONE);
 
-        closePictureDisplay = (ImageView) findViewById(R.id.main_closePictureDisplay);
+        Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/stalemate_regular.ttf");
+
+        closePictureDisplay = (Button) findViewById(R.id.main_closePictureDisplay);
         closePictureDisplay.setVisibility(View.GONE);
+        closePictureDisplay.setText("Nope");
+        closePictureDisplay.setTextColor(getResources().getColor(R.color.vegas_gold));
+        closePictureDisplay.setTypeface(typeface);
         closePictureDisplay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 takenPictureContainer.setVisibility(View.GONE);
                 closePictureDisplay.setVisibility(View.GONE);
+                previewBottomBar.setVisibility(View.GONE);
+                previewTopBar.setVisibility(View.GONE);
                 saveAndClosePictureDisplay.setVisibility(View.GONE);
                 myPreview.myCamera.startPreview();
             }
         });
 
-        saveAndClosePictureDisplay = (ImageView) findViewById(R.id.main_saveAndClosePictureDisplay);
+        saveAndClosePictureDisplay = (Button) findViewById(R.id.main_saveAndClosePictureDisplay);
+        saveAndClosePictureDisplay.setText("Yes");
+        saveAndClosePictureDisplay.setTextColor(getResources().getColor(R.color.vegas_gold));
+        saveAndClosePictureDisplay.setTypeface(typeface);
         saveAndClosePictureDisplay.setVisibility(View.GONE);
 
 /**
@@ -515,6 +601,10 @@ public class MainActivity extends FragmentActivity {
                     takenPictureContainer.setVisibility(View.VISIBLE);
                     takenPictureContainer.setImageBitmap(bitmap);
                     closePictureDisplay.setVisibility(View.VISIBLE);
+
+                    previewTopBar.setVisibility(View.VISIBLE);
+                    previewBottomBar.setVisibility(View.VISIBLE);
+
                     saveAndClosePictureDisplay.setVisibility(View.VISIBLE);
                     saveAndClosePictureDisplay.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -522,8 +612,13 @@ public class MainActivity extends FragmentActivity {
                             SaveImage save = new SaveImage(convertPNG(data));
                             save.execute();
                             System.out.println("image has been saved into database");
+
                             takenPictureContainer.setVisibility(View.GONE);
                             closePictureDisplay.setVisibility(View.GONE);
+
+                            previewTopBar.setVisibility(View.GONE);
+                            previewBottomBar.setVisibility(View.GONE);
+
                             saveAndClosePictureDisplay.setVisibility(View.GONE);
                             myPreview.myCamera.startPreview();
                         }
@@ -541,10 +636,10 @@ public class MainActivity extends FragmentActivity {
     };
 
     private void showMiniProfileView(ArrayList<MiniProfileViewItem> list) {
-        FragmentManager fragmentManager = getFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.main_miniProfileViewFrameLayout, MiniProfileView.newInstance(list));
-        fragmentTransaction.commit();
+        //FragmentManager fragmentManager = getFragmentManager();
+        //FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        //fragmentTransaction.add(R.id.main_miniProfileViewFrameLayout, MiniProfileView.newInstance(list));
+        //fragmentTransaction.commit();
     }
 
     byte[] convertPNG(byte[] data) {
@@ -566,13 +661,26 @@ public class MainActivity extends FragmentActivity {
         return blob.toByteArray();
     }
 
+    public void setPageOnFeed() {
+        myViewPager.setCurrentItem(0);
+    }
+
+    public void setPageOnMain() {
+        myViewPager.setCurrentItem(1);
+    }
+
+    public void setPageOnMessage() {
+        myViewPager.setCurrentItem(2);
+    }
+
+
     private List<Fragment> getFragments() {
         List<Fragment> fList = new ArrayList<Fragment>();
         fList.add(KandiFragment.newInstance());
-        fList.add(CameraPreview.instantiate(this, CameraPreview.class.getName()));
-        //fList.add(MessageFragment.newInstance());
-        fList.add(NewMessageFragment.newInstance());
-        //fList.add(Menu.instantiate(this, Menu.class.getName()));
+        //fList.add(CameraPreview.instantiate(this, CameraPreview.class.getName()));
+        fList.add(CameraPreview.newInstance());
+        fList.add(MessageFragment.newInstance());
+        //fList.add(NewMessageFragment.newInstance());
         return fList;
     }
 

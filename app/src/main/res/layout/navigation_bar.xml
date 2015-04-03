@@ -1,0 +1,62 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.kanditag.kanditag.NavigationBarFragment">
+
+    <View
+        android:id="@+id/NavBar_NavBar"
+        android:layout_width="fill_parent"
+        android:layout_height="12dp"
+        android:background="@color/transparent_charcoal"/>
+
+    <Button
+        android:text="tickets"
+        android:textSize="8dp"
+        android:textColor="@color/yellow"
+        android:id="@+id/NavBar_toTickets"
+        android:background="@color/transparent_charcoal"
+        android:layout_width="73dp"
+        android:layout_height="12dp" />
+
+    <Button
+        android:text="feed"
+        android:textSize="8dp"
+        android:textColor="@color/yellow"
+        android:id="@+id/NavBar_toFeed"
+        android:layout_marginLeft="74dp"
+        android:background="@color/transparent_charcoal"
+        android:layout_width="73dp"
+        android:layout_height="12dp" />
+
+    <Button
+        android:text="groups"
+        android:textSize="8dp"
+        android:textColor="@color/yellow"
+        android:id="@+id/NavBar_toGroupMessage"
+        android:background="@color/transparent_charcoal"
+        android:layout_alignParentRight="true"
+        android:layout_width="73dp"
+        android:layout_height="12dp" />
+
+    <Button
+        android:text="message"
+        android:textSize="8dp"
+        android:textColor="@color/yellow"
+        android:id="@+id/NavBar_toMessage"
+        android:background="@color/transparent_charcoal"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="74dp"
+        android:layout_width="73dp"
+        android:layout_height="12dp" />
+
+    <Button
+        android:text="camera"
+        android:textSize="8dp"
+        android:textColor="@color/black"
+        android:id="@+id/NavBar_toMain"
+        android:layout_centerHorizontal="true"
+        android:background="@color/yellow"
+        android:layout_width="64dp"
+        android:layout_height="12dp" />
+
+</RelativeLayout>

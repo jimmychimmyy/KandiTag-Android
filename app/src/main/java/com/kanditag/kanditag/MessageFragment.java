@@ -1,12 +1,16 @@
 package com.kanditag.kanditag;
 
+import android.app.Activity;
 import android.graphics.Color;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,6 +65,17 @@ public class MessageFragment extends Fragment {
         return messageFragment;
     }
 
+    //Fragment Manager Var
+    private FragmentActivity myFragmentContext;
+
+    //this is called when the fragment is first attached to an activity
+    @Override
+    public void onAttach(Activity activity) {
+        myFragmentContext = (FragmentActivity) activity;
+        super.onAttach(activity);
+    }
+    //Fragment Manager Var End
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.message_fragment, container, false);
@@ -75,20 +90,37 @@ public class MessageFragment extends Fragment {
 
         myListView = (ListView) rootView.findViewById(R.id.MessageFragment_ListView);
 
+        /**
         myTitle = (TextView) rootView.findViewById(R.id.MessageFragment_TitleTextView);
-        myTitle.setText("Messages");
+        myTitle.setText("");
         myTitle.setTextSize(45);
         myTitle.setTextColor(Color.BLACK);
         Typeface typeface = Typeface.createFromAsset(getActivity().getAssets(),"fonts/stalemate_regular.ttf");
         myTitle.setTypeface(typeface);
+         **/
 
+        //TODO show the message banner in a cleaner way
+        /**
+        FragmentManager fragmentManager = myFragmentContext.getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.anim.abc_slide_in_top, R.anim.abc_slide_out_top);
+        BannerFragment bannerFragment = new BannerFragment();
+        Bundle extras = new Bundle();
+        extras.putString("title", "Messages");
+        bannerFragment.setArguments(extras);
+        fragmentTransaction.add(R.id.MessageFragment_FrameLayout, bannerFragment);
+        fragmentTransaction.commit();
+         **/
+
+        /**
         exitButton = (ImageView) rootView.findViewById(R.id.MessageFragment_ExitButton);
         exitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getActivity().getFragmentManager().beginTransaction().setCustomAnimations(android.R.animator.fade_in, android.R.animator.fade_out).remove(MessageFragment.this).commit();
+                getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.left_slide_in, R.anim.right_slide_out).remove(MessageFragment.this).commit();
             }
         });
+         **/
 
         displayLatestMessagesAsyncTask = new DisplayLatestMessagesAsyncTask(this.context, new ReturnMessageListItemArrayAsyncResponse() {
             @Override
@@ -107,6 +139,7 @@ public class MessageFragment extends Fragment {
                         bundle.putString("fb_id", output.get(position).getSender());
                         openMessageWithUser.putExtras(bundle);
                         startActivity(openMessageWithUser);
+                        getActivity().overridePendingTransition(R.anim.right_slide_in, R.anim.left_slide_out);
                         //setInvisibleMessageTitleMessageButton();
                     }
                 });

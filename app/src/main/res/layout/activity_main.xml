@@ -22,6 +22,12 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"/>
 
+    <FrameLayout
+        android:id="@+id/Main_NavigationBarFrameLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="80dp"/>
+
+
     <ImageView
         android:id="@+id/Main_CameraButton"
         android:layout_width="88dp"
@@ -30,6 +36,8 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="20dp"
         android:background="@drawable/kanditag_camerabutton"/>
+
+    <!--
 
     <ImageView
         android:id="@+id/Main_toProfileSideBar"
@@ -75,6 +83,8 @@
         android:layout_alignParentRight="true"
         android:layout_below="@+id/Main_toFeedSideBar"/>
 
+        -->
+
     <!--
 
     <com.kanditag.kanditag.VerticalViewPager
@@ -92,28 +102,43 @@
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="20dp"/>
 
+    <View
+        android:id="@+id/Main_PreviewTop"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:background="@color/black"/>
+
+    <View
+        android:id="@+id/Main_PreviewBottom"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:background="@color/black"
+        android:layout_alignParentBottom="true"/>
+
     <ImageView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:id="@+id/main_takenPictureContainer"/>
 
-    <ImageView
-        android:src="@drawable/do_not_save"
+    <Button
+        android:text="discard"
+        android:textColor="@color/yellow"
+        android:background="@color/black"
         android:id="@+id/main_closePictureDisplay"
-        android:layout_width="50dp"
+        android:layout_width="180dp"
         android:layout_height="50dp"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="35dp"
-        android:layout_marginLeft="15dp"/>
+        android:layout_marginBottom="5dp"
+        android:layout_alignParentBottom="true"/>
 
-    <ImageView
-        android:src="@drawable/save"
+    <Button
+        android:text="save"
+        android:textColor="@color/yellow"
+        android:background="@color/black"
         android:id="@+id/main_saveAndClosePictureDisplay"
-        android:layout_width="50dp"
+        android:layout_width="180dp"
         android:layout_height="50dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="35dp"
-        android:layout_marginRight="15dp"
+        android:layout_marginBottom="5dp"
         android:layout_alignParentRight="true"/>
 
     <ImageView
@@ -124,6 +149,11 @@
 
     <FrameLayout
         android:id="@+id/main_miniProfileViewFrameLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"/>
+
+    <FrameLayout
+        android:id="@+id/main_miniProfileViewFrameLayout2"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"/>
 

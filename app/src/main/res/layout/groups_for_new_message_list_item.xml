@@ -5,8 +5,10 @@
 
     <ImageView
         android:id="@+id/GroupsForNewMessageListItem_ImageView"
+        android:background="@drawable/splash_screen_kt_logo_universal"
         android:paddingTop="10dp"
         android:paddingBottom="10dp"
+        android:layout_marginLeft="5dp"
         android:layout_width="70dp"
         android:layout_height="70dp" />
 
@@ -17,6 +19,14 @@
         android:layout_toRightOf="@+id/GroupsForNewMessageListItem_ImageView"
         android:layout_width="fill_parent"
         android:layout_height="70dp" />
+
+    <TextView
+        android:id="@+id/GroupsForNewMessageListItem_KandiGroupName"
+        android:text="kandi_name"
+        android:gravity="center"
+        android:layout_width="80dp"
+        android:layout_height="35dp"
+        android:layout_marginTop="60dp"/>
 
     <TextView
         android:id="@+id/GroupsForNewMessageListItem_qrCode"

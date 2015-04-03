@@ -10,6 +10,9 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.View;
@@ -19,6 +22,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
@@ -32,7 +36,7 @@ import com.google.gson.GsonBuilder;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
-public class MessageDialogue extends Activity {
+public class MessageDialogue extends FragmentActivity {
 
     private static final String TAG = "MessageDialogue";
     SharedPreferences sharedPreferences;
@@ -52,6 +56,8 @@ public class MessageDialogue extends Activity {
     private final String HOST = "http://kandi.jit.su/";
     private final int portNumber = 3000;
 
+
+    private ImageView exitButton;
 
     private TextView messagingUIUserName;
     private TableLayout messagingUITableLayout;
@@ -135,7 +141,18 @@ public class MessageDialogue extends Activity {
             System.out.println("MessageWithUser.getSingleUserForMessageAsyncTask.processFinish.output.kt_id = " + output.getKt_id());
             System.out.println("MessageWithUser.getSingleUserForMessageAsyncTask.processFinish.output.user_name = " + output.getName());
             user_name = output.getName();
-            setUpXml(user_name);
+            //setUpXml(user_name);
+
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.setCustomAnimations(R.anim.abc_slide_in_top, R.anim.abc_slide_out_top);
+            BannerFragment bannerFragment = new BannerFragment();
+            Bundle extras = new Bundle();
+            extras.putString("title", user_name);
+            bannerFragment.setArguments(extras);
+            fragmentTransaction.add(R.id.MessageDialogue_FrameLayout, bannerFragment);
+            fragmentTransaction.commit();
+
             GetEntireConversationAsyncTask getEntireConversationAsyncTask = new GetEntireConversationAsyncTask();
             getEntireConversationAsyncTask.execute(output.getFb_id());
         }
@@ -196,6 +213,14 @@ public class MessageDialogue extends Activity {
         //user_name = bundleParams.getString("user_name");
 
         getSingleUserForMessageAsyncTask.execute(fb_id);
+
+        exitButton = (ImageView) findViewById(R.id.MessageDialogue_ExitButton);
+        exitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         messagingUIListView = (ListView) findViewById(R.id.MessageDialogue_ListView);
         messagingUIListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
