@@ -13,6 +13,7 @@ public class KtUserObject implements Parcelable {
 
     public KtUserObject() {}
 
+    //TODO describeContents() always returns zero?
     public int describeContents() {
         return 0;
     }

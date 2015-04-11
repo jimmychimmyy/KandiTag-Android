@@ -6,6 +6,7 @@ import android.os.Parcelable;
 /**
  * Created by Jim on 3/6/15.
  */
+//TODO this whole entire class could be shared with KtUserObject; almost identical methods and variables
 public class KtUserObjectParcelable implements Parcelable {
 
     private String kt_id, fb_id, user_name, qrCode;

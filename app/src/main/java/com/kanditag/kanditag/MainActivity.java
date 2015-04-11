@@ -769,14 +769,15 @@ public class MainActivity extends FragmentActivity {
 
                         }
                         System.out.println("length of scannedQrUsersArrayList: " + scannedQrUsersArrayList.size());
+                        //TODO use enhanced for loop?
+                        //for (int i = 0; i < scannedQrUsersArrayList.size(); i++) {
+                        for (KtUserObject scannedQrUser : scannedQrUsersArrayList) {
 
-                        for (int i = 0; i < scannedQrUsersArrayList.size(); i++) {
-
-                            scannedQrUsersFb_idArrayList.add(scannedQrUsersArrayList.get(i).getFb_id());
+                            scannedQrUsersFb_idArrayList.add(scannedQrUser.getFb_id());
                             MiniProfileViewItem tempItem = new MiniProfileViewItem();
-                            tempItem.setFb_id(scannedQrUsersArrayList.get(i).getFb_id());
-                            tempItem.setUser_name(scannedQrUsersArrayList.get(i).getName());
-                            tempItem.setPlacement(scannedQrUsersArrayList.get(i).getPlacement());
+                            tempItem.setFb_id(scannedQrUser.getFb_id());
+                            tempItem.setUser_name(scannedQrUser.getName());
+                            tempItem.setPlacement(scannedQrUser.getPlacement());
                             miniProfileViewItemArrayList.add(tempItem);
 
                         }
