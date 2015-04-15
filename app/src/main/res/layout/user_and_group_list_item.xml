@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/UserAndGroupListItem_SenderId"
+        android:layout_width="0dp"
+        android:layout_height="0dp" />
+
+    <TextView
+        android:id="@+id/UserAndGroupListItem_GroupName"
+        android:layout_width="0dp"
+        android:layout_height="0dp" />
+
+    <TextView
+        android:id="@+id/UserAndGroupListItem_GroupId"
+        android:layout_width="0dp"
+        android:layout_height="0dp" />
+
+    <ImageView
+        android:id="@+id/UserAndGroupListItem_ProfilePictureImageView"
+        android:background="@drawable/splash_screen_kt_logo_universal"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp" />
+
+    <TextView
+        android:id="@+id/UserAndGroupListItem_SenderNameTextView"
+        android:text="Sender Name"
+        android:layout_toRightOf="@+id/UserAndGroupListItem_ProfilePictureImageView"
+        android:paddingLeft="10dp"
+        android:gravity="bottom"
+        android:layout_width="fill_parent"
+        android:layout_height="35dp" />
+
+    <TextView
+        android:id="@+id/UserAndGroupListItem_MessageTextView"
+        android:layout_toRightOf="@+id/UserAndGroupListItem_ProfilePictureImageView"
+        android:layout_marginTop="35dp"
+        android:paddingLeft="10dp"
+        android:text="Message goes here"
+        android:layout_width="fill_parent"
+        android:layout_height="35dp" />
+
+</RelativeLayout>

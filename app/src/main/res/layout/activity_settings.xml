@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#8C000000"
-    tools:context="com.kanditag.kanditag.Settings">
+    tools:context="com.jimchen.kanditag.Settings">
 
     <com.facebook.widget.LoginButton
         android:id="@+id/login_fbLoginButton"

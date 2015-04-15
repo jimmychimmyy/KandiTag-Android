@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#8C000000"
-    tools:context="com.kanditag.kanditag.GroupMessageDialogue">
+    tools:context="com.jimchen.kanditag.GroupMessageDialogue">
 
     <ScrollView
         android:id="@+id/GroupMessageDialogue_ScrollView"

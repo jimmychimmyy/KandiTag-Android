@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/black"
-    tools:context="com.kanditag.kanditag.Login">
+    tools:context="com.jimchen.kanditag.Login">
 
     <!--
     <ImageView
@@ -18,19 +18,78 @@
         android:layout_marginBottom="47dp"/>
 
     <com.facebook.widget.LoginButton
+        android:background="@color/transparent"
         android:id="@+id/login_fbLoginButton"
         android:layout_width="wrap_content"
-        android:layout_height="10dp"
+        android:layout_height="0dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="12dp"/>
+
+    <TextView
+        android:textColor="@color/gray"
+        android:textSize="9dp"
+        android:gravity="center"
+        android:layout_marginBottom="10dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginRight="40dp"
+        android:layout_marginLeft="40dp"
+        android:text="*By signing up or connecting through facebook™, you are agreeing to the Terms and Conditions concerning the usage of KandiTag™"
+        android:layout_width="fill_parent"
+        android:layout_height="80dp" />
 
     <ImageView
         android:id="@+id/Login_loginButtonImageViewBackground"
         android:layout_width="fill_parent"
         android:layout_height="50dp"
-        android:background="@color/vegas_gold"
+        android:background="@color/transparent"
         android:layout_alignParentBottom="true"/>
+
+    <Button
+        android:textColor="@color/white"
+        android:id="@+id/Login_LoginWithFacebookButton"
+        android:text="Connect with Facebook"
+        android:layout_marginTop="250dp"
+        android:background="@drawable/facebook_login_button"
+        android:layout_marginRight="25dp"
+        android:layout_marginLeft="25dp"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp" />
+
+    <Button
+        android:id="@+id/Login_LoginButton"
+        android:text="Login"
+        android:textColor="@color/black"
+        android:layout_marginTop="325dp"
+        android:background="@drawable/kanditag_login_button"
+        android:layout_marginRight="25dp"
+        android:layout_marginLeft="25dp"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp" />
+
+    <Button
+        android:id="@+id/Login_SignUpButton"
+        android:text="Sign Up"
+        android:textColor="@color/black"
+        android:layout_marginTop="400dp"
+        android:background="@drawable/kanditag_signup_button"
+        android:layout_marginRight="25dp"
+        android:layout_marginLeft="25dp"
+        android:layout_width="fill_parent"
+        android:layout_height="50dp" />
+
+    <Button
+        android:id="@+id/Login_SeeMoreButton"
+        android:layout_marginRight="125dp"
+        android:layout_marginLeft="140dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="70dp"
+        android:textSize="11dp"
+        android:text="See More >>"
+        android:textColor="@color/white"
+        android:background="@color/transparent"
+        android:layout_width="fill_parent"
+        android:layout_height="35dp" />
 
     <Button
         android:layout_width="fill_parent"
@@ -38,7 +97,7 @@
         android:layout_alignParentBottom="true"
         android:textStyle="bold"
         android:textColor="@color/black"
-        android:background="@color/gold"
+        android:background="@color/transparent"
         android:id="@+id/login_ktLoginButton"
         android:layout_marginBottom="2dp"/>
 
@@ -50,13 +109,22 @@
         -->
 
     <ImageView
-        android:paddingBottom="25dp"
-        android:layout_width="160dp"
-        android:layout_height="240dp"
+        android:layout_marginTop="70dp"
+        android:paddingLeft="20dp"
+        android:paddingRight="50dp"
+        android:layout_marginRight="50dp"
+        android:src="@drawable/kanditag_login_title"
+        android:layout_width="fill_parent"
+        android:layout_height="100dp" />
+
+    <ImageView
+        android:layout_marginTop="80dp"
+        android:layout_marginRight="30dp"
+        android:layout_alignParentRight="true"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
         android:id="@+id/login_logo"
-        android:src="@drawable/splash_screen_kt_logo_universal"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:src="@drawable/splash_screen_kt_logo_universal" />
 
 
 </RelativeLayout>

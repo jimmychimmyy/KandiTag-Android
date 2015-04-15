@@ -41,5 +41,8 @@
     <string name="title_activity_profile_fragment">ProfileFragment</string>
     <string name="title_activity_banner_fragment">BannerFragment</string>
     <string name="title_activity_navigation_bar_fragment">NavigationBarFragment</string>
+    <string name="title_activity_ticket_fragment">TicketFragment</string>
+    <string name="title_activity_group_fragment">GroupFragment</string>
+    <string name="title_activity_nav_bar_scaleable">NavBarScaleable</string>
 
 </resources>

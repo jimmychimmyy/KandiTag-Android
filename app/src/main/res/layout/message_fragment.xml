@@ -3,12 +3,12 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/transparent_charcoal" >
+    android:background="@color/black" >
 
     <FrameLayout
         android:id="@+id/MessageFragment_FrameLayout"
         android:layout_width="fill_parent"
-        android:layout_height="70dp"/>
+        android:layout_height="80dp"/>
 
     <!--
     <ImageView
@@ -35,7 +35,7 @@
 
     <ListView
         android:id="@+id/MessageFragment_ListView"
-        android:layout_marginTop="78dp"
+        android:layout_marginTop="80dp"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"></ListView>
 

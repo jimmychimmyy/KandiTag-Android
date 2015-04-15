@@ -3,7 +3,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:id="@+id/ScanRLayout"
-    tools:context="com.kanditag.kanditag.Menu">
+    tools:context="com.jimchen.kanditag.Menu">
 
     <ImageView
         android:layout_width="140dp"

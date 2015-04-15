@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#8C000000"
-    tools:context="com.kanditag.kanditag.MiniProfileView">
+    tools:context="com.jimchen.kanditag.MiniProfileView">
 
     <android.support.v4.view.ViewPager
         android:id="@+id/miniProfileView_viewPager"

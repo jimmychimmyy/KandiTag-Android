@@ -1,13 +1,33 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.kanditag.kanditag.NavigationBarFragment">
+    tools:context="com.jimchen.kanditag.NavigationBarFragment">
 
     <View
         android:id="@+id/NavBar_NavBar"
         android:layout_width="fill_parent"
         android:layout_height="12dp"
         android:background="@color/transparent_charcoal"/>
+
+    <TextView
+        android:text="C a m e r a"
+        android:id="@+id/NavBar_TextView"
+        android:gravity="center"
+        android:layout_width="fill_parent"
+        android:layout_height="0dp"
+        android:background="@color/transparent_charcoal"/>
+
+    <ImageView
+        android:id="@+id/NavBar_UserImage"
+        android:layout_width="0dp"
+        android:layout_height="0dp" />
+
+    <ImageView
+        android:id="@+id/NavBar_toSettings"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/gears"/>
 
     <Button
         android:text="tickets"
