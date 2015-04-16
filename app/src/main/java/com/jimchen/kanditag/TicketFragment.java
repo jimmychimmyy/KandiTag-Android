@@ -10,7 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 
-public class TicketFragment extends Fragment{
+public class TicketFragment extends Fragment {
 
     private Context context;
 

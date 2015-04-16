@@ -26,14 +26,16 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:appcompat-v7:21.0.3'
-    compile files(':libs/core.jar')
+    compile 'com.google.code.gson:gson:2.2.+'
+    compile "com.google.android.gms:play-services:3.1.+"
+    compile 'com.github.nkzawa:socket.io-client:0.4.1'
+
     compile project(':libraries:facebook')
+
+    compile files(':libs/core.jar')
     compile files(':libraries/json-simple-1.1.1')
     compile files('json-simple-1.1.1')
-    compile files(':libraries/gson-2.3.1.jar')
     compile files(':libraries/android-directionalviewpager-1.2.0.jar')
-    compile 'com.github.nkzawa:socket.io-client:0.4.1'
     compile files(':libraries/core-3.2.0.jar')
-    compile "com.google.android.gms:play-services:3.1.+"
 }
 
