@@ -4,9 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +37,6 @@ public class MessageFragment extends Fragment {
     private View rootView;
     private ListView myListView;
     private TextView myTitle;
-    private ImageView exitButton;
 
     private MessageListAdapter messageListAdapter;
     private GroupMessageListAdapter groupMessageListAdapter;
@@ -52,6 +53,9 @@ public class MessageFragment extends Fragment {
 
     private ArrayList<KtUserObjectParcelable> usersForNewMessageList = new ArrayList<>();
     private ArrayList<KandiGroupObjectParcelable> groupsForNewMessageList = new ArrayList<>();
+
+    //exit button to return to main
+    private ImageView exitButton;
 
 
     public static final MessageFragment newInstance() {
@@ -83,6 +87,16 @@ public class MessageFragment extends Fragment {
         MY_FB_ID = sharedPreferences.getString(FbId, "");
 
         myListView = (ListView) rootView.findViewById(R.id.MessageFragment_ListView);
+
+        exitButton = (ImageView) rootView.findViewById(R.id.MessageFragment_ExitButton);
+        exitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_slide_in, R.anim.right_slide_out).remove(MessageFragment.this).commit();
+                FragmentManager fm = getActivity().getSupportFragmentManager();
+                fm.popBackStack();
+            }
+        });
 
         /**
         myTitle = (TextView) rootView.findViewById(R.id.MessageFragment_TitleTextView);

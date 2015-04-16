@@ -2,9 +2,26 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/light_gray"
     tools:context="com.jimchen.kanditag.MessageDialogue">
 
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="70dp"
+        android:background="@color/dark_charcoal"/>
+
+    <TextView
+        android:text="first-name last-name"
+        android:textSize="30dp"
+        android:gravity="end|bottom"
+        android:paddingRight="20dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="10dp"
+        android:id="@+id/MessageDialogue_UserNameTextView"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp" />
 
     <ScrollView
         android:id="@+id/GroupMessageDialogue_ScrollView"
@@ -32,10 +49,11 @@
 
     <ImageView
         android:id="@+id/MessageDialogue_ExitButton"
-        android:layout_width="40dp"
+        android:layout_width="50dp"
         android:layout_height="50dp"
         android:layout_marginTop="10dp"
-        android:background="@drawable/kanditagsidebar_leftexit"/>
+        android:layout_marginLeft="8dp"
+        android:background="@drawable/kanditag_back_button"/>
 <!--
     <TextView
         android:text="NAME"
@@ -49,13 +67,18 @@
         -->
 
     <EditText
+        android:hint="Say Hello!"
+        android:paddingLeft="10dp"
         android:id="@+id/MessageDialogue_EditText"
         android:layout_width="fill_parent"
         android:layout_height="50dp"
+        android:background="@color/dark_charcoal"
         android:layout_alignParentBottom="true"/>
 
     <Button
+        android:text="send"
         android:id="@+id/MessageDialogue_SendButton"
+        android:background="@color/gold"
         android:layout_width="80dp"
         android:layout_height="50dp"
         android:layout_alignParentRight="true"

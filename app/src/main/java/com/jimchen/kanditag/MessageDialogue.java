@@ -54,6 +54,9 @@ public class MessageDialogue extends FragmentActivity {
     private final int portNumber = 3000;
 
 
+    //textview for username
+    private TextView userNameTextView;
+
     private ImageView exitButton;
 
     private TextView messagingUIUserName;
@@ -77,6 +80,7 @@ public class MessageDialogue extends FragmentActivity {
 
     private ArrayList<ConversationListItem> messagingUIListViewArrayItems = new ArrayList<>();
 
+    // task to which takes a fb_id and returns an array of messages between you and the (fb_id's) user
     public class GetEntireConversationAsyncTask extends AsyncTask<String, Void, ArrayList<ConversationListItem>> {
 
         private ArrayList<ConversationListItem> conversationListItemArrayList;
@@ -138,7 +142,12 @@ public class MessageDialogue extends FragmentActivity {
             System.out.println("MessageWithUser.getSingleUserForMessageAsyncTask.processFinish.output.kt_id = " + output.getKt_id());
             System.out.println("MessageWithUser.getSingleUserForMessageAsyncTask.processFinish.output.user_name = " + output.getName());
             user_name = output.getName();
+            userNameTextView.setText(user_name);
             //setUpXml(user_name);
+
+            //originally this was a framelayout which added a fragment with the username
+            // instead im just going to make this a view
+            /**
 
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -149,6 +158,8 @@ public class MessageDialogue extends FragmentActivity {
             bannerFragment.setArguments(extras);
             fragmentTransaction.add(R.id.MessageDialogue_FrameLayout, bannerFragment);
             fragmentTransaction.commit();
+
+             **/
 
             GetEntireConversationAsyncTask getEntireConversationAsyncTask = new GetEntireConversationAsyncTask();
             getEntireConversationAsyncTask.execute(output.getFb_id());
@@ -216,6 +227,7 @@ public class MessageDialogue extends FragmentActivity {
             @Override
             public void onClick(View v) {
                 finish();
+                MessageDialogue.this.overridePendingTransition(R.anim.right_slide_in, R.anim.right_slide_out);
             }
         });
 
@@ -260,14 +272,18 @@ public class MessageDialogue extends FragmentActivity {
 
          **/
 
+        userNameTextView = (TextView) findViewById(R.id.MessageDialogue_UserNameTextView);
+        Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/kanditagfont-sth.ttf");
+        userNameTextView.setTypeface(typeface);
+
 
         messageUIEditText = (EditText) findViewById(R.id.MessageDialogue_EditText);
-        messageUIEditText.setBackgroundColor(Color.TRANSPARENT);
+        //messageUIEditText.setBackgroundColor(Color.TRANSPARENT);
         messageUIEditText.setTextColor(Color.WHITE);
 
         messageUISendButton = (Button) findViewById(R.id.MessageDialogue_SendButton);
-        messageUISendButton.setBackgroundColor(Color.TRANSPARENT);
-        messageUISendButton.setBackgroundResource(R.drawable.send_icon);
+        //messageUISendButton.setBackgroundColor(Color.TRANSPARENT);
+        //messageUISendButton.setBackgroundResource(R.drawable.send_icon);
         messageUISendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
