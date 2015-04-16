@@ -22,7 +22,7 @@
         android:layout_height="60dp"
         android:paddingRight="10dp"
         android:layout_marginLeft="10dp"
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="3dp"/>
 
     <TextView
         android:text="NAME"
@@ -31,7 +31,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/MessageListItem_profilePic"
-        android:textColor="@color/yellow"
+        android:textColor="@color/black"
         android:textSize="16dp" />
 
     <TextView
@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/MessageListItem_name"
         android:layout_toRightOf="@+id/MessageListItem_profilePic"
-        android:textColor="@color/yellow"
+        android:textColor="@color/black"
         android:textSize="14dp" />
 
 </RelativeLayout>

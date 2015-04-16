@@ -45,6 +45,68 @@
         android:background="@color/transparent"
         android:layout_alignParentBottom="true"/>
 
+    <EditText
+        android:hint="Username"
+        android:gravity="center"
+        android:background="@drawable/usernname_password_login_background"
+        android:layout_marginRight="35dp"
+        android:layout_marginLeft="35dp"
+        android:layout_marginTop="200dp"
+        android:layout_width="fill_parent"
+        android:layout_height="45dp" />
+
+    <EditText
+        android:hint="Password"
+        android:gravity="center"
+        android:password="true"
+        android:background="@drawable/usernname_password_login_background"
+        android:layout_marginRight="35dp"
+        android:layout_marginLeft="35dp"
+        android:layout_marginTop="255dp"
+        android:layout_width="fill_parent"
+        android:layout_height="45dp" />
+
+    <Button
+        android:id="@+id/Login_LoginButton"
+        android:text="Login"
+        android:textColor="@color/black"
+        android:layout_marginTop="315dp"
+        android:background="@drawable/kanditag_login_button"
+        android:layout_marginRight="35dp"
+        android:layout_marginLeft="35dp"
+        android:layout_width="fill_parent"
+        android:layout_height="45dp" />
+
+    <Button
+        android:text="Create an Account"
+        android:textSize="12dp"
+        android:textColor="@color/gray"
+        android:background="@color/transparent"
+        android:layout_marginTop="370dp"
+        android:gravity="center"
+        android:layout_width="fill_parent"
+        android:layout_height="30dp" />
+
+    <TextView
+        android:text="or"
+        android:textColor="@color/gray"
+        android:layout_marginTop="397dp"
+        android:gravity="center"
+        android:layout_width="fill_parent"
+        android:layout_height="30dp" />
+
+    <Button
+        android:textColor="@color/white"
+        android:id="@+id/Login_LoginWithFacebookButton"
+        android:text="Connect with Facebook"
+        android:layout_marginTop="440dp"
+        android:background="@drawable/facebook_login_button"
+        android:layout_marginRight="35dp"
+        android:layout_marginLeft="35dp"
+        android:layout_width="fill_parent"
+        android:layout_height="45dp" />
+
+    <!--
     <Button
         android:textColor="@color/white"
         android:id="@+id/Login_LoginWithFacebookButton"
@@ -100,6 +162,8 @@
         android:background="@color/transparent"
         android:id="@+id/login_ktLoginButton"
         android:layout_marginBottom="2dp"/>
+
+        -->
 
     <!--
     <ProgressBar

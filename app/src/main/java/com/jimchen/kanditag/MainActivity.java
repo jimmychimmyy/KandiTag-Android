@@ -10,7 +10,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
-import android.graphics.Typeface;
 import android.hardware.Camera;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -19,17 +18,13 @@ import android.os.Handler;
 import android.os.StrictMode;
 
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-import android.support.v4.app.Fragment;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import android.util.DisplayMetrics;
@@ -53,8 +48,6 @@ import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
 import android.content.Intent;
-import android.view.Display;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -65,6 +58,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
@@ -77,15 +71,23 @@ import org.apache.http.protocol.HTTP;
 
 public class MainActivity extends FragmentActivity {
 
+    // VerticalZoomBar for zooming in/out camera
+    private VerticalZoomBar zoomBar;
+
     // Handler for runnables (UI updates)
     private Handler myHandler = new Handler();
 
     //popout menu buttons
-    private ImageView toProfile, toMessage, toTicket, toFeed;
+    private ImageView toProfile, toMessage, toExchange, toFeed, toMeet;
+    //boolean to check if menu items are visible
+    private boolean isMenuVisible = false;
+
+    //popout menu banners
+    private ImageView toProfileBanner, toMessageBanner, toExchangeBanner, toFeedBanner, toMeetBanner;
 
     //flashlight button
     private ImageView flashlightButton;
-    private boolean flashOn = false;
+    private String flashMode = "off";
 
     //list of all users (no user should exist more that once in this list)
     private ArrayList<KtUserObjectParcelable> listOfUsers = new ArrayList<>();
@@ -205,11 +207,97 @@ public class MainActivity extends FragmentActivity {
 
     }
 
+    // Runnables to update UI with hide/show toMenuItems *******************************************
+
     // runnable to hide toProfile
     private Runnable hideToProfileRunnable = new Runnable() {
         @Override
         public void run() {
             hideToProfile();
+        }
+    };
+
+    // runnable to hide toProfileBanner
+    private Runnable hideToProfileBannerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            hideToProfileBanner();
+        }
+    };
+
+    // runnable to show toProfileBanner
+    private Runnable showToProfileBannerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            showToProfileBanner();
+        }
+    };
+
+    // runnable to hide toMessageBanner
+    private Runnable hideToMessageBannerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            hideToMessageBanner();
+        }
+    };
+
+    // runnable to show toMessageBanner
+    // also set menu visible to true
+    private Runnable showToMessageBannerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            showToMessageBanner();
+        }
+    };
+
+    // runnable to hide toFeedBanner
+    private Runnable hideToFeedBannerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            hideToFeedBanner();
+        }
+    };
+
+    // runnable to show toFeedBanner
+    private Runnable showToFeedBannerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            showToFeedBanner();
+        }
+    };
+
+    // runnable to hide toExchangeBanner
+    // also set menu visible to false
+    private Runnable hideToExchangeBannerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            hideToExchangeBanner();
+        }
+    };
+
+    // runnable to show toExchangeBanner
+    private Runnable showToExchangeBannerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            showToExchangeBanner();
+        }
+    };
+
+    // runnable to hide toMeetBanner
+    private Runnable hideToMeetBannerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            hideToMeetBanner();
+            isMenuVisible = false;
+        }
+    };
+
+    //runnable to show toMeetBanner
+    private Runnable showToMeetBannerRunnable = new Runnable() {
+        @Override
+        public void run() {
+            showToMeetBanner();
+            isMenuVisible = true;
         }
     };
 
@@ -221,8 +309,8 @@ public class MainActivity extends FragmentActivity {
         }
     };
 
-    // runnable to hide toTicket
-    private Runnable hideToTicketRunnable = new Runnable() {
+    // runnable to hide toExchange
+    private Runnable hideToExchangeRunnable = new Runnable() {
         @Override
         public void run() {
             hideToTicket();
@@ -253,8 +341,8 @@ public class MainActivity extends FragmentActivity {
         }
     };
 
-    // runnable to show toTicket
-    private Runnable showToTicketRunnable = new Runnable() {
+    // runnable to show toExchange
+    private Runnable showToExchangeRunnable = new Runnable() {
         @Override
         public void run() {
             showToTicket();
@@ -269,7 +357,23 @@ public class MainActivity extends FragmentActivity {
         }
     };
 
+    // runnable to hide toMeet
+    private Runnable hideToMeetRunnable = new Runnable() {
+        @Override
+        public void run() {
+            hideToMeet();
+        }
+    };
 
+    //runnable to show toMeet
+    private Runnable showToMeetRunnable = new Runnable() {
+        @Override
+        public void run() {
+            showToMeet();
+        }
+    };
+
+    // End Runnables to update UI with hide/show toMenuItems ***************************************
 
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
@@ -301,23 +405,270 @@ public class MainActivity extends FragmentActivity {
                 float leftToRightDeltaX = x2 - x1;
                 if (rightToLeftdeltaX > MIN_DISTANCE) {
                     //this is a right to left swipe (this will show to menu)
-                    myHandler.postDelayed(showToMessageRunnable, 10);
-                    myHandler.postDelayed(showToProfileRunnable, 110);
-                    myHandler.postDelayed(showToFeedRunnable, 210);
-                    myHandler.postDelayed(showToTicketRunnable, 310);
+                    // begin animation to show menu items
+                    // by not checking for menu visibility, we are able to keep the fade in animation every time the use swipes
+                    //if (!isMenuVisible) {
+                        myHandler.postDelayed(showToProfileRunnable, 10);
+                        myHandler.postDelayed(showToMessageRunnable, 110);
+                        myHandler.postDelayed(showToFeedRunnable, 210);
+                        myHandler.postDelayed(showToExchangeRunnable, 310);
+                        myHandler.postDelayed(showToMeetRunnable, 410);
+
+                        // begin animations to show menu banners
+                        myHandler.postDelayed(showToProfileBannerRunnable, 10);
+                        myHandler.postDelayed(showToMessageBannerRunnable, 110);
+                        myHandler.postDelayed(showToFeedBannerRunnable, 210);
+                        myHandler.postDelayed(showToExchangeBannerRunnable, 310);
+                        myHandler.postDelayed(showToMeetBannerRunnable, 410);
+
+                    //}
 
                 }
                 if (leftToRightDeltaX > MIN_DISTANCE) {
                     //this is a left to right swipe (this will hide menu);
-                    myHandler.postDelayed(hideToMessageRunnable, 10);
-                    myHandler.postDelayed(hideToProfileRunnable, 110);
-                    myHandler.postDelayed(hideToFeedRunnable, 210);
-                    myHandler.postDelayed(hideToTicketRunnable, 310);
+                    // begin animation to hide menu items
+                    if (isMenuVisible) {
+                        myHandler.postDelayed(hideToProfileRunnable, 50);
+                        myHandler.postDelayed(hideToMessageRunnable, 150);
+                        myHandler.postDelayed(hideToFeedRunnable, 250);
+                        myHandler.postDelayed(hideToExchangeRunnable, 350);
+                        myHandler.postDelayed(hideToMeetRunnable, 450);
+
+                        // begin animations to hide menu banners
+                        myHandler.postDelayed(hideToProfileBannerRunnable, 0);
+                        myHandler.postDelayed(hideToMessageBannerRunnable, 50);
+                        myHandler.postDelayed(hideToFeedBannerRunnable, 100);
+                        myHandler.postDelayed(hideToExchangeBannerRunnable, 150);
+                        myHandler.postDelayed(hideToMeetBannerRunnable, 200);
+
+                    }
                 }
 
                 break;
         }
         return false;
+    }
+
+    // Methods to hide and show menu items/banners *************************************************
+
+    //method to hide toProfileBanner
+    private void hideToProfileBanner() {
+        Animation fadeOut = AnimationUtils.loadAnimation(this, android.R.anim.fade_out);
+        toProfileBanner.startAnimation(fadeOut);
+        fadeOut.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                toProfileBanner.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+    }
+
+    //method to show toProfileBanner
+    private void showToProfileBanner() {
+        Animation fadeIn = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
+        toProfileBanner.startAnimation(fadeIn);
+        fadeIn.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                toProfileBanner.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+    }
+
+    //method to hide toFeedBanner
+    private void hideToFeedBanner() {
+        Animation fadeOut = AnimationUtils.loadAnimation(this, android.R.anim.fade_out);
+        toFeedBanner.startAnimation(fadeOut);
+        fadeOut.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                toFeedBanner.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+    }
+
+    //method to show toFeedBanner
+    private void showToFeedBanner() {
+        Animation fadeIn = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
+        toFeedBanner.startAnimation(fadeIn);
+        fadeIn.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                toFeedBanner.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+    }
+
+    //method to hide toMessageBanner
+    private void hideToMessageBanner() {
+        Animation fadeOut = AnimationUtils.loadAnimation(this, android.R.anim.fade_out);
+        toMessageBanner.startAnimation(fadeOut);
+        fadeOut.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                toMessageBanner.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+    }
+
+    //method to show toMessageBanner
+    private void showToMessageBanner() {
+        Animation fadeIn = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
+        toMessageBanner.startAnimation(fadeIn);
+        fadeIn.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                toMessageBanner.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+    }
+
+    //method to hide toExchangeBanner
+    private void hideToExchangeBanner() {
+        Animation fadeOut = AnimationUtils.loadAnimation(this, android.R.anim.fade_out);
+        toExchangeBanner.startAnimation(fadeOut);
+        fadeOut.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                toExchangeBanner.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+    }
+
+    //method to show toExchangeBanner
+    private void showToExchangeBanner() {
+        Animation fadeIn = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
+        toExchangeBanner.startAnimation(fadeIn);
+        fadeIn.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                toExchangeBanner.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+    }
+
+    //method to hide toMeetBanner
+    private void hideToMeetBanner() {
+        Animation fadeOut = AnimationUtils.loadAnimation(this, android.R.anim.fade_out);
+        toMeetBanner.startAnimation(fadeOut);
+        fadeOut.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                toMeetBanner.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+    }
+
+    //method to show toMeetBanner
+    private void showToMeetBanner() {
+        Animation fadeIn = AnimationUtils.loadAnimation(this, android.R.anim.fade_in);
+        toMeetBanner.startAnimation(fadeIn);
+        fadeIn.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                toMeetBanner.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
     }
 
     //method to hide toProfile
@@ -409,10 +760,10 @@ public class MainActivity extends FragmentActivity {
     }
 
 
-    //method to hide toTicket
+    //method to hide toExchange
     private void hideToTicket() {
         Animation slideOutRight = AnimationUtils.loadAnimation(this, android.R.anim.slide_out_right);
-        toTicket.startAnimation(slideOutRight);
+        toExchange.startAnimation(slideOutRight);
         slideOutRight.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
@@ -421,7 +772,7 @@ public class MainActivity extends FragmentActivity {
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                toTicket.setVisibility(View.GONE);
+                toExchange.setVisibility(View.GONE);
             }
 
             @Override
@@ -431,14 +782,14 @@ public class MainActivity extends FragmentActivity {
         });
     }
 
-    //method to show toTicket
+    //method to show toExchange
     private void showToTicket() {
         Animation slideInRight = AnimationUtils.loadAnimation(this, R.anim.right_slide_in);
-        toTicket.startAnimation(slideInRight);
+        toExchange.startAnimation(slideInRight);
         slideInRight.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
-                toTicket.setVisibility(View.VISIBLE);
+                toExchange.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -498,6 +849,52 @@ public class MainActivity extends FragmentActivity {
         });
     }
 
+    //method to hide toMeet
+    private void hideToMeet() {
+        Animation slideOutRight = AnimationUtils.loadAnimation(this, R.anim.right_slide_out);
+        toMeet.startAnimation(slideOutRight);
+        slideOutRight.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                toMeet.setVisibility(View.GONE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+    }
+
+    //method to show toMeet
+    private void showToMeet() {
+        Animation slideInRight = AnimationUtils.loadAnimation(this, R.anim.right_slide_in);
+        toMeet.startAnimation(slideInRight);
+        slideInRight.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                toMeet.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+    }
+
+    // End Methods to hide and show menu items/banners *********************************************
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -542,6 +939,7 @@ public class MainActivity extends FragmentActivity {
             Log.i(TAG, "No valid Google Play Services APK found");
         }
 
+
         myScaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
 
         main_rootView = (RelativeLayout) findViewById(R.id.main_relativeLayout);
@@ -553,15 +951,147 @@ public class MainActivity extends FragmentActivity {
 
         // find menu buttons in the xml file
         toProfile = (ImageView) findViewById(R.id.Main_toProfile);
-        toFeed = (ImageView) findViewById(R.id.Main_toFeed);
-        toTicket = (ImageView) findViewById(R.id.Main_toTicket);
         toMessage = (ImageView) findViewById(R.id.Main_toMessage);
+        toFeed = (ImageView) findViewById(R.id.Main_toFeed);
+        toExchange = (ImageView) findViewById(R.id.Main_toExchange);
+        toMeet = (ImageView) findViewById(R.id.Main_toMeet);
+
+        // find menu banners in xml file
+        toProfileBanner = (ImageView) findViewById(R.id.Main_toProfileBanner);
+        toMessageBanner = (ImageView) findViewById(R.id.Main_toMessageBanner);
+        toFeedBanner = (ImageView) findViewById(R.id.Main_toFeedBanner);
+        toExchangeBanner = (ImageView) findViewById(R.id.Main_toExchangeBanner);
+        toMeetBanner = (ImageView) findViewById(R.id.Main_toMeetBanner);
+
+        //find zoomBar in xml file and set on Camera Zoom
+        zoomBar = (VerticalZoomBar) findViewById(R.id.Main_ZoomBar);
+        zoomBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                //System.out.println("onProgressChanged");
+                //this is how i know the zoombar was moved
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+
+
+        // set menu buttons to onClickListener to open their respective activities/fragments
+        // use async task to speed up the proccess
+        toProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AsyncTask<Void, Void, Void> showProfile = new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .setCustomAnimations(R.anim.abc_fade_in, R.anim.abc_fade_out)
+                                .add(R.id.Main_FragmentsFrameLayout, ProfileFragment.newInstance(), MY_KT_ID)
+                                .addToBackStack("ProfileFragment")
+                                .commit();
+                        return null;
+                    }
+                };
+                showProfile.execute();
+            }
+        });
+
+        toFeed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AsyncTask<Void, Void, Void> showFeed = new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .setCustomAnimations(R.anim.abc_fade_in, R.anim.abc_fade_out)
+                                .add(R.id.Main_FragmentsFrameLayout, FeedFragment.newInstance(), MY_KT_ID)
+                                .addToBackStack("FeedFragment")
+                                .commit();
+                        return null;
+                    }
+                };
+                showFeed.execute();
+            }
+        });
+
+        toExchange.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AsyncTask<Void, Void, Void> showTicket = new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .setCustomAnimations(R.anim.abc_fade_in, R.anim.abc_fade_out)
+                                .add(R.id.Main_FragmentsFrameLayout, ExchangeFragment.newInstance(), MY_KT_ID)
+                                .addToBackStack("ExchangeFragment")
+                                .commit();
+                        return null;
+                    }
+                };
+                showTicket.execute();
+            }
+        });
+
+        toMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AsyncTask<Void, Void, Void> showMessage = new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .setCustomAnimations(R.anim.abc_fade_in, R.anim.abc_fade_out)
+                                .add(R.id.Main_FragmentsFrameLayout, MessageFragment.newInstance(), MY_KT_ID)
+                                .addToBackStack("MessageFragment")
+                                .commit();
+                        return null;
+                    }
+                };
+                showMessage.execute();
+            }
+        });
+
+        toMeet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AsyncTask<Void, Void, Void> showMeet = new AsyncTask<Void, Void, Void>() {
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+                        getSupportFragmentManager()
+                                .beginTransaction()
+                                .setCustomAnimations(R.anim.abc_fade_in, R.anim.abc_fade_out)
+                                .add(R.id.Main_FragmentsFrameLayout, MeetFragment.newInstance(), MY_KT_ID)
+                                .addToBackStack("MeetFragment")
+                                .commit();
+                        return null;
+                    }
+                };
+                showMeet.execute();
+            }
+        });
 
         // begin animations to remove buttons
-        myHandler.postDelayed(hideToMessageRunnable, 3000);
-        myHandler.postDelayed(hideToProfileRunnable, 3100);
+        myHandler.postDelayed(hideToProfileRunnable, 3000);
+        myHandler.postDelayed(hideToMessageRunnable, 3100);
         myHandler.postDelayed(hideToFeedRunnable, 3200);
-        myHandler.postDelayed(hideToTicketRunnable, 3300);
+        myHandler.postDelayed(hideToExchangeRunnable, 3300);
+        myHandler.postDelayed(hideToMeetRunnable, 3400);
+
+        // begin animations to hide menu banners
+        myHandler.postDelayed(hideToProfileBannerRunnable, 2900);
+        myHandler.postDelayed(hideToMessageBannerRunnable, 3000);
+        myHandler.postDelayed(hideToFeedBannerRunnable, 3100);
+        myHandler.postDelayed(hideToExchangeBannerRunnable, 3200);
+        myHandler.postDelayed(hideToMeetBannerRunnable, 3300);
 
         // starting camera
         myCamera = getCameraInstance();
@@ -573,10 +1103,16 @@ public class MainActivity extends FragmentActivity {
         flashlightButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!flashOn) {
-                    turnFlashOn();
-                } else {
-                    turnFlashOff();
+                switch (flashMode) {
+                    case "auto":
+                        turnFlashOn();
+                        break;
+                    case "on":
+                        turnFlashOff();
+                        break;
+                    case "off":
+                        setFlashOnAuto();
+                        break;
                 }
             }
         });
@@ -653,50 +1189,51 @@ public class MainActivity extends FragmentActivity {
 
     //method to turn on flash
     private void turnFlashOn() {
-        flashlightButton.setImageResource(R.drawable.flash_on_icon);
-        flashlightButton.invalidate();
         System.out.println("turnFlashOn()");
         Camera.Parameters parameters = myCamera.getParameters();
         parameters.setFlashMode(parameters.FLASH_MODE_TORCH);
         myCamera.setParameters(parameters);
         myCamera.startPreview();
-        flashOn = true;
+        flashMode = "on";
+        flashlightButton.setBackgroundResource(R.drawable.flash_on_icon);
+        flashlightButton.invalidate();
     }
 
     //method to turn off flash
     private void turnFlashOff() {
-        flashlightButton.setImageResource(R.drawable.flash_off_icon);
-        flashlightButton.invalidate();
         System.out.println("turnFlashOff()");
         Camera.Parameters parameters = myCamera.getParameters();
         parameters.setFlashMode(parameters.FLASH_MODE_OFF);
         myCamera.setParameters(parameters);
         myCamera.startPreview();
-        flashOn = false;
+        flashMode = "off";
+        flashlightButton.setBackgroundResource(R.drawable.flash_off_icon);
+        flashlightButton.invalidate();
     }
 
-    //method to set flash on auto
+    //method to set flash on auto TODO this does not work yet
     private void setFlashOnAuto() {
-        flashlightButton.setImageResource(R.drawable.flash_auto_icon);
-        flashlightButton.invalidate();
         System.out.println("setFlashOnAuto()");
         Camera.Parameters parameters = myCamera.getParameters();
         parameters.setFlashMode(parameters.FLASH_MODE_AUTO);
         myCamera.setParameters(parameters);
         myCamera.startPreview();
-        flashOn = true;
+        flashMode = "auto";
+        flashlightButton.setBackgroundResource(R.drawable.flash_auto_icon);
+        flashlightButton.invalidate();
     }
 
 
-// takePicture Callbacks **********
-    Camera.ShutterCallback shutterCallback = new Camera.ShutterCallback() {
+    // takePicture Callbacks **********
+    // TODO I changed these fields to private, make sure that it still works
+    private Camera.ShutterCallback shutterCallback = new Camera.ShutterCallback() {
         @Override
         public void onShutter() {
             Log.d(TAG, "onShutterCallback");
         }
     };
 
-    Camera.PictureCallback rawCallback = new Camera.PictureCallback() {
+    private Camera.PictureCallback rawCallback = new Camera.PictureCallback() {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
             Log.d(TAG, "onPictureTaken - rawCallback");
@@ -706,7 +1243,7 @@ public class MainActivity extends FragmentActivity {
         }
     };
 
-    Camera.PictureCallback pngCallback = new Camera.PictureCallback() {
+    private Camera.PictureCallback pngCallback = new Camera.PictureCallback() {
         @Override
         public void onPictureTaken(final byte[] data, Camera camera) {
 

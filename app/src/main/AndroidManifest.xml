@@ -147,7 +147,7 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" >
         </activity>
         <activity
-            android:name="com.jimchen.kanditag.KandiFragment"
+            android:name=".FeedFragment"
             android:label="@string/title_activity_kandi_fragment"
             android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" >
         </activity>
@@ -185,7 +185,7 @@
             android:label="@string/title_activity_navigation_bar_fragment" >
         </activity>
         <activity
-            android:name="com.jimchen.kanditag.TicketFragment"
+            android:name=".ExchangeFragment"
             android:label="@string/title_activity_ticket_fragment" >
         </activity>
         <activity

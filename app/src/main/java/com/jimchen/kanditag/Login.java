@@ -123,7 +123,7 @@ public class Login extends Activity {
         fbLoginButton.setVisibility(View.INVISIBLE);
         loginButtonBackground = (ImageView) findViewById(R.id.Login_loginButtonImageViewBackground);
 
-        ktLoginButton = (Button) findViewById(R.id.login_ktLoginButton);
+        //ktLoginButton = (Button) findViewById(R.id.login_ktLoginButton);
 
         /**
         ktLoginButton.setTextSize(27);

@@ -1,0 +1,44 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/light_gray"
+    tools:context="com.jimchen.kanditag.FeedFragment">
+
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="70dp"
+        android:background="@color/dark_charcoal"/>
+
+    <ImageView
+        android:layout_width="195dp"
+        android:layout_height="60dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="40dp"
+        android:background="@drawable/popout_layout_textbanner_feed"/>
+
+    <!--
+
+    <TextView android:text="KandiTag"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:textSize="25dp"
+        android:layout_marginTop="10dp"
+        android:textColor="@color/white"
+        android:id="@+id/kandiTagTextView"/>
+
+        -->
+
+    <GridView
+        android:id="@+id/kandiGridView"
+        android:layout_width="fill_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        android:layout_marginTop="80dp"
+        android:columnWidth="45dp"
+        android:stretchMode="columnWidth"
+        android:numColumns="4"
+        android:minHeight="50dp"
+        android:backgroundTint="@color/transparent"/>
+
+</RelativeLayout>

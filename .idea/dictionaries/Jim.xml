@@ -14,7 +14,9 @@
       <w>privatemessage</w>
       <w>qrcode</w>
       <w>rancho</w>
+      <w>runnables</w>
       <w>sqlite</w>
+      <w>zoombar</w>
     </words>
   </dictionary>
 </component>

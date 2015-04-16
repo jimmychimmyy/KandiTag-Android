@@ -105,7 +105,7 @@ public class NavigationBarFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 System.out.println("toMain clicked");
-                ((MainActivity) getActivity()).setPageOnMain();
+                //((MainActivity) getActivity()).setPageOnMain();
                 expandNavBar();
             }
         });
@@ -114,7 +114,7 @@ public class NavigationBarFragment extends Fragment {
         toMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((MainActivity) getActivity()).setPageOnMessage();
+                //((MainActivity) getActivity()).setPageOnMessage();
                 expandNavBar();
             }
         });
@@ -123,7 +123,7 @@ public class NavigationBarFragment extends Fragment {
         toFeed.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((MainActivity) getActivity()).setPageOnFeed();
+                //((MainActivity) getActivity()).setPageOnFeed();
                 expandNavBar();
             }
         });
@@ -132,7 +132,7 @@ public class NavigationBarFragment extends Fragment {
         toGroupMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((MainActivity) getActivity()).setPageOnGroup();
+                //((MainActivity) getActivity()).setPageOnGroup();
                 expandNavBar();
             }
         });
@@ -141,7 +141,7 @@ public class NavigationBarFragment extends Fragment {
         toTickets.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((MainActivity) getActivity()).setPageOnTicket();
+                //((MainActivity) getActivity()).setPageOnTicket();
                 expandNavBar();
             }
         });
