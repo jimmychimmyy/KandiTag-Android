@@ -17,6 +17,9 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+        debug {
+            debuggable true
+        }
     }
 }
 
@@ -27,10 +30,10 @@ dependencies {
     compile project(':libraries:facebook')
     compile files(':libraries/json-simple-1.1.1')
     compile files('json-simple-1.1.1')
-    compile files('/Users/Jim/Development/KandiTag/libraries/gson-2.3.1.jar')
-    compile files('/Users/Jim/Development/KandiTag/libraries/android-directionalviewpager-1.2.0.jar')
+    compile files(':libraries/gson-2.3.1.jar')
+    compile files(':libraries/android-directionalviewpager-1.2.0.jar')
     compile 'com.github.nkzawa:socket.io-client:0.4.1'
-    compile files('/Users/Jim/Development/KandiTag/libraries/core-3.2.0.jar')
+    compile files(':libraries/core-3.2.0.jar')
     compile "com.google.android.gms:play-services:3.1.+"
 }
 
