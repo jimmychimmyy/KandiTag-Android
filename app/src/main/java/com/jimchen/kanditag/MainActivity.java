@@ -909,7 +909,7 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.main_activity);
         context = getApplicationContext();
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         myDatabase = new KtDatabase(this);
@@ -1054,6 +1054,7 @@ public class MainActivity extends FragmentActivity {
         toMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                /**
                 AsyncTask<Void, Void, Void> showMessage = new AsyncTask<Void, Void, Void>() {
                     @Override
                     protected Void doInBackground(Void... voids) {
@@ -1067,6 +1068,13 @@ public class MainActivity extends FragmentActivity {
                     }
                 };
                 showMessage.execute();
+                 **/
+                //start intent to enter Message Activity
+                //TODO check if i should use startActivityForResultCode
+                Intent showMessage = new Intent(MainActivity.this, MessageActivity.class);
+                startActivity(showMessage);
+                //custom animation
+                overridePendingTransition(R.anim.right_slide_in, R.anim.right_slide_out);
             }
         });
 

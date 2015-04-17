@@ -7,7 +7,7 @@
 
     <View
         android:layout_width="fill_parent"
-        android:layout_height="70dp"
+        android:layout_height="65dp"
         android:background="@color/dark_charcoal"/>
 
     <TextView
@@ -16,7 +16,7 @@
         android:gravity="end|bottom"
         android:paddingRight="20dp"
         android:paddingEnd="20dp"
-        android:paddingBottom="10dp"
+        android:paddingBottom="15dp"
         android:id="@+id/MessageDialogue_UserNameTextView"
         android:layout_alignParentRight="true"
         android:layout_marginTop="10dp"
@@ -49,10 +49,10 @@
 
     <ImageView
         android:id="@+id/MessageDialogue_ExitButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
         android:layout_marginTop="10dp"
-        android:layout_marginLeft="8dp"
+        android:layout_marginLeft="10dp"
         android:background="@drawable/kanditag_back_button"/>
 <!--
     <TextView

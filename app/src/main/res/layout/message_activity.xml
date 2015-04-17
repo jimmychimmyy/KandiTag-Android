@@ -1,0 +1,51 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/charcoal"
+    tools:context="com.jimchen.kanditag.MessageActivity">
+
+    <View
+        android:id="@+id/MessageActivity_TopNavBar"
+        android:layout_width="fill_parent"
+        android:layout_height="65dp"
+        android:background="@color/dark_charcoal"/>
+
+    <ImageView
+        android:layout_width="180dp"
+        android:layout_height="60dp"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="15dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/popout_layout_textbanner_message"/>
+
+    <ImageView
+        android:id="@+id/MessageActivity_BackButton"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="11dp"
+        android:layout_marginLeft="10dp"
+        android:background="@drawable/kanditag_back_button"/>
+
+    <ImageView
+        android:id="@+id/MessageActivity_NewMessageButton"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:layout_marginTop="11dp"
+        android:layout_marginLeft="8dp"
+        android:layout_toRightOf="@+id/MessageActivity_BackButton"
+        android:background="@drawable/kanditag_plus_button"/>
+
+    <FrameLayout
+        android:id="@+id/MessageActivity_SearchBarContainer"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:layout_below="@+id/MessageActivity_TopNavBar"/>
+
+    <ListView
+        android:id="@+id/MessageActivity_ListView"
+        android:layout_below="@+id/MessageActivity_TopNavBar"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"></ListView>
+
+</RelativeLayout>
