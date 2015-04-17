@@ -10,8 +10,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -75,6 +77,12 @@ public class MessageFragment extends Fragment {
     //Fragment Manager Var End
 
     @Override
+    public void onResume() {
+        super.onResume();
+        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.message_fragment, container, false);
 
@@ -95,6 +103,7 @@ public class MessageFragment extends Fragment {
                 getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_slide_in, R.anim.right_slide_out).remove(MessageFragment.this).commit();
                 FragmentManager fm = getActivity().getSupportFragmentManager();
                 fm.popBackStack();
+                getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             }
         });
 
@@ -116,6 +125,7 @@ public class MessageFragment extends Fragment {
         Bundle extras = new Bundle();
         extras.putString("title", "Messages");
         bannerFragment.setArguments(extras);
+         //this has been changed to MessageFragment_SearchBarContainer
         fragmentTransaction.add(R.id.MessageFragment_FrameLayout, bannerFragment);
         fragmentTransaction.commit();
          **/

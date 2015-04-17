@@ -195,6 +195,7 @@ public class MainActivity extends FragmentActivity {
     @Override
     public void onPause() {
         super.onPause();
+        //System.out.println("MainActivity.onPause()");
     }
 
     @Override
@@ -205,6 +206,15 @@ public class MainActivity extends FragmentActivity {
             myCamera.release();
         }
 
+    }
+
+    // when the back button is clicked
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        //System.out.println("MainActivity.onBackPressed()");
+        // when returning to main from a fragment, set window to fullscreen
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
     // Runnables to update UI with hide/show toMenuItems *******************************************

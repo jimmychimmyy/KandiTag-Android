@@ -99,6 +99,7 @@
     <orderEntry type="library" exported="" name="core-3.2.0" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-21.0.3" level="project" />
     <orderEntry type="library" exported="" name="play-services-3.1.59" level="project" />
+    <orderEntry type="library" exported="" name="core-2.2" level="project" />
     <orderEntry type="library" exported="" name="bolts-android-1.1.2" level="project" />
     <orderEntry type="module" module-name="facebook" exported="" />
   </component>

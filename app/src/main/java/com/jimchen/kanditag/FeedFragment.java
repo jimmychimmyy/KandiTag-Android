@@ -4,10 +4,13 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -31,12 +34,21 @@ public class FeedFragment extends Fragment {
     GridView kandiGridView;
     TextView kandiTitleTextView;
 
+    // exit button to return to main
+    private ImageView exitButton;
+
     private ArrayList<FriendsGridItem> followerArray, followingArray;
     private FriendsGridViewAdapter followerGridViewAdapter, followingGridViewAdapter;
 
     public static final FeedFragment newInstance() {
         FeedFragment feedFragment = new FeedFragment();
         return feedFragment;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
     @Override
@@ -59,6 +71,17 @@ public class FeedFragment extends Fragment {
         rootView.setId(CONTAINER_TYPE);
 
         kandiGridView = (GridView) rootView.findViewById(R.id.kandiGridView);
+
+        exitButton = (ImageView) rootView.findViewById(R.id.FeedFragment_ExitButton);
+        exitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_slide_in, R.anim.right_slide_out).remove(FeedFragment.this).commit();
+                FragmentManager fm = getActivity().getSupportFragmentManager();
+                fm.popBackStack();
+                getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            }
+        });
 
         /**
 

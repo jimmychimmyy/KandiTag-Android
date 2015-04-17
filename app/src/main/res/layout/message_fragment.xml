@@ -6,6 +6,7 @@
     android:background="@color/light_gray" >
 
     <View
+        android:id="@+id/MessageFragment_TopNavBar"
         android:layout_width="fill_parent"
         android:layout_height="70dp"
         android:background="@color/dark_charcoal"/>
@@ -25,10 +26,20 @@
         android:layout_marginLeft="8dp"
         android:background="@drawable/kanditag_back_button"/>
 
+    <ImageView
+        android:id="@+id/MessageFragment_NewMessageButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="8dp"
+        android:layout_toRightOf="@+id/MessageFragment_ExitButton"
+        android:background="@drawable/kanditag_plus_button"/>
+
     <FrameLayout
-        android:id="@+id/MessageFragment_FrameLayout"
+        android:id="@+id/MessageFragment_SearchBarContainer"
         android:layout_width="fill_parent"
-        android:layout_height="80dp"/>
+        android:layout_height="60dp"
+        android:layout_below="@+id/MessageFragment_TopNavBar"/>
 
     <!--
     <ImageView
@@ -55,7 +66,7 @@
 
     <ListView
         android:id="@+id/MessageFragment_ListView"
-        android:layout_marginTop="70dp"
+        android:layout_below="@+id/MessageFragment_SearchBarContainer"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"></ListView>
 

@@ -17,6 +17,14 @@
         android:layout_marginRight="20dp"
         android:background="@drawable/popout_layout_textbanner_exchange"/>
 
+    <ImageView
+        android:id="@+id/ExchangeFragment_ExitButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="8dp"
+        android:background="@drawable/kanditag_back_button"/>
+
     <FrameLayout
         android:id="@+id/ExchangeFragment_FrameLayout"
         android:layout_width="fill_parent"
