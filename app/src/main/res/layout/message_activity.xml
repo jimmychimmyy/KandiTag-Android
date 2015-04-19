@@ -48,4 +48,9 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"></ListView>
 
+    <FrameLayout
+        android:id="@+id/MessageActivity_NewMessageFragmentContainer"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"/>
+
 </RelativeLayout>

@@ -165,9 +165,11 @@ public class GroupMessageDialogue extends Activity {
                     messageToSend = myEditText.getText().toString();
                     Animation anim = AnimationUtils.loadAnimation(GroupMessageDialogue.this, R.anim.left_slide_out);
                     mySendButton.startAnimation(anim);
+                    //TODO check this
+                    /**
                     Message message = new Message();
                     message.newGroupMessage(messageToSend, MY_FB_ID, MY_USER_NAME, qrcode, kandi_name);
-
+                    **/
                     if (messageToSend != null) {
                         myEditText.setText("");
                     }

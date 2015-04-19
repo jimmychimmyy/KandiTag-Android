@@ -13,7 +13,6 @@ import android.graphics.Typeface;
 import android.os.StrictMode;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -98,7 +97,7 @@ public class ProfileFragment extends Fragment {
                 kandiGroupsGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        System.out.println("Kandi Group Selected: " + output.get(position).getGroupName());
+                        System.out.println("Kandi Group Selected: " + output.get(position).getKandi_name());
                     }
                 });
                 //getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.left_slide_in, R.anim.left_slide_out).remove(ProfileFragment.this).commit();
@@ -106,7 +105,7 @@ public class ProfileFragment extends Fragment {
             }
         });
 
-        GetAllKandiFromLocalAsyncTask getAllKandi = new GetAllKandiFromLocalAsyncTask(getActivity(), new ReturnKandiObjectArrayAsyncResponse() {
+        GetAllKandiFromLocalDbAsyncTask getAllKandi = new GetAllKandiFromLocalDbAsyncTask(getActivity(), new ReturnKandiObjectArrayAsyncResponse() {
             @Override
             public void processFinish(ArrayList<KandiObject> output) {
                 getAllGroups.execute(output);

@@ -159,16 +159,16 @@ public class GcmIntentService extends IntentService {
     private void newGroupMessageNotification(GroupMessageItem message) {
         myNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        Intent toGroupMessageIntent = new Intent(getApplicationContext(), Message.class);
-        toGroupMessageIntent.putExtra("kandi_group", message.getQrCode());
+        //Intent toGroupMessageIntent = new Intent(getApplicationContext(), Message.class);
+        //toGroupMessageIntent.putExtra("kandi_group", message.getKandi_id());
 
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, toGroupMessageIntent, 0);
+        //PendingIntent contentIntent = PendingIntent.getActivity(this, 0, toGroupMessageIntent, 0);
 
         NotificationCompat.Builder myBuilder = new NotificationCompat.Builder(this).setSmallIcon(R.drawable.splash_screen_kt_logo_universal).
                 setContentTitle(message.getFromName()).
                 setStyle(new NotificationCompat.BigTextStyle().bigText(message.getMessage())).setContentText(message.getMessage());
 
-        myBuilder.setContentIntent(contentIntent);
+        //myBuilder.setContentIntent(contentIntent);
         // vibrate delay, vibrate length, vibrate delay, vibrate length
         myBuilder.setVibrate(new long[]{100, 200, 100, 500});
         myBuilder.setLights(Color.YELLOW, 3000, 3000);
@@ -186,16 +186,16 @@ public class GcmIntentService extends IntentService {
     private void newMessageNotification(KtMessageObject message) {
         myNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
 
-        Intent toMessageIntent = new Intent(getApplicationContext(), Message.class);
-        toMessageIntent.putExtra("fb_id", message.getFrom_id());
+        //Intent toMessageIntent = new Intent(getApplicationContext(), Message.class);
+        //toMessageIntent.putExtra("fb_id", message.getFrom_id());
 
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, toMessageIntent, 0);
+        //PendingIntent contentIntent = PendingIntent.getActivity(this, 0, toMessageIntent, 0);
 
         NotificationCompat.Builder myBuilder = new NotificationCompat.Builder(this).setSmallIcon(R.drawable.splash_screen_kt_logo_universal).
                 setContentTitle(message.getFrom_name()).
                 setStyle(new NotificationCompat.BigTextStyle().bigText(message.getMessage())).setContentText(message.getMessage());
 
-        myBuilder.setContentIntent(contentIntent);
+        //myBuilder.setContentIntent(contentIntent);
         // vibrate delay, vibrate length, vibrate delay, vibrate length
         myBuilder.setVibrate(new long[]{100, 200, 100, 500});
         myBuilder.setLights(Color.YELLOW, 3000, 3000);

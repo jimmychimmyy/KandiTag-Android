@@ -16,11 +16,11 @@ public class GetAllGroupsFromLocalDbAsyncTask extends AsyncTask<ArrayList<KandiO
 
     public ReturnKandiGroupObjectParcelableArrayList delegate = null;
 
-    private ArrayList<KandiGroupObjectParcelable> kandiGroupObjectArrayList;
+    private ArrayList<KandiGroupObjectParcelable> kandiGroupObjectList;
 
-    private ArrayList<KtUserObject> ktUserObjectArrayList;
+    private ArrayList<KtUserObjectParcelable> ktUserObjectList;
 
-    private ArrayList<KandiObject> tempKandiObjectList;
+    private ArrayList<KandiObject> kandiObjectList;
 
     public GetAllGroupsFromLocalDbAsyncTask(Context context, ReturnKandiGroupObjectParcelableArrayList response) {
         this.context = context;
@@ -31,28 +31,30 @@ public class GetAllGroupsFromLocalDbAsyncTask extends AsyncTask<ArrayList<KandiO
     protected ArrayList<KandiGroupObjectParcelable> doInBackground(ArrayList<KandiObject>... params) {
 
         try {
-            tempKandiObjectList = params[0];
 
-            for (int i = 0; i < tempKandiObjectList.size(); i++) {
-                ktUserObjectArrayList = myDatabase.getKtUserObjectArrayForKandiGroupObjects(tempKandiObjectList.get(i).getQrCode());
+            kandiObjectList = params[0];
+
+            for (int i = 0; i < kandiObjectList.size(); i++) {
+                ktUserObjectList = myDatabase.getAllKtUsersFromGroup(kandiObjectList.get(i).getKandi_id());
                 KandiGroupObjectParcelable kandiGroupObject = new KandiGroupObjectParcelable();
-                kandiGroupObject.setQrCode(tempKandiObjectList.get(i).getQrCode());
-                kandiGroupObject.setGroupName(tempKandiObjectList.get(i).getKandi_name());
-                kandiGroupObject.setListOfUsers(ktUserObjectArrayList);
-                kandiGroupObjectArrayList.add(kandiGroupObject);
+                kandiGroupObject.setKandi_id(kandiObjectList.get(i).getKandi_id());
+                kandiGroupObject.setKandi_name(kandiObjectList.get(i).getKandi_name());
+                kandiGroupObject.setListOfUsers(ktUserObjectList);
+                kandiGroupObjectList.add(kandiGroupObject);
             }
         } catch (ArrayIndexOutOfBoundsException ex) {
             ex.printStackTrace();
         }
 
-        return kandiGroupObjectArrayList;
+        return kandiGroupObjectList;
     }
 
     @Override
     protected void onPreExecute() {
         myDatabase = new KtDatabase(context);
-        kandiGroupObjectArrayList = new ArrayList<>();
-        ktUserObjectArrayList = new ArrayList<>();
+        kandiGroupObjectList = new ArrayList<>();
+        ktUserObjectList = new ArrayList<>();
+        kandiObjectList = new ArrayList<>();
     }
 
     @Override

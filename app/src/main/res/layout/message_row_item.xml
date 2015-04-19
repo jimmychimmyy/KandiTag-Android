@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+
+    <ImageView
+        android:id="@+id/MessageRowItem_SenderProfileImageContainer"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:paddingRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="3dp"/>
+
+    <TextView
+        android:text="Name"
+        android:id="@+id/MessageRowItem_SenderName"
+        android:layout_marginTop="15dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/MessageRowItem_SenderProfileImageContainer"
+        android:textColor="@color/black"
+        android:textSize="16dp" />
+
+    <TextView
+        android:id="@+id/MessageRowItem_KandiName"
+        android:layout_marginTop="15dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/MessageRowItem_SenderProfileImageContainer"
+        android:textColor="@color/black"
+        android:textSize="16dp" />
+
+    <TextView
+        android:id="@+id/MessageRowItem_TimeStamp"
+        android:text="12:34:56"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="12dp"
+        android:layout_marginTop="15dp"/>
+
+    <TextView
+        android:text="Message goes in here..."
+        android:id="@+id/MessageRowItem_MessageText"
+        android:layout_marginTop="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/MessageRowItem_SenderName"
+        android:layout_toRightOf="@+id/MessageRowItem_SenderProfileImageContainer"
+        android:textColor="@color/black"
+        android:textSize="14dp" />
+
+</RelativeLayout>

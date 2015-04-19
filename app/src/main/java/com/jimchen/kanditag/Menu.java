@@ -112,8 +112,8 @@ public class Menu extends Fragment {
     }
 
     public void showMessage() {
-        Intent intent = new Intent(getActivity(), Message.class);
-        startActivityForResult(intent, MESSAGE_INTENT_NUMBER);
+        //Intent intent = new Intent(getActivity(), Message.class);
+        //startActivityForResult(intent, MESSAGE_INTENT_NUMBER);
     }
 
     public void showBrowse() {

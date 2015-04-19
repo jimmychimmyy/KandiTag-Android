@@ -10,9 +10,9 @@ import java.util.ArrayList;
  */
 public class KandiGroupObjectParcelable implements Parcelable{
 
-    private String qrCode, groupName;
+    private String kandi_id, kandi_name;
 
-    private ArrayList<KtUserObject> users;
+    private ArrayList<KtUserObjectParcelable> users;
 
     @Override
     public int describeContents() {
@@ -21,39 +21,39 @@ public class KandiGroupObjectParcelable implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel parcel, int flags) {
-        parcel.writeString(qrCode);
-        parcel.writeString(groupName);
+        parcel.writeString(kandi_id);
+        parcel.writeString(kandi_name);
         parcel.writeList(users);
     }
 
     public KandiGroupObjectParcelable() {}
 
-    public void setListOfUsers(ArrayList<KtUserObject> users) {
+    public void setListOfUsers(ArrayList<KtUserObjectParcelable> users) {
         this.users = users;
     }
 
-    public ArrayList<KtUserObject> getListOfUsers() {
+    public ArrayList<KtUserObjectParcelable> getListOfUsers() {
         return users;
     }
 
-    public KandiGroupObjectParcelable(String qrCode, String groupName) {
-        this.qrCode = qrCode;
-        this.groupName = groupName;
+    public KandiGroupObjectParcelable(String kandi_id, String kandi_name) {
+        this.kandi_id = kandi_id;
+        this.kandi_name = kandi_name;
     }
 
-    public void setQrCode(String qrCode) {
-        this.qrCode = qrCode;
+    public void setKandi_id(String kandi_id) {
+        this.kandi_id = kandi_id;
     }
 
-    public void setGroupName(String name) {
-        this.groupName = name;
+    public void setKandi_name(String name) {
+        this.kandi_name = name;
     }
 
-    public String getQrCode() {
-        return qrCode;
+    public String getKandi_id() {
+        return kandi_id;
     }
 
-    public String getGroupName() {
-        return groupName;
+    public String getKandi_name() {
+        return kandi_name;
     }
 }

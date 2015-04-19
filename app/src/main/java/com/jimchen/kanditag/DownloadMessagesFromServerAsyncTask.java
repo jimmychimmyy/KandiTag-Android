@@ -60,7 +60,7 @@ public class DownloadMessagesFromServerAsyncTask extends AsyncTask<Void, Void, A
 
                 HttpPost post = new HttpPost(Url);
 
-                toPostData.setFb_id(MY_FB_ID);
+                toPostData.setKt_id(MY_KT_ID);
 
                 StringEntity entity = new StringEntity(toPostData.toString(), HTTP.UTF_8);
 

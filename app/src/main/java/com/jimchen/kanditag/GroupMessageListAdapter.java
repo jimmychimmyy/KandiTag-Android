@@ -57,7 +57,7 @@ public class GroupMessageListAdapter extends ArrayAdapter<GroupMessageItem> {
         //TODO probably use a different method to get the kandi name or save the kandi name into the database for faster access
 
         for (int i = 0; i < kandiObjects.size(); i++) {
-            if (kandiObjects.get(i).getQrCode().equals(item.getQrCode())) {
+            if (kandiObjects.get(i).getKandi_id().equals(item.getQrCode())) {
                 holder.from_name.setText(kandiObjects.get(i).getKandi_name());
             }
         }

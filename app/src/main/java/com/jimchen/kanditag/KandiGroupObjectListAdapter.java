@@ -45,8 +45,8 @@ public class KandiGroupObjectListAdapter extends ArrayAdapter<KandiGroupObjectPa
 
         KandiGroupObjectParcelable object = getItem(position);
 
-        holder.kandi_name.setText(object.getGroupName());
-        holder.qrCode.setText(object.getQrCode());
+        holder.kandi_name.setText(object.getKandi_name());
+        holder.qrCode.setText(object.getKandi_id());
         //holder.groupImage.setImageResource(R.drawable.splash_screen_kt_logo_universal);
 
         //change the layout of the xml file if there is under 5 kandi groups the user is in

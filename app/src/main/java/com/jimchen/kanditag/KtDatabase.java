@@ -17,10 +17,10 @@ import java.util.ArrayList;
 public class KtDatabase extends SQLiteOpenHelper {
 
     SharedPreferences sharedPreferences;
-    public static final String MyPreferences = "MyPrefs";
-    public static final String Name = "nameKey";
-    public static final String FbId = "fbidKey";
-    public static final String UserId = "userIdKey";
+    public static final String MY_PREFERENCES = "MyPrefs";
+    public static final String NAME = "nameKey";
+    public static final String FBID = "fbidKey";
+    public static final String KTID = "userIdKey";
 
     private static final String TAG = "KTDatabase";
     private String MY_KT_ID, MY_FB_ID, MY_USER_NAME;
@@ -31,8 +31,8 @@ public class KtDatabase extends SQLiteOpenHelper {
     private static final String CREATE_TABLE = "CREATE TABLE IF NOT EXISTS ";
 
     private static final String KANDI_TABLE = "kt_kandi";
-    private static final String KANDI_COLUMN_QR = "qrcode";
-    private static final String KANDI_COLUMN_GROUP_NAME = "group_name";
+    private static final String KANDI_COLUMN_ID = "kandi_id";
+    private static final String KANDI_COLUMN_NAME = "kandi_name";
 
     private static final String MESSAGE_TABLE = "kt_message";
     private static final String MESSAGE_COLUMN_MSSG = "message";
@@ -40,20 +40,21 @@ public class KtDatabase extends SQLiteOpenHelper {
     private static final String MESSAGE_COLUMN_FROM_NAME = "from_name";
     private static final String MESSAGE_COLUMN_TO_ID = "to_id";
     private static final String MESSAGE_COLUMN_TO_NAME = "to_name";
-    private static final String MESSAGE_COLUMN_TIME = "time";
+    private static final String MESSAGE_COLUMN_TIMESTAMP = "timestamp";
 
     private static final String GROUP_MESSAGE_TABLE = "kt_group_message";
     private static final String GROUP_MESSAGE_COLUMN_MSSG = "message";
     private static final String GROUP_MESSAGE_COLUMN_FROM_ID = "from_id";
     private static final String GROUP_MESSAGE_COLUMN_FROM_NAME = "from_name";
-    private static final String GROUP_MESSAGE_COLUMN_GROUP = "kt_group";
-    private static final String GROUP_MESSAGE_COLUMN_TIME = "time";
+    private static final String GROUP_MESSAGE_COLUMN_KANDI_ID = "kandi_id";
+    private static final String GROUP_MESSAGE_COLUMN_KANDI_NAME = "kandi_name";
+    private static final String GROUP_MESSAGE_COLUMN_TIMESTAMP = "timestamp";
 
     private static final String KT_USERS_TABLE = "kt_users";
     private static final String KT_USERS_COLUMN_KT_ID = "kt_id";
     private static final String KT_USERS_COLUMN_FB_ID = "fb_id";
     private static final String KT_USERS_COLUMN_USERNAME = "username";
-    private static final String KT_USERS_COLUMN_KANDI_GROUP = "kt_group";
+    private static final String KT_USERS_COLUMN_KANDI_ID = "kandi_id";
     private static final String KT_USERS_COLUMN_PLACEMENT = "placement";
 
 
@@ -65,10 +66,10 @@ public class KtDatabase extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         Log.i(TAG, "onCreate");
-        db.execSQL(CREATE_TABLE + KANDI_TABLE + " (_id integer primary key, qrcode VARCHAR(32), group_name VARCHAR(32));");
-        db.execSQL(CREATE_TABLE + MESSAGE_TABLE + " (_id integer primary key, message text, from_id VARCHAR(32), from_name VARCHAR(32), to_id VARCHAR(32), to_name VARCHAR(32), time integer);");
-        db.execSQL(CREATE_TABLE + GROUP_MESSAGE_TABLE + " (_id integer primary key, message text, from_id VARCHAR(32), from_name VARCHAR(32), kt_group VARCHAR(32), time integer);");
-        db.execSQL(CREATE_TABLE + KT_USERS_TABLE + " (_id integer primary key, kt_id VARCHAR(32), fb_id VARCHAR(32), username VARCHAR(32), kt_group VARCHAR(32), placement integer);");
+        db.execSQL(CREATE_TABLE + KANDI_TABLE + " (_id integer primary key, kandi_id VARCHAR(32), kandi_name VARCHAR(32));");
+        db.execSQL(CREATE_TABLE + MESSAGE_TABLE + " (_id integer primary key, message text, from_id VARCHAR(32), from_name VARCHAR(32), to_id VARCHAR(32), to_name VARCHAR(32), timestamp integer);");
+        db.execSQL(CREATE_TABLE + GROUP_MESSAGE_TABLE + " (_id integer primary key, message text, from_id VARCHAR(32), from_name VARCHAR(32), kandi_id VARCHAR(32), kandi_name VARCHAR(32), timestamp integer);");
+        db.execSQL(CREATE_TABLE + KT_USERS_TABLE + " (_id integer primary key, kt_id VARCHAR(32), fb_id VARCHAR(32), username VARCHAR(32), kandi_id VARCHAR(32), placement integer);");
 
 
         //will not be needing these tables anymore but double check to make sure that the getters and setters for these tables are not being used
@@ -88,7 +89,7 @@ public class KtDatabase extends SQLiteOpenHelper {
         System.out.println("KtDatabase.checkIfGroupMessageExists");
         boolean exists = false;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("select * from kt_group_message where from_id='" + item.getFromID() + "' and from_name='" + item.getFromName() + "' and kt_group='" + item.getQrCode() + "' and time='" + item.getTime() + "'", null);
+        Cursor res = db.rawQuery("select * from kt_group_message where from_id='" + item.getFromID() + "' and from_name='" + item.getFromName() + "' and kandi_id='" + item.getQrCode() + "' and timestamp='" + item.getTime() + "'", null);
         res.moveToFirst();
         if (res.getCount() == 1) {
             System.out.println("count = 1");
@@ -108,7 +109,7 @@ public class KtDatabase extends SQLiteOpenHelper {
         System.out.println("KtDatabase.checkIfKtUserExists");
         boolean exists = false;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("select * from kt_users where kt_id='" + user.getKt_id() + "' and fb_id='" + user.getFb_id() + "' and username='" + user.getName() + "' and kt_group='" + user.getQrCode() + "' and placement=" + user.getPlacement() + "", null);
+        Cursor res = db.rawQuery("select * from kt_users where kt_id='" + user.getKt_id() + "' and fb_id='" + user.getFb_id() + "' and username='" + user.getName() + "' and kandi_id='" + user.getQrCode() + "' and placement=" + user.getPlacement() + "", null);
         res.moveToFirst();
         if (res.getCount() == 1) {
             System.out.println("count = 1");
@@ -130,7 +131,7 @@ public class KtDatabase extends SQLiteOpenHelper {
         contentValues.put(KT_USERS_COLUMN_KT_ID, user.getKt_id());
         contentValues.put(KT_USERS_COLUMN_FB_ID, user.getFb_id());
         contentValues.put(KT_USERS_COLUMN_USERNAME, user.getName());
-        contentValues.put(KT_USERS_COLUMN_KANDI_GROUP, user.getQrCode());
+        contentValues.put(KT_USERS_COLUMN_KANDI_ID, user.getQrCode());
         contentValues.put(KT_USERS_COLUMN_PLACEMENT, user.getPlacement());
         db.insert(KT_USERS_TABLE, null, contentValues);
         return true;
@@ -139,7 +140,7 @@ public class KtDatabase extends SQLiteOpenHelper {
     public boolean checkIfKandiExists(KandiObject kandi) {
         boolean exists = false;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("select * from kt_kandi where qrcode='" + kandi.getQrCode() + "' and group_name='" + kandi.getKandi_name() + "'", null);
+        Cursor res = db.rawQuery("select * from kt_kandi where kandi_id='" + kandi.getKandi_id() + "' and kandi_name='" + kandi.getKandi_name() + "'", null);
         res.moveToFirst();
         if (res.getCount() == 1) {
             System.out.println("count = 1");
@@ -157,8 +158,8 @@ public class KtDatabase extends SQLiteOpenHelper {
     public boolean saveKandi(KandiObject item) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
-        contentValues.put(KANDI_COLUMN_QR, item.getQrCode());
-        contentValues.put(KANDI_COLUMN_GROUP_NAME, item.getKandi_name());
+        contentValues.put(KANDI_COLUMN_ID, item.getKandi_id());
+        contentValues.put(KANDI_COLUMN_NAME, item.getKandi_name());
         db.insert(KANDI_TABLE, null, contentValues);
         return true;
     }
@@ -170,8 +171,8 @@ public class KtDatabase extends SQLiteOpenHelper {
         contentValues.put(GROUP_MESSAGE_COLUMN_MSSG, item.getMessage());
         contentValues.put(GROUP_MESSAGE_COLUMN_FROM_ID, item.getFromID());
         contentValues.put(GROUP_MESSAGE_COLUMN_FROM_NAME, item.getFromName());
-        contentValues.put(GROUP_MESSAGE_COLUMN_GROUP, item.getQrCode());
-        contentValues.put(GROUP_MESSAGE_COLUMN_TIME, item.getTime());
+        contentValues.put(GROUP_MESSAGE_COLUMN_KANDI_NAME, item.getQrCode());
+        contentValues.put(GROUP_MESSAGE_COLUMN_TIMESTAMP, item.getTime());
         db.insert(GROUP_MESSAGE_TABLE, null, contentValues);
         return true;
     }
@@ -185,7 +186,7 @@ public class KtDatabase extends SQLiteOpenHelper {
         contentValues.put(MESSAGE_COLUMN_FROM_NAME, item.getFrom_name());
         contentValues.put(MESSAGE_COLUMN_TO_ID, item.getTo_id());
         contentValues.put(MESSAGE_COLUMN_TO_NAME, item.getTo_name());
-        contentValues.put(MESSAGE_COLUMN_TIME, item.getTime());
+        contentValues.put(MESSAGE_COLUMN_TIMESTAMP, item.getTime());
         db.insert(MESSAGE_TABLE, null, contentValues);
         return true;
     }
@@ -194,7 +195,7 @@ public class KtDatabase extends SQLiteOpenHelper {
         System.out.println("KtDatabase.checkIfAlreadyExistsInKtMessage");
         boolean exists = false;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("select * from kt_message where from_id='" + item.getFrom_id() + "' and to_id='" + item.getTo_id() + "' and time='" + item.getTime() + "'", null);
+        Cursor res = db.rawQuery("select * from kt_message where from_id='" + item.getFrom_id() + "' and to_id='" + item.getTo_id() + "' and timestamp='" + item.getTime() + "'", null);
         res.moveToFirst();
         if (res.getCount() == 1) {
             System.out.println("count = 1");
@@ -218,7 +219,7 @@ public class KtDatabase extends SQLiteOpenHelper {
         contentValues.put(MESSAGE_COLUMN_FROM_NAME, item.getSenderName());
         contentValues.put(MESSAGE_COLUMN_TO_ID, item.getRecipientID());
         contentValues.put(MESSAGE_COLUMN_TO_NAME, item.getRecipientName());
-        contentValues.put(MESSAGE_COLUMN_TIME, item.getTime());
+        contentValues.put(MESSAGE_COLUMN_TIMESTAMP, item.getTime());
         db.insert(MESSAGE_TABLE, null, contentValues);
         return true;
     }
@@ -236,9 +237,9 @@ public class KtDatabase extends SQLiteOpenHelper {
             KtUserObjectParcelable tempKtUserObj = new KtUserObjectParcelable();
             tempKtUserObj.setKt_id(res.getString(res.getColumnIndex(KT_USERS_COLUMN_KT_ID)));
             tempKtUserObj.setFb_id(res.getString(res.getColumnIndex(KT_USERS_COLUMN_FB_ID)));
-            tempKtUserObj.setUser_name(res.getString(res.getColumnIndex(KT_USERS_COLUMN_USERNAME)));
+            tempKtUserObj.setUsername(res.getString(res.getColumnIndex(KT_USERS_COLUMN_USERNAME)));
             // will not be needing the group or placement for individual users
-            //tempKtUserObj.setQrCode(res.getString(res.getColumnIndex(KT_USERS_COLUMN_KANDI_GROUP)));
+            //tempKtUserObj.setKandi_id(res.getString(res.getColumnIndex(KT_USERS_COLUMN_KANDI_ID)));
             //tempKtUserObj.setPlacement(res.getInt(res.getColumnIndex(KT_USERS_COLUMN_PLACEMENT)));
 
             if (!kt_idArrayList.contains(tempKtUserObj.getKt_id())) {
@@ -255,14 +256,14 @@ public class KtDatabase extends SQLiteOpenHelper {
         ArrayList<KtUserObject> ktUserGroupArrayList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         for (int i = 0; i < kandi.size(); i++) {
-            Cursor res = db.rawQuery("select * from kt_users where kt_group=" + kandi.get(i) + "", null);
+            Cursor res = db.rawQuery("select * from kt_users where kandi_id=" + kandi.get(i) + "", null);
             res.moveToFirst();
             while (!res.isAfterLast()) {
                 KtUserObject tempKtUserObj = new KtUserObject();
                 tempKtUserObj.setKt_id(res.getString(res.getColumnIndex(KT_USERS_COLUMN_KT_ID)));
                 tempKtUserObj.setFb_id(res.getString(res.getColumnIndex(KT_USERS_COLUMN_FB_ID)));
                 tempKtUserObj.setName(res.getString(res.getColumnIndex(KT_USERS_COLUMN_USERNAME)));
-                tempKtUserObj.setQrCode(res.getString(res.getColumnIndex(KT_USERS_COLUMN_KANDI_GROUP)));
+                tempKtUserObj.setQrCode(res.getString(res.getColumnIndex(KT_USERS_COLUMN_KANDI_ID)));
                 ktUserGroupArrayList.add(tempKtUserObj);
                 res.moveToNext();
             }
@@ -286,7 +287,7 @@ public class KtDatabase extends SQLiteOpenHelper {
             tempConvoItem.setSenderName(res.getString(res.getColumnIndex(MESSAGE_COLUMN_FROM_NAME)));
             tempConvoItem.setRecipientID(res.getString(res.getColumnIndex(MESSAGE_COLUMN_TO_ID)));
             tempConvoItem.setRecipientName(res.getString(res.getColumnIndex(MESSAGE_COLUMN_FROM_NAME)));
-            tempConvoItem.setTime(res.getString(res.getColumnIndex(MESSAGE_COLUMN_TIME)));
+            tempConvoItem.setTime(res.getString(res.getColumnIndex(MESSAGE_COLUMN_TIMESTAMP)));
             messageArrayList.add(tempConvoItem);
             res.moveToNext();
         }
@@ -306,7 +307,7 @@ public class KtDatabase extends SQLiteOpenHelper {
             tempConvoItem.setSenderName(res.getString(res.getColumnIndex(MESSAGE_COLUMN_FROM_NAME)));
             tempConvoItem.setRecipientID(res.getString(res.getColumnIndex(MESSAGE_COLUMN_TO_ID)));
             tempConvoItem.setRecipientName(res.getString(res.getColumnIndex(MESSAGE_COLUMN_FROM_NAME)));
-            tempConvoItem.setTime(res.getString(res.getColumnIndex(MESSAGE_COLUMN_TIME)));
+            tempConvoItem.setTime(res.getString(res.getColumnIndex(MESSAGE_COLUMN_TIMESTAMP)));
             messageArrayList.add(tempConvoItem);
             res.moveToNext();
         }
@@ -317,15 +318,15 @@ public class KtDatabase extends SQLiteOpenHelper {
         System.out.println("KtDatabase.getMessagesForGroup");
         ArrayList<GroupMessageItem> groupMessageItems = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("select * from kt_group_message where kt_group='" + ktGroup + "'", null);
+        Cursor res = db.rawQuery("select * from kt_group_message where kandi_id='" + ktGroup + "'", null);
         res.moveToFirst();
         while (!res.isAfterLast()) {
             GroupMessageItem groupMessageItem = new GroupMessageItem();
             groupMessageItem.setMessage(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_MSSG)));
             groupMessageItem.setFromID(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_FROM_ID)));
             groupMessageItem.setFromName(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_FROM_NAME)));
-            groupMessageItem.setQrCode(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_GROUP)));
-            groupMessageItem.setTime(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_TIME)));
+            groupMessageItem.setQrCode(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_KANDI_NAME)));
+            groupMessageItem.setTime(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_TIMESTAMP)));
             groupMessageItems.add(groupMessageItem);
             res.moveToNext();
         }
@@ -343,8 +344,8 @@ public class KtDatabase extends SQLiteOpenHelper {
             tempConvoItem.setMessage(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_MSSG)));
             tempConvoItem.setSenderID(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_FROM_ID)));
             tempConvoItem.setSenderName(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_FROM_NAME)));
-            tempConvoItem.setRecipientID(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_GROUP)));
-            tempConvoItem.setTime(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_TIME)));
+            tempConvoItem.setRecipientID(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_KANDI_NAME)));
+            tempConvoItem.setTime(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_TIMESTAMP)));
             groupMessageArrayList.add(tempConvoItem);
             res.moveToNext();
         }
@@ -362,9 +363,9 @@ public class KtDatabase extends SQLiteOpenHelper {
         res.moveToFirst();
         while(!res.isAfterLast()) {
             KandiGroupObject kandiGroupObject = new KandiGroupObject();
-            kandiGroupObject.setQrCode(res.getString(res.getColumnIndex(KANDI_COLUMN_QR)));
-            kandiGroupObject.setKandi_name(res.getString(res.getColumnIndex(KANDI_COLUMN_GROUP_NAME)));
-            //System.out.println("kandiGroupObject.getQr: " + kandiGroupObject.getQrCode());
+            kandiGroupObject.setQrCode(res.getString(res.getColumnIndex(KANDI_COLUMN_ID)));
+            kandiGroupObject.setKandi_name(res.getString(res.getColumnIndex(KANDI_COLUMN_NAME)));
+            //System.out.println("kandiGroupObject.getQr: " + kandiGroupObject.getKandi_id());
             //System.out.println("kandiGroupObject.getKandi_name: " + kandiGroupObject.getKandi_name());
             res.moveToNext();
         }
@@ -377,7 +378,7 @@ public class KtDatabase extends SQLiteOpenHelper {
         System.out.println("KtDatabase.getKtUserObjectArrayForKandiGroupObjects");
         ArrayList<KtUserObject> ktUserObjectArrayList = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("select * from kt_users where kt_group='" + qrCode + "'", null);
+        Cursor res = db.rawQuery("select * from kt_users where kandi_id='" + qrCode + "'", null);
         res.moveToFirst();
         while(!res.isAfterLast()) {
             KtUserObject ktUserObject = new KtUserObject();
@@ -385,14 +386,14 @@ public class KtDatabase extends SQLiteOpenHelper {
             ktUserObject.setFb_id(res.getString(res.getColumnIndex(KT_USERS_COLUMN_FB_ID)));
             ktUserObject.setName(res.getString(res.getColumnIndex(KT_USERS_COLUMN_USERNAME)));
             ktUserObject.setPlacement(res.getInt(res.getColumnIndex(KT_USERS_COLUMN_PLACEMENT)));
-            ktUserObject.setQrCode(res.getString(res.getColumnIndex(KT_USERS_COLUMN_KANDI_GROUP)));
+            ktUserObject.setQrCode(res.getString(res.getColumnIndex(KT_USERS_COLUMN_KANDI_ID)));
             ktUserObjectArrayList.add(ktUserObject);
 
             /**
             System.out.println("ktUserObject.getKtId: " + ktUserObject.getKt_id());
             System.out.println("ktUserObject.getFbId: " + ktUserObject.getFb_id());
             System.out.println("ktUserObject.getName: " + ktUserObject.getName());
-            System.out.println("ktUserObject.getQrCode: " + ktUserObject.getQrCode());
+            System.out.println("ktUserObject.getKandi_id: " + ktUserObject.getKandi_id());
             System.out.println("ktUserObject.getPlacement: " + ktUserObject.getPlacement());
              **/
 
@@ -409,11 +410,11 @@ public class KtDatabase extends SQLiteOpenHelper {
         res.moveToFirst();
         while(!res.isAfterLast()) {
             KandiObject kandiObject = new KandiObject();
-            kandiObject.setQrCode(res.getString(res.getColumnIndex(KANDI_COLUMN_QR)));
-            kandiObject.setKandi_name(res.getString(res.getColumnIndex(KANDI_COLUMN_GROUP_NAME)));
+            kandiObject.setKandi_id(res.getString(res.getColumnIndex(KANDI_COLUMN_ID)));
+            kandiObject.setKandi_name(res.getString(res.getColumnIndex(KANDI_COLUMN_NAME)));
             tempArray.add(kandiObject);
 
-            //System.out.println("kandiObject.qrCode:" + kandiObject.getQrCode());
+            //System.out.println("kandiObject.qrCode:" + kandiObject.getKandi_id());
             //System.out.println("kandiObject.kandiName:" + kandiObject.getKandi_name());
 
             res.moveToNext();
@@ -428,7 +429,7 @@ public class KtDatabase extends SQLiteOpenHelper {
         Cursor res = db.rawQuery("select * from kt_users", null);
         res.moveToFirst();
         while (!res.isAfterLast()) {
-            String qrCode = res.getString(res.getColumnIndex(KT_USERS_COLUMN_KANDI_GROUP));
+            String qrCode = res.getString(res.getColumnIndex(KT_USERS_COLUMN_KANDI_ID));
             if (!tempArray.contains(qrCode)) {
                 tempArray.add(qrCode);
             }
@@ -437,27 +438,11 @@ public class KtDatabase extends SQLiteOpenHelper {
         return tempArray;
     }
 
-    //gets a list of all other users' fb_ids
-    public ArrayList<String> getFb_IdFromKtUserToDisplayLatestMessage() {
-        ArrayList<String> fb_idArrayList = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("select * from kt_users", null);
-        res.moveToFirst();
-        while (!res.isAfterLast()) {
-            String fb_id = res.getString(res.getColumnIndex(KT_USERS_COLUMN_FB_ID));
-            if (!fb_idArrayList.contains(fb_id)) {
-                fb_idArrayList.add(fb_id);
-                //System.out.println("getFbIdFromKtUser.fbid = " + fb_id);
-            }
-            res.moveToNext();
-        }
-        return fb_idArrayList;
-    }
 
     public GroupMessageItem getLatestGroupMessage(String groupQr) {
         System.out.println("KtDatabase.getLatestGroupMessage");
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("select * from kt_group_message where kt_group='" + groupQr + "'", null);
+        Cursor res = db.rawQuery("select * from kt_group_message where kandi_id='" + groupQr + "'", null);
         res.moveToLast();
 
         GroupMessageItem groupMessageItem = new GroupMessageItem();
@@ -465,8 +450,8 @@ public class KtDatabase extends SQLiteOpenHelper {
             groupMessageItem.setMessage(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_MSSG)));
             groupMessageItem.setFromID(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_FROM_ID)));
             groupMessageItem.setFromName(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_FROM_NAME)));
-            groupMessageItem.setTime(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_TIME)));
-            groupMessageItem.setQrCode(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_GROUP)));
+            groupMessageItem.setTime(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_TIMESTAMP)));
+            groupMessageItem.setQrCode(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_KANDI_NAME)));
         } catch (CursorIndexOutOfBoundsException cursorEx) {}
         return groupMessageItem;
     }
@@ -523,6 +508,150 @@ public class KtDatabase extends SQLiteOpenHelper {
         ktUserObject.setFb_id(res.getString(res.getColumnIndex(KT_USERS_COLUMN_FB_ID)));
         ktUserObject.setKt_id(res.getString(res.getColumnIndex(KT_USERS_COLUMN_KT_ID)));
         return ktUserObject;
+    }
+
+    //**********************************************************************************************
+
+    // takes a single kt_id and returns all rows  in kt_message table where sender (from_id) | recipient (to_id)  = kt_id
+    public ArrayList<MessageRowItem> getMessagesFor(String id) {
+        ArrayList<MessageRowItem> messageRowItems = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("select * from kt_message where from_id='" + id + "' or to_id='" + id + "'", null);
+        res.moveToFirst();
+        while (!res.isAfterLast()) {
+            MessageRowItem rowItem = new MessageRowItem();
+            rowItem.setMessageText(res.getString(res.getColumnIndex(MESSAGE_COLUMN_MSSG)));
+            rowItem.setMessageSender(res.getString(res.getColumnIndex(MESSAGE_COLUMN_FROM_NAME)));
+            rowItem.setMessageSenderID(res.getString(res.getColumnIndex(MESSAGE_COLUMN_FROM_ID)));
+            rowItem.setMessageRecipient(res.getString(res.getColumnIndex(MESSAGE_COLUMN_TO_NAME)));
+            rowItem.setMessageRecipientID(res.getString(res.getColumnIndex(MESSAGE_COLUMN_TO_ID)));
+            rowItem.setMessageTimestamp(res.getString(res.getColumnIndex(MESSAGE_COLUMN_TIMESTAMP)));
+            messageRowItems.add(rowItem);
+            res.moveToNext();
+        }
+        return messageRowItems;
+    }
+
+    // gets a list of all users' kt_ids
+    public ArrayList<String> getKTIDsFromLocalDb() {
+        ArrayList<String> kt_ids = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("select * from kt_users", null);
+        res.moveToFirst();
+        while(!res.isAfterLast()) {
+            String kt_id = res.getString(res.getColumnIndex(KT_USERS_COLUMN_KT_ID));
+            if (!kt_ids.contains(kt_id)) {
+                kt_ids.add(kt_id);
+            }
+            res.moveToNext();
+        }
+        return kt_ids;
+    }
+
+    //gets a list of all other users' fb_ids
+    public ArrayList<String> getFBIDsFromLocalDb() {
+        ArrayList<String> fb_idArrayList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("select * from kt_users", null);
+        res.moveToFirst();
+        while (!res.isAfterLast()) {
+            String fb_id = res.getString(res.getColumnIndex(KT_USERS_COLUMN_FB_ID));
+            if (!fb_idArrayList.contains(fb_id)) {
+                fb_idArrayList.add(fb_id);
+            }
+            res.moveToNext();
+        }
+        return fb_idArrayList;
+    }
+
+    // for regular messages
+    //get messageRowItem where from_id or to_id = kt_id param
+    public MessageRowItem getMessageRowItem(String kt_id, String MY_KT_ID, String MY_USER_NAME) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("select * from kt_message where from_id='" + kt_id + "'or to_id='" + kt_id + "'", null);
+        res.moveToLast();
+
+        MessageRowItem rowItem = new MessageRowItem();
+        try {
+            rowItem.setMessageText(res.getString(res.getColumnIndex(MESSAGE_COLUMN_MSSG)));
+        } catch (CursorIndexOutOfBoundsException e) {}
+        try {
+            if (res.getString(res.getColumnIndex(MESSAGE_COLUMN_FROM_ID)).equals(MY_KT_ID)) {
+                rowItem.setMessageSender(res.getString(res.getColumnIndex(MESSAGE_COLUMN_FROM_NAME)));
+                rowItem.setMessageSenderID(res.getString(res.getColumnIndex(MESSAGE_COLUMN_FROM_ID)));
+                rowItem.setMessageRecipient(res.getString(res.getColumnIndex(MESSAGE_COLUMN_TO_NAME)));
+                rowItem.setMessageRecipientID(res.getString(res.getColumnIndex(MESSAGE_COLUMN_TO_ID)));
+            } else if (res.getString(res.getColumnIndex(MESSAGE_COLUMN_TO_ID)).equals(MY_KT_ID)) {
+                rowItem.setMessageRecipient(res.getString(res.getColumnIndex(MESSAGE_COLUMN_TO_NAME)));
+                rowItem.setMessageRecipientID(res.getString(res.getColumnIndex(MESSAGE_COLUMN_TO_ID)));
+                rowItem.setMessageSender(res.getString(res.getColumnIndex(MESSAGE_COLUMN_FROM_NAME)));
+                rowItem.setMessageSenderID(res.getString(res.getColumnIndex(MESSAGE_COLUMN_FROM_ID)));
+            }
+        } catch (CursorIndexOutOfBoundsException e) {}
+        try {
+            rowItem.setMessageTimestamp(res.getString(res.getColumnIndex(MESSAGE_COLUMN_TIMESTAMP)));
+        } catch (CursorIndexOutOfBoundsException e) {}
+
+        return rowItem;
+    }
+
+    //for group messages
+    // get messageRowItem where kandi_id (qrcode) is given
+    public MessageRowItem getMessageRowItemForGroup(String kandi_id) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("select * from kt_group_message where kandi_id='" + kandi_id + "'", null);
+        res.moveToLast();
+
+        MessageRowItem rowItem = new MessageRowItem();
+        try {
+            rowItem.setMessageText(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_MSSG)));
+            rowItem.setMessageSender(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_FROM_NAME)));
+            rowItem.setMessageSenderID(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_FROM_ID)));
+            rowItem.setMessageTimestamp(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_TIMESTAMP)));
+            rowItem.setMessageKandiID(kandi_id);
+            rowItem.setMessageKandiName(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_KANDI_NAME)));
+        } catch (CursorIndexOutOfBoundsException e) {}
+        return rowItem;
+    }
+
+    // get list of all users
+    public ArrayList<KtUserObjectParcelable> getAllKtUsers() {
+        ArrayList<KtUserObjectParcelable> ktUsersList = new ArrayList<>();
+        ArrayList<String> kt_idsList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("select * from kt_users", null);
+        res.moveToFirst();
+        while (!res.isAfterLast()) {
+            KtUserObjectParcelable ktUser = new KtUserObjectParcelable();
+            ktUser.setKt_id(res.getString(res.getColumnIndex(KT_USERS_COLUMN_KT_ID)));
+            ktUser.setUsername(res.getString(res.getColumnIndex(KT_USERS_COLUMN_USERNAME)));
+            ktUser.setPlacement(res.getInt(res.getColumnIndex(KT_USERS_COLUMN_PLACEMENT)));
+            ktUser.setKandi_id(res.getString(res.getColumnIndex(KT_USERS_COLUMN_KANDI_ID)));
+            if (!kt_idsList.contains(ktUser.getKt_id())) {
+                kt_idsList.add(ktUser.getKt_id());
+                ktUsersList.add(ktUser);
+            }
+            res.moveToNext();
+        }
+        return ktUsersList;
+    }
+
+    // get list of users from all groups
+    public ArrayList<KtUserObjectParcelable> getAllKtUsersFromGroup(String kandi_id) {
+        ArrayList<KtUserObjectParcelable> ktUsersList = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("select * from kt_users where kandi_id='" + kandi_id + "'", null);
+        res.moveToFirst();
+        while (!res.isAfterLast()) {
+            KtUserObjectParcelable ktUser = new KtUserObjectParcelable();
+            ktUser.setKt_id(res.getString(res.getColumnIndex(KT_USERS_COLUMN_KT_ID)));
+            ktUser.setUsername(res.getString(res.getColumnIndex(KT_USERS_COLUMN_USERNAME)));
+            ktUser.setPlacement(res.getInt(res.getColumnIndex(KT_USERS_COLUMN_PLACEMENT)));
+            ktUser.setKandi_id(res.getString(res.getColumnIndex(KT_USERS_COLUMN_KANDI_ID)));
+            ktUsersList.add(ktUser);
+            res.moveToNext();
+        }
+        return ktUsersList;
     }
 
 }

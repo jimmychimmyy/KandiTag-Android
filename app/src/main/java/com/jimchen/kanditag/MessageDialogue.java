@@ -1,22 +1,23 @@
 package com.jimchen.kanditag;
 
+import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.os.AsyncTask;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -35,16 +36,22 @@ import java.util.ArrayList;
 
 public class MessageDialogue extends FragmentActivity {
 
+    // request codes
+    private int ReturnToMessageActivityRequestCode = 1;
+
     private static final String TAG = "MessageDialogue";
     SharedPreferences sharedPreferences;
-    public static final String MyPreferences = "MyPrefs";
-    public static final String Name = "nameKey";
-    public static final String FbId = "fbidKey";
-    public static final String UserId = "userIdKey";
+    public static final String MY_PREFERENCES = "MyPrefs";
+    public static final String NAME = "nameKey";
+    public static final String FBID = "fbidKey";
+    public static final String KTID = "userIdKey";
     public static final String NEW_MESSAGE = "NEW_MESSAGE";
 
     private String MY_KT_ID, MY_FB_ID, MY_USER_NAME;
     private String kt_id, fb_id, user_name;
+
+    //this is for group messages
+    private String kandi_id;
 
     private String messageToSend;
 
@@ -62,7 +69,7 @@ public class MessageDialogue extends FragmentActivity {
     private TextView messagingUIUserName;
     private TableLayout messagingUITableLayout;
 
-    private ListView messagingUIListView;
+    private ListView listView;
     private ConversationListAdapter conversationListAdapter;
     private ConversationListItem tempConversationListItem;
 
@@ -78,37 +85,8 @@ public class MessageDialogue extends FragmentActivity {
 
     private static com.github.nkzawa.socketio.client.Socket socket;
 
-    private ArrayList<ConversationListItem> messagingUIListViewArrayItems = new ArrayList<>();
+    //private ArrayList<ConversationListItem> messagingUIListViewArrayItems = new ArrayList<>();
 
-    // task to which takes a fb_id and returns an array of messages between you and the (fb_id's) user
-    public class GetEntireConversationAsyncTask extends AsyncTask<String, Void, ArrayList<ConversationListItem>> {
-
-        private ArrayList<ConversationListItem> conversationListItemArrayList;
-        @Override
-        protected ArrayList<ConversationListItem> doInBackground(String... params) {
-
-            String fb_id = params[0];
-
-            conversationMessagesArrayList = myDatabase.getEntireConversationPrivateMessage(fb_id);
-
-            return  conversationMessagesArrayList;
-
-        }
-
-        @Override
-        protected void onPreExecute() {
-            conversationListItemArrayList = new ArrayList<>();
-        }
-
-        @Override
-        protected void onPostExecute(ArrayList<ConversationListItem> list) {
-            messagingUIListViewArrayItems = list;
-            System.out.println("sizeOfConversationListItemArrayList = " + list.size());
-            conversationListAdapter = new ConversationListAdapter(MessageDialogue.this, R.layout.conversation_list_item, messagingUIListViewArrayItems, MY_FB_ID);
-            messagingUIListView.setAdapter(conversationListAdapter);
-            //scrollMyListViewToBottom();
-        }
-    }
 
     private void scrollMyListViewToBottom() {
         messageUIScrollView.post(new Runnable() {
@@ -136,66 +114,23 @@ public class MessageDialogue extends FragmentActivity {
     //TODO async task to get all conversation messages into this array
     ArrayList<ConversationListItem> conversationMessagesArrayList;
 
-    GetSingleUserForMessageAsyncTask getSingleUserForMessageAsyncTask = new GetSingleUserForMessageAsyncTask(MessageDialogue.this, new ReturnKtUserObjectAsyncResponse() {
+
+    // background task to get all message for list view
+    private GetAllMessagesFromLocalDbAsyncTask getMessagesTask = new GetAllMessagesFromLocalDbAsyncTask(this, new ReturnMessageRowItemArrayListAsyncResponse() {
         @Override
-        public void processFinish(KtUserObject output) {
-            System.out.println("MessageWithUser.getSingleUserForMessageAsyncTask.processFinish.output.kt_id = " + output.getKt_id());
-            System.out.println("MessageWithUser.getSingleUserForMessageAsyncTask.processFinish.output.user_name = " + output.getName());
-            user_name = output.getName();
-            userNameTextView.setText(user_name);
-            //setUpXml(user_name);
-
-            //originally this was a framelayout which added a fragment with the username
-            // instead im just going to make this a view
-            /**
-
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.setCustomAnimations(R.anim.abc_slide_in_top, R.anim.abc_slide_out_top);
-            BannerFragment bannerFragment = new BannerFragment();
-            Bundle extras = new Bundle();
-            extras.putString("title", user_name);
-            bannerFragment.setArguments(extras);
-            fragmentTransaction.add(R.id.MessageDialogue_FrameLayout, bannerFragment);
-            fragmentTransaction.commit();
-
-             **/
-
-            GetEntireConversationAsyncTask getEntireConversationAsyncTask = new GetEntireConversationAsyncTask();
-            getEntireConversationAsyncTask.execute(output.getFb_id());
+        public void processFinish(final ArrayList<MessageRowItem> output) {
+            System.out.println("MessageDialogue.getMessageTask.output.size() = " + output.size());
+            messageRowItems.addAll(output);
+            messageDialogueListViewAdapter = new MessageDialogueListViewAdapter(MessageDialogue.this, R.layout.message_row_item, messageRowItems);
+            listView.setAdapter(messageDialogueListViewAdapter);
         }
     });
 
-    private BroadcastReceiver newMessageBroadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
+    private ArrayList<MessageRowItem> messageRowItems = new ArrayList<>();
 
-            if (intent.getAction().equals("new_message")) {
+    //adapter for list view
+    private MessageDialogueListViewAdapter messageDialogueListViewAdapter;
 
-                String message = intent.getStringExtra("message");
-                String from_id = intent.getStringExtra("from_id");
-                String from_name = intent.getStringExtra("from_name");
-                String to_id = intent.getStringExtra("to_id");
-                String to_name = intent.getStringExtra("to_name");
-                String time = intent.getStringExtra("time");
-
-                ConversationListItem conversationListItem = new ConversationListItem();
-                conversationListItem.setMessage(message);
-                conversationListItem.setSenderID(from_id);
-                conversationListItem.setSenderName(from_name);
-                conversationListItem.setRecipientID(to_id);
-                conversationListItem.setRecipientName(to_name);
-                conversationListItem.setTime(time);
-
-                messagingUIListViewArrayItems.add(conversationListItem);
-                conversationListAdapter.notifyDataSetChanged();
-
-                messagingUIListView.invalidate();
-
-                Log.d(TAG, message);
-            }
-        }
-    };
 
 // OnCreate ****************************************************************************************
     @Override
@@ -204,24 +139,34 @@ public class MessageDialogue extends FragmentActivity {
         setContentView(R.layout.activity_message_dialogue);
         //getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-        System.out.println("MessageWithUser.onCreate");
+        System.out.println("MessageDialogue.onCreate");
 
         myDatabase = new KtDatabase(this);
 
-        sharedPreferences = getSharedPreferences(MyPreferences, MODE_PRIVATE);
-        MY_KT_ID = sharedPreferences.getString(UserId, "");
-        MY_USER_NAME = sharedPreferences.getString(Name, "");
-        MY_FB_ID = sharedPreferences.getString(FbId, "");
+        sharedPreferences = getSharedPreferences(MY_PREFERENCES, MODE_PRIVATE);
+        MY_KT_ID = sharedPreferences.getString(KTID, "");
+        MY_USER_NAME = sharedPreferences.getString(NAME, "");
+        MY_FB_ID = sharedPreferences.getString(FBID, "");
 
         //LocalBroadcastManager.getInstance(this).registerReceiver(newMessageBroadcastReceiver, new IntentFilter("new_message"));
 
+        //TODO need to change all fb_ids usage to kt_id
+
         Bundle bundleParams = getIntent().getExtras();
-        //kt_id = bundleParams.getString("kt_id");
-        fb_id = bundleParams.getString("fb_id");
-        //user_name = bundleParams.getString("user_name");
+        kt_id = bundleParams.getString("kt_id");
+        // get messages
+        getMessagesTask.execute(kt_id);
+        user_name = bundleParams.getString("username");
+        System.out.println(user_name);
+        //try to get kandiID, if none that means its a regular message
+        try {
+            kandi_id = bundleParams.getString("kandi_id");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        getSingleUserForMessageAsyncTask.execute(fb_id);
 
+        // find exit button in xml and set on click to return to MessageActivity
         exitButton = (ImageView) findViewById(R.id.MessageDialogue_ExitButton);
         exitButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -231,52 +176,21 @@ public class MessageDialogue extends FragmentActivity {
             }
         });
 
-        messagingUIListView = (ListView) findViewById(R.id.MessageDialogue_ListView);
-        messagingUIListView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+        // find list view and change the display mode from latest message at the bottom
+        listView = (ListView) findViewById(R.id.MessageDialogue_ListView);
+        listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
         //messagingUIListView.setOnScrollListener(messageWithUserScrollListener);
 
 
-        //GetEntireConversationAsyncTask getEntireConversationAsyncTask = new GetEntireConversationAsyncTask();
-        //getEntireConversationAsyncTask.execute(kt_id);
-
-        /**
-
-        messagingUITableLayout = (TableLayout) findViewById(R.id.messagingUITableLayout);
-
-
-        for (int i = 0; i < messageList.size(); i++) {
-            //System.out.println(messageList.get(i));
-            TableRow tableRow = new TableRow(this);
-            tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
-            Button button = new Button(this);
-            button.setBackgroundColor(Color.TRANSPARENT);
-            button.setTextColor(Color.WHITE);
-            button.setText(messageList.get(i));
-            button.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.WRAP_CONTENT, Gravity.CENTER));
-            tableRow.addView(button);
-            messagingUITableLayout.addView(tableRow);
-        }
-
-         **/
-
-        /**
-
-        messageUIScrollView = (ScrollView) findViewById(R.id.messageUIScrollView);
-
-        messageUIScrollView.post(new Runnable() {
-            @Override
-            public void run() {
-                messageUIScrollView.fullScroll(ScrollView.FOCUS_DOWN);
-            }
-        });
-
-         **/
-
+        // find xml container for username
+        // set text as user's name
         userNameTextView = (TextView) findViewById(R.id.MessageDialogue_UserNameTextView);
         Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/kanditagfont-sth.ttf");
         userNameTextView.setTypeface(typeface);
+        userNameTextView.setText(user_name);
 
-
+        // edit text to write message
+        //TODO need to make this expand when message gets long
         messageUIEditText = (EditText) findViewById(R.id.MessageDialogue_EditText);
         //messageUIEditText.setBackgroundColor(Color.TRANSPARENT);
         messageUIEditText.setTextColor(Color.WHITE);
@@ -287,49 +201,27 @@ public class MessageDialogue extends FragmentActivity {
         messageUISendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                sharedPreferences = getSharedPreferences(MyPreferences, Context.MODE_PRIVATE);
+                sharedPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
                 if (messageUIEditText.getText().toString().length() > 1) {
                     messageToSend = messageUIEditText.getText().toString();
                     //TODO brush up on the animations
                     Animation anim = AnimationUtils.loadAnimation(MessageDialogue.this, R.anim.left_slide_out);
                     messageUISendButton.startAnimation(anim);
                     //Sending the message
-                    newMessage(messageToSend, fb_id, MY_FB_ID, user_name, MY_USER_NAME);
+                    newMessage(messageToSend, kt_id, MY_KT_ID, user_name, MY_USER_NAME);
 
                     if (messageToSend != null) {
                         messageUIEditText.setText("");
                     }
 
                     //TODO send message and have emitter listener notify the changes to the db
-                    conversationListAdapter.notifyDataSetChanged();
+                    //conversationListAdapter.notifyDataSetChanged();
 
 
-                    //socket.on("privatemessage", messageClass.onNewMessage);
-                    //messageList.add(messageUIEditText.getText().toString());
-                    /**
-                    TableRow tableRow = new TableRow(MessagingUI.this);
-                    tableRow.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL));
-                    Button button = new Button(MessagingUI.this);
-                    button.setBackgroundColor(Color.TRANSPARENT);
-                    button.setText(messageUIEditText.getText().toString());
-                    button.setTextColor(Color.WHITE);
-                    button.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL));
-                    tableRow.addView(button);
-                    messagingUITableLayout.addView(tableRow);
-                    messagingUITableLayout.invalidate();
-
-                    messageUIScrollView.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            messageUIScrollView.fullScroll(ScrollView.FOCUS_DOWN);
-                        }
-                    });
-
-                    messageUIEditText.setText("");
-                     **/
                 }
             }
         });
+
     }
 
 // end of OnCreate *********************************************************************************
@@ -371,9 +263,9 @@ public class MessageDialogue extends FragmentActivity {
         }).start();
     }
 
-    private void newMessage(String message, String toFb_id, String myFb_id, String toName, String fromName) {
+    private void newMessage(String message, String toKTID, String myKTID, String toName, String fromName) {
         System.out.println("MessageDialogue.class.newMessage");
-        socket.emit("privatemessage", message, toFb_id, myFb_id, toName, fromName);
+        socket.emit("privatemessage", message, toKTID, myKTID, toName, fromName);
     }
 
     private Emitter.Listener onNewMessage = new Emitter.Listener() {
@@ -391,13 +283,13 @@ public class MessageDialogue extends FragmentActivity {
 
                     Res_End_Results re_obj = gson.fromJson(message, Res_End_Results.class);
                     for (Records records:re_obj.getRecords()) {
-                        System.out.println("messages+sent =" + records.getMsg());
-                        System.out.println("messages+sentfrom =" + records.getFID());
-                        System.out.println("messages+sentto =" + records.getTID());
-                        System.out.println("messages+sentwhen =" + records.getDate());
-                        System.out.println("messages+senttoname =" + records.getToName());
-                        System.out.println("messages+sentfromname =" + records.getFromName());
-                        System.out.println("messages+senttime =" + records.getTime());
+                        System.out.println("messages sent =" + records.getMsg());
+                        System.out.println("messages sent from id =" + records.getFID());
+                        System.out.println("messages sent to id =" + records.getTID());
+                        System.out.println("messages sent date =" + records.getDate());
+                        System.out.println("messages sent to name =" + records.getToName());
+                        System.out.println("messages sent from name =" + records.getFromName());
+                        System.out.println("messages sent time =" + records.getTime());
                         KtMessageObject ktMessageObject = new KtMessageObject();
                         ktMessageObject.setMessage(records.getMsg());
                         ktMessageObject.setFrom_id(records.getFID());
@@ -412,33 +304,23 @@ public class MessageDialogue extends FragmentActivity {
                             System.out.println("does not exist");
                             myDatabase.saveMessage(ktMessageObject);
 
-                            ConversationListItem conversationListItem = new ConversationListItem();
+                            // create messageRow object to add to the listView
+                            MessageRowItem rowItem = new MessageRowItem();
+                            rowItem.setMessageText(ktMessageObject.getMessage());
+                            rowItem.setMessageSender(ktMessageObject.getFrom_name());
+                            rowItem.setMessageSenderID(ktMessageObject.getFrom_id());
+                            rowItem.setMessageRecipient(ktMessageObject.getTo_name());
+                            rowItem.setMessageRecipientID(ktMessageObject.getTo_id());
+                            rowItem.setMessageTimestamp(ktMessageObject.getTime());
 
-                            conversationListItem.setMessage(ktMessageObject.getMessage());
-                            conversationListItem.setSenderID(ktMessageObject.getFrom_id());
-                            conversationListItem.setSenderName(ktMessageObject.getFrom_name());
-                            conversationListItem.setRecipientID(ktMessageObject.getTo_id());
-                            conversationListItem.setRecipientName(ktMessageObject.getTo_name());
-                            conversationListItem.setTime(ktMessageObject.getTime());
+                            messageRowItems.add(rowItem);
+                            messageDialogueListViewAdapter.notifyDataSetChanged();
 
-                            messagingUIListViewArrayItems.add(conversationListItem);
-                            conversationListAdapter.notifyDataSetChanged();
-                            messagingUIListView.invalidate();
+                            //TODO need to change all this to messageRowItems
 
-                            /**
-                            Intent new_message_intent = new Intent("new_message");
-                            new_message_intent.putExtra("message", ktMessageObject.getMessage());
-                            new_message_intent.putExtra("from_id", ktMessageObject.getFrom_id());
-                            new_message_intent.putExtra("from_name", ktMessageObject.getFrom_name());
-                            new_message_intent.putExtra("to_id", ktMessageObject.getTo_id());
-                            new_message_intent.putExtra("to_name", ktMessageObject.getTo_name());
-                            new_message_intent.putExtra("time", ktMessageObject.getTime());
-
-                            LocalBroadcastManager.getInstance(MessageDialogue.this).sendBroadcast(new_message_intent);
-                            //TODO cannot do this because the objects inside invalidate..method are null without context
-                            //MessageWithUser messageWithUser = new MessageWithUser();
-                            //messageWithUser.invalidateMessageUIListView();
-                             **/
+                            //messagingUIListViewArrayItems.add(conversationListItem);
+                            //conversationListAdapter.notifyDataSetChanged();
+                            listView.invalidate();
 
                         }
                     }
@@ -449,6 +331,7 @@ public class MessageDialogue extends FragmentActivity {
         }
     };
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
     private void setUpXml(String user_name) {
         messagingUIUserName = (TextView) findViewById(R.id.MessageDialogue_UserName);
         messagingUIUserName.setText(user_name);
@@ -460,7 +343,7 @@ public class MessageDialogue extends FragmentActivity {
 
     public void invalidateMessageUIListView() {
         conversationListAdapter.notifyDataSetChanged();
-        messagingUIListView.invalidate();
+        listView.invalidate();
     }
 
     @Override
@@ -475,6 +358,9 @@ public class MessageDialogue extends FragmentActivity {
         socket.close();
         //LocalBroadcastManager.getInstance(this).unregisterReceiver(newMessageBroadcastReceiver);
         super.onDestroy();
+        Intent result = new Intent();
+        setResult(RESULT_OK, result);
+        finish();
     }
 
     @Override
@@ -482,4 +368,5 @@ public class MessageDialogue extends FragmentActivity {
         super.onPause();
         socket.disconnect();
     }
+
 }

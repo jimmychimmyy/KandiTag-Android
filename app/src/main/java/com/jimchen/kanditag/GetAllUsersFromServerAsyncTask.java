@@ -42,7 +42,7 @@ public class GetAllUsersFromServerAsyncTask extends AsyncTask<Void, Void, ArrayL
         StrictMode.setThreadPolicy(policy);
 
         //given a ktid/fbid i am trying to find every occurrence of that id in kt_ownership, return results
-        //given results.getQrCode i am trying to find
+        //given results.getKandi_id i am trying to find
         String Url = "http://kandi.nodejitsu.com/kt_users_finduser";
 
         HttpClient client = new DefaultHttpClient();

@@ -9,7 +9,7 @@ import android.os.Parcelable;
 //TODO this whole entire class could be shared with KtUserObject; almost identical methods and variables
 public class KtUserObjectParcelable implements Parcelable {
 
-    private String kt_id, fb_id, user_name, qrCode;
+    private String kt_id, fb_id, username, kandi_id;
     private int placement;
 
     @Override
@@ -21,18 +21,18 @@ public class KtUserObjectParcelable implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(kt_id);
         parcel.writeString(fb_id);
-        parcel.writeString(user_name);
-        parcel.writeString(qrCode);
+        parcel.writeString(username);
+        parcel.writeString(kandi_id);
         parcel.writeInt(placement);
     }
 
     public KtUserObjectParcelable() {}
 
-    public KtUserObjectParcelable(String kt_id, String fb_id, String user_name, String qrCode, int placement) {
+    public KtUserObjectParcelable(String kt_id, String fb_id, String username, String kandi_id, int placement) {
         this.kt_id = kt_id;
         this.fb_id = fb_id;
-        this.user_name = user_name;
-        this.qrCode = qrCode;
+        this.username = username;
+        this.kandi_id = kandi_id;
         this.placement = placement;
     }
 
@@ -40,16 +40,16 @@ public class KtUserObjectParcelable implements Parcelable {
         this.fb_id = fb;
     }
 
-    public void setUser_name(String name) {
-        this.user_name = name;
+    public void setUsername(String name) {
+        this.username = name;
     }
 
     public void setKt_id(String kt) {
         this.kt_id = kt;
     }
 
-    public void setQrCode(String qr) {
-        this.qrCode = qr;
+    public void setKandi_id(String qr) {
+        this.kandi_id = qr;
     }
 
     public void setPlacement(int placement) {
@@ -60,16 +60,16 @@ public class KtUserObjectParcelable implements Parcelable {
         return fb_id;
     }
 
-    public String getUser_name() {
-        return user_name;
+    public String getUsername() {
+        return username;
     }
 
     public String getKt_id() {
         return kt_id;
     }
 
-    public String getQrCode() {
-        return qrCode;
+    public String getKandi_id() {
+        return kandi_id;
     }
 
     public int getPlacement() {

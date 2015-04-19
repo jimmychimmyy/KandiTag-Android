@@ -31,7 +31,7 @@ class Records_Deserializer implements JsonDeserializer<Records> {
         JsonObject jsonObject = json.getAsJsonObject();
 
         try {
-            toName = jsonObject.get("toName").toString();
+            toName = jsonObject.get("toName").getAsString();
         } catch (NullPointerException nullEx) {
             nullEx.printStackTrace();
         }

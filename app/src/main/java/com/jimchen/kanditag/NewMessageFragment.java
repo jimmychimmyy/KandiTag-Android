@@ -1,14 +1,14 @@
 package com.jimchen.kanditag;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -20,6 +20,9 @@ import java.util.Comparator;
  * Created by Jim on 3/18/15.
  */
 public class NewMessageFragment extends Fragment {
+
+    // request codes
+    private int ReturnToMessageActivityRequestCode = 1;
 
     private KtDatabase myDatabase;
     SharedPreferences sharedPreferences;
@@ -41,7 +44,7 @@ public class NewMessageFragment extends Fragment {
 
     private GetAllUsersFromLocalDbAsyncTask getAllUsersFromLocalDbAsyncTask;
     private GetAllGroupsFromLocalDbAsyncTask getAllGroupsFromLocalDbAsyncTask;
-    private GetAllKandiFromLocalAsyncTask getAllKandiFromLocalAsyncTask;
+    private GetAllKandiFromLocalDbAsyncTask getAllKandiFromLocalDbAsyncTask;
 
     private ArrayList<KtUserObjectParcelable> usersForNewMessageList = new ArrayList<>();
     private ArrayList<KandiGroupObjectParcelable> groupsForNewMessageList = new ArrayList<>();
@@ -65,23 +68,25 @@ public class NewMessageFragment extends Fragment {
 
         myListView = (ListView) rootView.findViewById(R.id.NewMessageFragment_ListView);
 
+        /**
         myTitle = (TextView) rootView.findViewById(R.id.NewMessageFragment_TitleTextView);
         myTitle.setText("Friends");
         myTitle.setTextSize(45);
         myTitle.setTextColor(Color.WHITE);
         Typeface typeface = Typeface.createFromAsset(getActivity().getAssets(),"fonts/stalemate_regular.ttf");
         myTitle.setTypeface(typeface);
+         **/
 
         getAllUsersFromLocalDbAsyncTask = new GetAllUsersFromLocalDbAsyncTask(getActivity(), new ReturnKtUserObjectParcelableArrayListAsyncResponse() {
             @Override
             public void processFinish(ArrayList<KtUserObjectParcelable> output) {
-                System.out.println("Message.getAllUsersFromLocalDbAsyncTask.processFinish.output.size() = " + output.size());
+                System.out.println("NewMessageFragment.getAllUsersFromLocalDbAsyncTask.processFinish.output.size() = " + output.size());
                 usersForNewMessageList.removeAll(usersForNewMessageList);
                 usersForNewMessageList.addAll(output);
                 Collections.sort(usersForNewMessageList, new Comparator<KtUserObjectParcelable>() {
                     @Override
                     public int compare(KtUserObjectParcelable lhs, KtUserObjectParcelable rhs) {
-                        return lhs.getUser_name().compareTo(rhs.getUser_name());
+                        return lhs.getUsername().compareTo(rhs.getUsername());
                     }
                 });
                 ktUserObjectListAdapter.notifyDataSetChanged();
@@ -89,10 +94,10 @@ public class NewMessageFragment extends Fragment {
             }
         });
 
-        getAllKandiFromLocalAsyncTask = new GetAllKandiFromLocalAsyncTask(getActivity(), new ReturnKandiObjectArrayAsyncResponse() {
+        getAllKandiFromLocalDbAsyncTask = new GetAllKandiFromLocalDbAsyncTask(getActivity(), new ReturnKandiObjectArrayAsyncResponse() {
             @Override
             public void processFinish(ArrayList<KandiObject> output) {
-                System.out.println("Message.getAllKandiFromLocalAsyncTask.processFinish.output.size() = " + output.size());
+                System.out.println("NewMessageFragment.getAllKandiFromLocalAsyncTask.processFinish.output.size() = " + output.size());
                 //getAllGroupsFromLocalDbAsyncTask.execute(output);
             }
         });
@@ -101,16 +106,33 @@ public class NewMessageFragment extends Fragment {
         getAllGroupsFromLocalDbAsyncTask = new GetAllGroupsFromLocalDbAsyncTask(getActivity(), new ReturnKandiGroupObjectParcelableArrayList() {
             @Override
             public void processFinish(ArrayList<KandiGroupObjectParcelable> output) {
-                System.out.println("Message.getAllGroupsFromLocalDbAsyncTask.processFinish.output.size() = " + output.size());
+                System.out.println("NewMessageFragment.getAllGroupsFromLocalDbAsyncTask.processFinish.output.size() = " + output.size());
                 groupsForNewMessageList.addAll(output);
             }
         });
 
         getAllUsersFromLocalDbAsyncTask.execute();
-        getAllKandiFromLocalAsyncTask.execute();
+        getAllKandiFromLocalDbAsyncTask.execute();
 
         ktUserObjectListAdapter = new KtUserObjectListAdapter(getActivity(), R.id.DisplayForNewMessage_ListView, usersForNewMessageList);
         myListView.setAdapter(ktUserObjectListAdapter);
+        myListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                System.out.println("NewMessageFragment.myListView.onItemClick = " + usersForNewMessageList.get(i).getUsername());
+                Intent startDialogue = new Intent(context, MessageDialogue.class);
+                Bundle dialogueBundle = new Bundle();
+                dialogueBundle.putString("kt_id", usersForNewMessageList.get(i).getKt_id());
+                dialogueBundle.putString("username", usersForNewMessageList.get(i).getUsername());
+                startDialogue.putExtras(dialogueBundle);
+                startActivityForResult(startDialogue, ReturnToMessageActivityRequestCode);
+                getActivity().overridePendingTransition(R.anim.abc_slide_in_bottom, R.anim.right_slide_out);
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .remove(NewMessageFragment.this)
+                        .commit();
+            }
+        });
 
         return rootView;
     }

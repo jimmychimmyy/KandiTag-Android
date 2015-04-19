@@ -67,17 +67,20 @@ public class DisplayGroupsForNewMessage extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 System.out.println("newMessageList.onItemClick " + position);
+                //TODO Check to see if this fragment is still relevant
+                /**
                 kandiGroupObjectParcelableArrayList.get(position);
                 Message message = (Message) getActivity();
                 message.setInvisibleMessageTitleMessageButton();
                 Intent openMessageDialogue = new Intent(getActivity(), GroupMessageDialogue.class);
                 Bundle bundleParams = new Bundle();
-                bundleParams.putString("qrcode", kandiGroupObjectParcelableArrayList.get(position).getQrCode());
-                bundleParams.putString("kandi_name", kandiGroupObjectParcelableArrayList.get(position).getGroupName());
+                bundleParams.putString("qrcode", kandiGroupObjectParcelableArrayList.get(position).getKandi_id());
+                bundleParams.putString("kandi_name", kandiGroupObjectParcelableArrayList.get(position).getKandi_name());
                 openMessageDialogue.putExtras(bundleParams);
                 //messageListView.setVisibility(View.GONE);
                 //messageTitle.setVisibility(View.GONE);
                 startActivity(openMessageDialogue);
+                 **/
                 getActivity().getFragmentManager().beginTransaction().remove(DisplayGroupsForNewMessage.this).commit();
                 //TODO double check to make sure this method doesnt override the original name of the kanditag
             }

@@ -50,7 +50,7 @@ public class GroupKandiObjectListAdapter extends ArrayAdapter<KtUserObjectParcel
 
         KtUserObjectParcelable item = getItem(position);
 
-        holder.kandi_name.setText(item.getUser_name());
+        holder.kandi_name.setText(item.getUsername());
 
         return convertView1;
     }

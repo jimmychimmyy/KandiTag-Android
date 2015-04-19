@@ -18,7 +18,7 @@ public class GetAllUsersFromLocalDbAsyncTask extends AsyncTask<Void, Void, Array
 
     private KtDatabase myDatabase;
 
-    private ArrayList<KtUserObjectParcelable> ktUserObjectArrayList;
+    private ArrayList<KtUserObjectParcelable> ktUsersList;
 
     SharedPreferences sharedPreferences;
     private String MY_KT_ID, MY_FB_ID, MY_USER_NAME;
@@ -36,15 +36,16 @@ public class GetAllUsersFromLocalDbAsyncTask extends AsyncTask<Void, Void, Array
 
     @Override
     protected ArrayList<KtUserObjectParcelable> doInBackground(Void... params) {
-        ktUserObjectArrayList = myDatabase.getAllKtUserForNewMessage();
-        for (int i = 0; i < ktUserObjectArrayList.size();) {
-            if (ktUserObjectArrayList.get(i).getKt_id().equals(MY_KT_ID) || ktUserObjectArrayList.get(i).getFb_id().equals(MY_FB_ID)) {
-                ktUserObjectArrayList.remove(i);
+
+        ktUsersList = myDatabase.getAllKtUsers();
+        for (int i = 0; i < ktUsersList.size();) {
+            if (ktUsersList.get(i).getKt_id().equals(MY_KT_ID)) {
+                ktUsersList.remove(i);
             } else {
                 i++;
             }
         }
-        return ktUserObjectArrayList;
+        return ktUsersList;
     }
 
     @Override
@@ -54,7 +55,8 @@ public class GetAllUsersFromLocalDbAsyncTask extends AsyncTask<Void, Void, Array
         MY_KT_ID = sharedPreferences.getString(UserId, "");
         MY_USER_NAME = sharedPreferences.getString(Name, "");
         MY_FB_ID = sharedPreferences.getString(FbId, "");
-        ktUserObjectArrayList = new ArrayList<>();
+
+        ktUsersList = new ArrayList<>();
     }
 
     @Override

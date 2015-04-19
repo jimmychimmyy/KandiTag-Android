@@ -443,7 +443,7 @@ public class Kandi extends FragmentActivity {
                 for (Following_Results following_results:rj_obj.getFollowingResults()) {
                     //Log.d(TAG, following_results.getId_user());
                     //Log.d(TAG, following_results.getId_facebook());
-                    //Log.d(TAG, following_results.getUser_name());
+                    //Log.d(TAG, following_results.getUsername());
                     //Log.d(TAG + "doesExistsInFollowingDB?", doesExists.toString());
 
                 }

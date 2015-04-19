@@ -65,7 +65,7 @@ public class CheckKtOwnershipForUsersAsyncTask extends AsyncTask<Void, Void, Arr
 
                 HttpPost post = new HttpPost(Url);
 
-                toPostObject.setQrCode(qrCodeArrayList.get(i));
+                toPostObject.setKandi_id(qrCodeArrayList.get(i));
 
                 StringEntity entity = new StringEntity(toPostObject.toString(), HTTP.UTF_8);
 

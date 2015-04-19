@@ -142,10 +142,10 @@ public class MainActivity extends FragmentActivity {
     // Shared Preferences
     private static final String TAG = "MainActivity:";
     SharedPreferences sharedPreferences;
-    public static final String MyPreferences = "MyPrefs";
-    public static final String Name = "nameKey";
-    public static final String FbId = "fbidKey";
-    public static final String UserId = "userIdKey";
+    public static final String MY_PREFERENCES = "MyPrefs";
+    public static final String NAME = "nameKey";
+    public static final String FBID = "fbidKey";
+    public static final String KTID = "userIdKey";
     public static final String OPENED_BEFORE = "opened_before";
 
 // RequestCodes ********************************
@@ -158,9 +158,6 @@ public class MainActivity extends FragmentActivity {
     protected SQLiteDatabase sqLiteDatabase;
     private static final String DATABASE_NAME = "myData";
     private static final String CREATE_TABLE_IF_NOT = "CREATE TABLE IF NOT EXISTS ";
-
-    //VerticalViewPager mainViewPager;
-    MyPageAdapter myPageAdapter;
 
     // Camera Variables
     Camera myCamera;
@@ -914,7 +911,7 @@ public class MainActivity extends FragmentActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         myDatabase = new KtDatabase(this);
         sqLiteDatabase = openOrCreateDatabase(DATABASE_NAME, MODE_PRIVATE, null);
-        sharedPreferences = this.getSharedPreferences(MyPreferences, Context.MODE_PRIVATE);
+        sharedPreferences = this.getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
 
         //TODO make sure this check works
         boolean openedBefore = sharedPreferences.getBoolean(OPENED_BEFORE, false);
@@ -932,9 +929,9 @@ public class MainActivity extends FragmentActivity {
         }
 
 
-        MY_KT_ID = sharedPreferences.getString(UserId, "");
-        MY_USER_NAME = sharedPreferences.getString(Name, "");
-        MY_FB_ID = sharedPreferences.getString(FbId, "");
+        MY_KT_ID = sharedPreferences.getString(KTID, "");
+        MY_USER_NAME = sharedPreferences.getString(NAME, "");
+        MY_FB_ID = sharedPreferences.getString(FBID, "");
 
         if (checkPlayServices()) {
             //proceed
@@ -1574,7 +1571,7 @@ public class MainActivity extends FragmentActivity {
                         Log.i(TAG, resEndObj.getKandiName());
 
                         KandiObject kandiObject = new KandiObject();
-                        kandiObject.setQrCode(resEndObj.getQrCode());
+                        kandiObject.setKandi_id(resEndObj.getQrCode());
                         kandiObject.setKandi_name(resEndObj.getKandiName());
                         if (resEndObj.getSuccess().equals(true)) {
                             Toast.makeText(MainActivity.this, "Saved!", Toast.LENGTH_LONG).show();

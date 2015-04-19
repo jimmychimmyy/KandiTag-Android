@@ -123,24 +123,6 @@ public class Login extends Activity {
         fbLoginButton.setVisibility(View.INVISIBLE);
         loginButtonBackground = (ImageView) findViewById(R.id.Login_loginButtonImageViewBackground);
 
-        //ktLoginButton = (Button) findViewById(R.id.login_ktLoginButton);
-
-        /**
-        ktLoginButton.setTextSize(27);
-        ktLoginButton.setText("L o g i n");
-        ktLoginButton.setTransformationMethod(null);
-        Typeface typeface = Typeface.createFromAsset(getAssets(),"fonts/stalemate_regular.ttf");
-        ktLoginButton.setTypeface(typeface);
-        ktLoginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                openFacebookSession();
-                hideLoginButton();
-            }
-        });
-
-         **/
-
         loginWithFacebookButton = (Button) findViewById(R.id.Login_LoginWithFacebookButton);
         loginWithFacebookButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -151,12 +133,6 @@ public class Login extends Activity {
 
         uiHelper = new UiLifecycleHelper(this, callback);
         uiHelper.onCreate(savedInstanceState);
-
-                /*
-        loginImageAdapter = new LoginImageAdapter(this);
-        viewPager = (ViewPager) findViewById(R.id.loginViewPager);
-        viewPager.setAdapter(loginImageAdapter);
-        */
 
     }
 
@@ -181,17 +157,8 @@ public class Login extends Activity {
                                 Log.i(TAG, "Facebook ID " + user.getId());
                                 Log.i(TAG, "Email " + user.asMap().get("email"));
                                 Log.i(TAG, "UserName " + user.getName());
-                                    //Pref_Name = user.getName();
-                                    //Pref_FbId = user.getId();
 
                                 requestKtLogin(user.getId(), user.getName());
-
-                                //Intent intent_to_start = new Intent(getApplicationContext(), MainActivity.class);
-                                //startActivity(intent_to_start);
-
-                                //Intent return_intent = new Intent();
-                                //setResult(RESULT_OK, return_intent);
-                                //finish();
                             }
                         }
                     });
@@ -200,17 +167,7 @@ public class Login extends Activity {
         });
     }
 
-    private static Session openActiveSession(Activity activity, boolean allowLoginUI, List permissions, Session.StatusCallback callback) {
-        Session.OpenRequest openRequest = new Session.OpenRequest(activity).setPermissions(permissions).setCallback(callback);
-        Session session = new Session.Builder(activity).build();
-        if (SessionState.CREATED_TOKEN_LOADED.equals(session.getState()) || allowLoginUI) {
-            Session.setActiveSession(session);
-            session.openForRead(openRequest);
-            return session;
-        }
-        return null;
-    }
-
+    // check if device is connected to internet
     private boolean isConnectedToNetwork() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
@@ -221,13 +178,6 @@ public class Login extends Activity {
         }
     }
 
-    private void savePreferences(String name, String fbId) {
-        Log.d(TAG, "savePreferences()");
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(USERNAME, name);
-        editor.putString(FB_ID, fbId);
-        editor.commit();
-    }
 
     class Login_Res_End {
         private Boolean success;

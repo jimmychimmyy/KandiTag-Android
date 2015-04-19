@@ -5,61 +5,90 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.FragmentManager;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 
-public class MessageActivity extends Activity {
+public class MessageActivity extends FragmentActivity {
+
+    //request codes
+    private int ReturnToMessageActivityRequestCode = 1;
 
     //Async Tasks to fill list view ****************************************************************
 
     //arrays for the async tasks
-    private ArrayList<MessageListItem> messageListItemsArray = new ArrayList<>();
-    private ArrayList<GroupMessageItem> groupMessageItemArray = new ArrayList<>();
+    private ArrayList<MessageRowItem> messageRowItems = new ArrayList<>();
+
+
     private ArrayList<KtUserObjectParcelable> usersForNewMessageList = new ArrayList<>();
     private ArrayList<KandiGroupObjectParcelable> groupsForNewMessageList = new ArrayList<>();
 
     //List View Adapters
-    private MessageListAdapter messageListAdapter;
-    private GroupMessageListAdapter groupMessageListAdapter;
+    private MessageListViewAdapter messageListViewAdapter;
 
     //gets latest messages from local db
-    private DisplayLatestMessagesAsyncTask displayLatestMessagesAsyncTask = new DisplayLatestMessagesAsyncTask(this, new ReturnMessageListItemArrayAsyncResponse() {
+    private GetLatestMessageRowsFromLocalDbAsyncTask getLatestMessageRowsFromLocalDbAsyncTask = new GetLatestMessageRowsFromLocalDbAsyncTask(this, new ReturnMessageRowItemArrayListAsyncResponse() {
         @Override
-        public void processFinish(final ArrayList<MessageListItem> output) {
-            messageListItemsArray = output;
-            messageListAdapter = new MessageListAdapter(MessageActivity.this, R.id.list_item, messageListItemsArray);
-            listView.setAdapter(messageListAdapter);
-
-            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    System.out.println("messageListView.onItemClick.position = " + position);
-                    System.out.println("fbId = " + output.get(position).getSender());
-                    Intent openMessageWithUser = new Intent(MessageActivity.this, MessageDialogue.class);
-                    Bundle bundle = new Bundle();
-                    bundle.putString("fb_id", output.get(position).getSender());
-                    openMessageWithUser.putExtras(bundle);
-                    startActivity(openMessageWithUser);
-                    MessageActivity.this.overridePendingTransition(R.anim.right_slide_in, R.anim.left_slide_out);
-                }
-            });
-            System.out.println("MessageFragment.displayLatestMessagesAsyncTask.processFinish.output.size() = " + output.size());
+        public void processFinish(final ArrayList<MessageRowItem> output) {
+            System.out.println("MessageActivity.displayLatestMessagesAsyncTask.processFinish.output.size() = " + output.size());
+            //put all the latest messages into message row items list
+            messageRowItems.addAll(output);
+            //get latest group messages from local db
+            getLatestGroupMessageRowsFromLocalDbAsyncTask.execute(myDatabase.getKandi());
         }
     });
 
     //gets latest group message from local db
-    private DisplayLatestGroupMessageAsyncTask displayLatestGroupMessageAsyncTask = new DisplayLatestGroupMessageAsyncTask(this, new ReturnGroupMessageArrayListAsyncResponse() {
+    private GetLatestGroupMessageRowsFromLocalDbAsyncTask getLatestGroupMessageRowsFromLocalDbAsyncTask = new GetLatestGroupMessageRowsFromLocalDbAsyncTask(this, new ReturnMessageRowItemArrayListAsyncResponse() {
         @Override
-        public void processFinish(ArrayList<GroupMessageItem> output) {
-            System.out.println("MessageFragment.displayLatestGroupMessageAsyncTask.processFinish.output.size() = " + output.size());
-            groupMessageItemArray = output;
-            groupMessageListAdapter = new GroupMessageListAdapter(MessageActivity.this, R.id.list_item, groupMessageItemArray, MY_FB_ID);
+        public void processFinish(ArrayList<MessageRowItem> output) {
+            System.out.println("MessageActivity.displayLatestGroupMessageAsyncTask.processFinish.output.size() = " + output.size());
+            // add the latest group message into message row items list
+            messageRowItems.addAll(output);
+            //create message list view adapter for list view
+            messageListViewAdapter = new MessageListViewAdapter(MessageActivity.this, R.layout.message_row_item, messageRowItems);
+            listView.setAdapter(messageListViewAdapter);
+            messageListViewAdapter.notifyDataSetChanged();
+            listView.invalidate();
+            // set list view on item click listener to be able to open message dialogues
+            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                    Intent startDialogue = new Intent(MessageActivity.this, MessageDialogue.class);
+                    Bundle dialogueBundle = new Bundle();
+                    if (messageRowItems.get(i).getMessageSenderID().equals(MY_KT_ID)) {
+                        System.out.println("MessageActivity.onItemClick = " + messageRowItems.get(i).getMessageRecipient());
+                        dialogueBundle.putString("username", messageRowItems.get(i).getMessageRecipient());
+                        dialogueBundle.putString("kt_id", messageRowItems.get(i).getMessageRecipientID());
+                    } else if (messageRowItems.get(i).getMessageRecipientID().equals(MY_KT_ID)) {
+                        System.out.println("MessageActivity.onItemClick = " + messageRowItems.get(i).getMessageSender());
+                        dialogueBundle.putString("username", messageRowItems.get(i).getMessageSender());
+                        dialogueBundle.putString("kt_id", messageRowItems.get(i).getMessageSenderID());
+                    }
+                    try {
+                        dialogueBundle.putString("kandi_id", messageRowItems.get(i).getMessageKandiID());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    startDialogue.putExtras(dialogueBundle);
+                    startActivityForResult(startDialogue, ReturnToMessageActivityRequestCode);
+                }
+            });
+        }
+    });
+
+
+    //gets all kandi you own (have ownership of) for the kandi name
+    private GetAllKandiFromLocalDbAsyncTask getAllKandiFromLocalDbAsyncTask = new GetAllKandiFromLocalDbAsyncTask(this, new ReturnKandiObjectArrayAsyncResponse() {
+        @Override
+        public void processFinish(ArrayList<KandiObject> output) {
+            System.out.println("MessageActivity.getAllKandiFromLocalAsyncTask.processFinish.output.size() = " + output.size());
+            getAllGroupsFromLocalDbAsyncTask.execute(output);
         }
     });
 
@@ -67,17 +96,8 @@ public class MessageActivity extends Activity {
     private GetAllUsersFromLocalDbAsyncTask getAllUsersFromLocalDbAsyncTask = new GetAllUsersFromLocalDbAsyncTask(this, new ReturnKtUserObjectParcelableArrayListAsyncResponse() {
         @Override
         public void processFinish(ArrayList<KtUserObjectParcelable> output) {
-            System.out.println("MessageFragment.getAllUsersFromLocalDbAsyncTask.processFinish.output.size() = " + output.size());
+            System.out.println("MessageActivity.getAllUsersFromLocalDbAsyncTask.processFinish.output.size() = " + output.size());
             usersForNewMessageList.addAll(output);
-        }
-    });
-
-    //gets all kandi you own (have ownership of) for the kandi name
-    private GetAllKandiFromLocalAsyncTask getAllKandiFromLocalAsyncTask = new GetAllKandiFromLocalAsyncTask(this, new ReturnKandiObjectArrayAsyncResponse() {
-        @Override
-        public void processFinish(ArrayList<KandiObject> output) {
-            System.out.println("MessageFragment.getAllKandiFromLocalAsyncTask.processFinish.output.size() = " + output.size());
-            getAllGroupsFromLocalDbAsyncTask.execute(output);
         }
     });
 
@@ -85,7 +105,7 @@ public class MessageActivity extends Activity {
     private GetAllGroupsFromLocalDbAsyncTask getAllGroupsFromLocalDbAsyncTask = new GetAllGroupsFromLocalDbAsyncTask(this, new ReturnKandiGroupObjectParcelableArrayList() {
         @Override
         public void processFinish(ArrayList<KandiGroupObjectParcelable> output) {
-            System.out.println("MessageFragment.getAllGroupsFromLocalDbAsyncTask.processFinish.output.size() = " + output.size());
+            System.out.println("MessageActivity.getAllGroupsFromLocalDbAsyncTask.processFinish.output.size() = " + output.size());
             groupsForNewMessageList.addAll(output);
         }
     });
@@ -93,12 +113,12 @@ public class MessageActivity extends Activity {
     // Async Tasks End *****************************************************************************
 
     //Shared Preferences
-    private static final String TAG = "MainActivity:";
+    private static final String TAG = "MessageActivity:";
     private SharedPreferences sharedPreferences;
-    public static final String MyPreferences = "MyPrefs";
-    public static final String Name = "nameKey";
-    public static final String FbId = "fbidKey";
-    public static final String UserId = "userIdKey";
+    public static final String MY_PREFERENCES = "MyPrefs";
+    public static final String NAME = "nameKey";
+    public static final String FBID = "fbidKey";
+    public static final String KTID = "userIdKey";
     public static final String OPENED_BEFORE = "opened_before";
 
     //Local Database
@@ -130,10 +150,10 @@ public class MessageActivity extends Activity {
 
         //get data from sharedPreferences and local database
         myDatabase = new KtDatabase(this);
-        sharedPreferences = this.getSharedPreferences(MyPreferences, Context.MODE_PRIVATE);
-        MY_KT_ID = sharedPreferences.getString(UserId, "");
-        MY_USER_NAME = sharedPreferences.getString(Name, "");
-        MY_FB_ID = sharedPreferences.getString(FbId, "");
+        sharedPreferences = this.getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        MY_KT_ID = sharedPreferences.getString(KTID, "");
+        MY_USER_NAME = sharedPreferences.getString(NAME, "");
+        MY_FB_ID = sharedPreferences.getString(FBID, "");
 
         //find list view in xml
         //TODO set adapter for list view
@@ -150,14 +170,39 @@ public class MessageActivity extends Activity {
             }
         });
 
+        //find new message button in xml
+        //set new message button to show fragment
+        newMessageButton = (ImageView) findViewById(R.id.MessageActivity_NewMessageButton);
+        newMessageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .setCustomAnimations(R.anim.abc_slide_in_bottom, R.anim.abc_slide_out_bottom)
+                        .add(R.id.MessageActivity_NewMessageFragmentContainer, NewMessageFragment.newInstance())
+                        .addToBackStack("newMessageFragment")
+                        .commit();
+            }
+        });
+
         //get latest messages from local db
-        displayLatestMessagesAsyncTask.execute(myDatabase.getFb_IdFromKtUserToDisplayLatestMessage());
-        //get latest group messages from local db
-        displayLatestGroupMessageAsyncTask.execute(myDatabase.getKandi());
+        getLatestMessageRowsFromLocalDbAsyncTask.execute(myDatabase.getKTIDsFromLocalDb());
         //get list of all friends from local db
         getAllUsersFromLocalDbAsyncTask.execute();
         //get list of all kandi (groups) you belong to
-        getAllKandiFromLocalAsyncTask.execute();
+        getAllKandiFromLocalDbAsyncTask.execute();
     }
 
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == ReturnToMessageActivityRequestCode) {
+            // just came back from message dialogue
+
+            //TODO this can only be executed once, find another way to do this
+            getLatestMessageRowsFromLocalDbAsyncTask.execute(myDatabase.getKTIDsFromLocalDb());
+        }
+    }
 }

@@ -29,10 +29,10 @@ public class DownloadGroupMessagesFromServerAsyncTask extends AsyncTask<Void, Vo
     private KtDatabase myDatabase;
     SharedPreferences sharedPreferences;
     private String MY_KT_ID, MY_FB_ID, MY_USER_NAME;
-    public static final String MyPreferences = "MyPrefs";
-    public static final String Name = "nameKey";
-    public static final String FbId = "fbidKey";
-    public static final String UserId = "userIdKey";
+    public static final String MY_PREFERENCES = "MyPrefs";
+    public static final String NAME = "nameKey";
+    public static final String FBID = "fbidKey";
+    public static final String KTID = "userIdKey";
 
     private ArrayList<GroupMessageItem> groupMessageItemArrayList;
 
@@ -57,7 +57,7 @@ public class DownloadGroupMessagesFromServerAsyncTask extends AsyncTask<Void, Vo
 
             HttpPost post = new HttpPost(Url);
 
-            toPostObject.setFb_id(MY_FB_ID);
+            toPostObject.setKt_id(MY_KT_ID);
 
             StringEntity entity = new StringEntity(toPostObject.toString(), HTTP.UTF_8);
 
@@ -114,10 +114,10 @@ public class DownloadGroupMessagesFromServerAsyncTask extends AsyncTask<Void, Vo
     @Override
     protected void onPreExecute() {
         myDatabase = new KtDatabase(context);
-        sharedPreferences = context.getSharedPreferences(MyPreferences, Context.MODE_PRIVATE);
-        MY_KT_ID = sharedPreferences.getString(UserId, "");
-        MY_USER_NAME = sharedPreferences.getString(Name, "");
-        MY_FB_ID = sharedPreferences.getString(FbId, "");
+        sharedPreferences = context.getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        MY_KT_ID = sharedPreferences.getString(KTID, "");
+        MY_USER_NAME = sharedPreferences.getString(NAME, "");
+        MY_FB_ID = sharedPreferences.getString(FBID, "");
 
         groupMessageItemArrayList = new ArrayList<>();
     }

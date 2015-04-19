@@ -4,13 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
@@ -47,11 +45,11 @@ public class MessageFragment extends Fragment {
     private ArrayList<GroupMessageItem> groupMessageItemArray;
 
     // AsyncTask Vars
-    private DisplayLatestMessagesAsyncTask displayLatestMessagesAsyncTask;
-    private DisplayLatestGroupMessageAsyncTask displayLatestGroupMessageAsyncTask;
+    private GetLatestMessageRowsFromLocalDbAsyncTask getLatestMessageRowsFromLocalDbAsyncTask;
+    private GetLatestGroupMessageRowsFromLocalDbAsyncTask getLatestGroupMessageRowsFromLocalDbAsyncTask;
     private GetAllUsersFromLocalDbAsyncTask getAllUsersFromLocalDbAsyncTask;
     private GetAllGroupsFromLocalDbAsyncTask getAllGroupsFromLocalDbAsyncTask;
-    private GetAllKandiFromLocalAsyncTask getAllKandiFromLocalAsyncTask;
+    private GetAllKandiFromLocalDbAsyncTask getAllKandiFromLocalDbAsyncTask;
 
     private ArrayList<KtUserObjectParcelable> usersForNewMessageList = new ArrayList<>();
     private ArrayList<KandiGroupObjectParcelable> groupsForNewMessageList = new ArrayList<>();
@@ -138,9 +136,9 @@ public class MessageFragment extends Fragment {
                 getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.left_slide_in, R.anim.right_slide_out).remove(MessageFragment.this).commit();
             }
         });
-         **/
 
-        displayLatestMessagesAsyncTask = new DisplayLatestMessagesAsyncTask(this.context, new ReturnMessageListItemArrayAsyncResponse() {
+
+        getLatestMessageRowsFromLocalDbAsyncTask = new GetLatestMessageRowsFromLocalDbAsyncTask(this.context, new ReturnMessageListItemArrayAsyncResponse() {
             @Override
             public void processFinish(final ArrayList<MessageListItem> output) {
                 messageListItemsArray = output;
@@ -165,7 +163,7 @@ public class MessageFragment extends Fragment {
             }
         });
 
-        displayLatestGroupMessageAsyncTask = new DisplayLatestGroupMessageAsyncTask(getActivity(), new ReturnGroupMessageArrayListAsyncResponse() {
+        getLatestGroupMessageRowsFromLocalDbAsyncTask = new GetLatestGroupMessageRowsFromLocalDbAsyncTask(getActivity(), new ReturnGroupMessageArrayListAsyncResponse() {
             @Override
             public void processFinish(ArrayList<GroupMessageItem> output) {
                 System.out.println("MessageFragment.displayLatestGroupMessageAsyncTask.processFinish.output.size() = " + output.size());
@@ -183,7 +181,7 @@ public class MessageFragment extends Fragment {
             }
         });
 
-        getAllKandiFromLocalAsyncTask = new GetAllKandiFromLocalAsyncTask(getActivity(), new ReturnKandiObjectArrayAsyncResponse() {
+        getAllKandiFromLocalDbAsyncTask = new GetAllKandiFromLocalDbAsyncTask(getActivity(), new ReturnKandiObjectArrayAsyncResponse() {
             @Override
             public void processFinish(ArrayList<KandiObject> output) {
                 System.out.println("MessageFragment.getAllKandiFromLocalAsyncTask.processFinish.output.size() = " + output.size());
@@ -200,12 +198,11 @@ public class MessageFragment extends Fragment {
             }
         });
 
-        displayLatestMessagesAsyncTask.execute(myDatabase.getFb_IdFromKtUserToDisplayLatestMessage());
-        displayLatestGroupMessageAsyncTask.execute(myDatabase.getKandi());
+        getLatestMessageRowsFromLocalDbAsyncTask.execute(myDatabase.getFb_IdFromKtUserToDisplayLatestMessage());
+        getLatestGroupMessageRowsFromLocalDbAsyncTask.execute(myDatabase.getKandi());
         getAllUsersFromLocalDbAsyncTask.execute();
-        getAllKandiFromLocalAsyncTask.execute();
-
+        getAllKandiFromLocalDbAsyncTask.execute();
+**/
         return rootView;
     }
-
 }

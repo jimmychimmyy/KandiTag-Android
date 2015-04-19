@@ -71,17 +71,21 @@ public class DisplayUsersForNewMessage extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 System.out.println("newMessageList.onItemClick " + position);
                 ktUserObjectParcelableArrayList.get(position);
+                //TODO check if this fragment is still relevant
+                /**
                 Message message = (Message) getActivity();
                 message.setInvisibleMessageTitleMessageButton();
                 Intent openMessagingUI = new Intent(getActivity(), MessageDialogue.class);
                 Bundle bundleParams = new Bundle();
                 bundleParams.putString("kt_id", ktUserObjectParcelableArrayList.get(position).getKt_id());
                 bundleParams.putString("fb_id", ktUserObjectParcelableArrayList.get(position).getFb_id());
-                bundleParams.putString("user_name", ktUserObjectParcelableArrayList.get(position).getUser_name());
+                bundleParams.putString("user_name", ktUserObjectParcelableArrayList.get(position).getUsername());
                 openMessagingUI.putExtras(bundleParams);
                 //messageListView.setVisibility(View.GONE);
                 //messageTitle.setVisibility(View.GONE);
                 startActivity(openMessagingUI);
+
+                 **/
                 getActivity().getFragmentManager().beginTransaction().remove(DisplayUsersForNewMessage.this).commit();
                 //TODO double check to make sure this method doesnt override the original name of the kanditag
             }

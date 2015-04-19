@@ -59,7 +59,7 @@ public class FriendsGridViewAdapter extends ArrayAdapter<KtUserObjectParcelable>
 
         holder.fb_id.setText(ktUserObjectParcelable.getFb_id());
         holder.kt_id.setText(ktUserObjectParcelable.getKt_id());
-        holder.user_name.setText(ktUserObjectParcelable.getUser_name());
+        holder.user_name.setText(ktUserObjectParcelable.getUsername());
 
         URL img_value = null;
             try {

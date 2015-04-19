@@ -5,25 +5,25 @@ package com.jimchen.kanditag;
  */
 public class KandiObject {
 
-    private String qrCode, kandi_name;
+    private String kandi_id, kandi_name;
 
     public  KandiObject() {}
 
     public KandiObject(String qr, String name) {
-        this.qrCode = qr;
+        this.kandi_id = qr;
         this.kandi_name = name;
     }
 
-    public void setQrCode(String qr) {
-        this.qrCode = qr;
+    public void setKandi_id(String qr) {
+        this.kandi_id = qr;
     }
 
     public void setKandi_name(String name) {
         this.kandi_name = name;
     }
 
-    public String getQrCode() {
-        return qrCode;
+    public String getKandi_id() {
+        return kandi_id;
     }
 
     public String getKandi_name() {
