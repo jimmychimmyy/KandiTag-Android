@@ -22,10 +22,10 @@ import java.util.ArrayList;
 /**
  * Created by Jim on 3/12/15.
  */
-public class DownloadGroupMessagesFromServerAsyncTask extends AsyncTask<Void, Void, ArrayList<GroupMessageItem>> {
+public class DownloadGroupMessagesFromServerAsyncTask extends AsyncTask<Void, Void, ArrayList<KtMessageObject>> {
 
     private Context context;
-    private ReturnGroupMessageArrayListAsyncResponse delegate = null;
+    private ReturnKtMessageObjectArrayListAsyncResponse delegate = null;
     private KtDatabase myDatabase;
     SharedPreferences sharedPreferences;
     private String MY_KT_ID, MY_FB_ID, MY_USER_NAME;
@@ -34,15 +34,15 @@ public class DownloadGroupMessagesFromServerAsyncTask extends AsyncTask<Void, Vo
     public static final String FBID = "fbidKey";
     public static final String KTID = "userIdKey";
 
-    private ArrayList<GroupMessageItem> groupMessageItemArrayList;
+    private ArrayList<KtMessageObject> groupMessageItemArrayList;
 
-    public DownloadGroupMessagesFromServerAsyncTask(Context context, ReturnGroupMessageArrayListAsyncResponse response) {
+    public DownloadGroupMessagesFromServerAsyncTask(Context context, ReturnKtMessageObjectArrayListAsyncResponse response) {
         this.context = context;
         this.delegate = response;
     }
 
     @Override
-    protected ArrayList<GroupMessageItem> doInBackground(Void... params) {
+    protected ArrayList<KtMessageObject> doInBackground(Void... params) {
 
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
@@ -87,19 +87,24 @@ public class DownloadGroupMessagesFromServerAsyncTask extends AsyncTask<Void, Vo
                      System.out.println("PostQr.Records.placement = " + records.getPlacement());
                      **/
 
-                GroupMessageItem groupMessageItem = new GroupMessageItem();
-                    groupMessageItem.setMessage(records.getMsg());
-                    groupMessageItem.setFromID(records.getFID());
-                    groupMessageItem.setFromName(records.getFromName());
-                    groupMessageItem.setQrCode(records.getQrcode());
-                    groupMessageItem.setTime(records.getTime());
+                KtMessageObject messageObject = new KtMessageObject();
+                    messageObject.setMessage(records.getMessage());
+                    messageObject.setFrom_id(records.getFrom_id());
+                    messageObject.setFrom_name(records.getFrom_name());
+                    messageObject.setKandiID(records.getQrcode());
+                    try {
+                        messageObject.setKandiName(records.getKandi_name());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    messageObject.setTimestamp(records.getTimestamp());
 
-                    boolean exists = myDatabase.checkIfGroupMessageExists(groupMessageItem);
+                    boolean exists = myDatabase.checkIfGroupMessageExists(messageObject);
                     if (exists) {
 
                     } else {
-                        groupMessageItemArrayList.add(groupMessageItem);
-                        myDatabase.saveGroupMessage(groupMessageItem);
+                        groupMessageItemArrayList.add(messageObject);
+                        myDatabase.saveGroupMessage(messageObject);
                     }
                 }
             }
@@ -123,7 +128,7 @@ public class DownloadGroupMessagesFromServerAsyncTask extends AsyncTask<Void, Vo
     }
 
     @Override
-    protected void onPostExecute(ArrayList<GroupMessageItem> list) {
+    protected void onPostExecute(ArrayList<KtMessageObject> list) {
         delegate.processFinish(list);
     }
 }

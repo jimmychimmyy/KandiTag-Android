@@ -61,20 +61,30 @@ public class MessageActivity extends FragmentActivity {
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     Intent startDialogue = new Intent(MessageActivity.this, MessageDialogue.class);
                     Bundle dialogueBundle = new Bundle();
-                    if (messageRowItems.get(i).getMessageSenderID().equals(MY_KT_ID)) {
-                        System.out.println("MessageActivity.onItemClick = " + messageRowItems.get(i).getMessageRecipient());
-                        dialogueBundle.putString("username", messageRowItems.get(i).getMessageRecipient());
-                        dialogueBundle.putString("kt_id", messageRowItems.get(i).getMessageRecipientID());
-                    } else if (messageRowItems.get(i).getMessageRecipientID().equals(MY_KT_ID)) {
-                        System.out.println("MessageActivity.onItemClick = " + messageRowItems.get(i).getMessageSender());
-                        dialogueBundle.putString("username", messageRowItems.get(i).getMessageSender());
-                        dialogueBundle.putString("kt_id", messageRowItems.get(i).getMessageSenderID());
+                    if (messageRowItems.get(i).getMessageKandiID() == null) {
+                        if (messageRowItems.get(i).getMessageSenderID().equals(MY_KT_ID)) {
+                            System.out.println("MessageActivity.onItemClick = " + messageRowItems.get(i).getMessageRecipient());
+                            dialogueBundle.putString("username", messageRowItems.get(i).getMessageRecipient());
+                            dialogueBundle.putString("kt_id", messageRowItems.get(i).getMessageRecipientID());
+                        } else if (messageRowItems.get(i).getMessageRecipientID().equals(MY_KT_ID)) {
+                            System.out.println("MessageActivity.onItemClick = " + messageRowItems.get(i).getMessageSender());
+                            dialogueBundle.putString("username", messageRowItems.get(i).getMessageSender());
+                            dialogueBundle.putString("kt_id", messageRowItems.get(i).getMessageSenderID());
+                        }
+                    } else if (messageRowItems.get(i).getMessageKandiID() != null) {
+                        try {
+                            dialogueBundle.putString("kandi_id", messageRowItems.get(i).getMessageKandiID());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            dialogueBundle.putString("kandi_name", messageRowItems.get(i).getKandiName());
+                            System.out.println("MessageActivity.onItemClick = " + messageRowItems.get(i).getKandiName());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
-                    try {
-                        dialogueBundle.putString("kandi_id", messageRowItems.get(i).getMessageKandiID());
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+
                     startDialogue.putExtras(dialogueBundle);
                     startActivityForResult(startDialogue, ReturnToMessageActivityRequestCode);
                 }
@@ -193,7 +203,6 @@ public class MessageActivity extends FragmentActivity {
         getAllKandiFromLocalDbAsyncTask.execute();
     }
 
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -202,7 +211,60 @@ public class MessageActivity extends FragmentActivity {
             // just came back from message dialogue
 
             //TODO this can only be executed once, find another way to do this
-            getLatestMessageRowsFromLocalDbAsyncTask.execute(myDatabase.getKTIDsFromLocalDb());
+            new GetLatestMessageRowsFromLocalDbAsyncTask(MessageActivity.this, new ReturnMessageRowItemArrayListAsyncResponse() {
+                @Override
+                public void processFinish(ArrayList<MessageRowItem> output) {
+                    System.out.println("MessageActivity.displayLatestMessagesAsyncTask.processFinish.output.size() = " + output.size());
+                    messageRowItems.removeAll(messageRowItems);
+                    messageRowItems.addAll(output);
+                    new GetLatestGroupMessageRowsFromLocalDbAsyncTask(MessageActivity.this, new ReturnMessageRowItemArrayListAsyncResponse() {
+                        @Override
+                        public void processFinish(ArrayList<MessageRowItem> output) {
+                            System.out.println("MessageActivity.displayLatestGroupMessageAsyncTask.processFinish.output.size() = " + output.size());
+                            // add the latest group message into message row items list
+                            messageRowItems.addAll(output);
+                            //create message list view adapter for list view
+                            messageListViewAdapter = new MessageListViewAdapter(MessageActivity.this, R.layout.message_row_item, messageRowItems);
+                            listView.setAdapter(messageListViewAdapter);
+                            messageListViewAdapter.notifyDataSetChanged();
+                            listView.invalidate();
+                            // set list view on item click listener to be able to open message dialogues
+                            listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                    Intent startDialogue = new Intent(MessageActivity.this, MessageDialogue.class);
+                                    Bundle dialogueBundle = new Bundle();
+                                    if (messageRowItems.get(i).getMessageKandiID() == null) {
+                                        if (messageRowItems.get(i).getMessageSenderID().equals(MY_KT_ID)) {
+                                            System.out.println("MessageActivity.onItemClick = " + messageRowItems.get(i).getMessageRecipient());
+                                            dialogueBundle.putString("username", messageRowItems.get(i).getMessageRecipient());
+                                            dialogueBundle.putString("kt_id", messageRowItems.get(i).getMessageRecipientID());
+                                        } else if (messageRowItems.get(i).getMessageRecipientID().equals(MY_KT_ID)) {
+                                            System.out.println("MessageActivity.onItemClick = " + messageRowItems.get(i).getMessageSender());
+                                            dialogueBundle.putString("username", messageRowItems.get(i).getMessageSender());
+                                            dialogueBundle.putString("kt_id", messageRowItems.get(i).getMessageSenderID());
+                                        }
+                                    } else if (messageRowItems.get(i).getMessageKandiID() != null) {
+                                        try {
+                                            dialogueBundle.putString("kandi_id", messageRowItems.get(i).getMessageKandiID());
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                        try {
+                                            dialogueBundle.putString("kandi_name", messageRowItems.get(i).getKandiName());
+                                            System.out.println("MessageActivity.onItemClick = " + messageRowItems.get(i).getKandiName());
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    startDialogue.putExtras(dialogueBundle);
+                                    startActivityForResult(startDialogue, ReturnToMessageActivityRequestCode);
+                                }
+                            });
+                        }
+                    }).execute(myDatabase.getKandi());
+                }
+            }).execute(myDatabase.getKTIDsFromLocalDb());
         }
     }
 }

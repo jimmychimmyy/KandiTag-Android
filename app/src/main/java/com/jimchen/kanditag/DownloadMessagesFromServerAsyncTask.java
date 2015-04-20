@@ -93,13 +93,13 @@ public class DownloadMessagesFromServerAsyncTask extends AsyncTask<Void, Void, A
                              **/
 
                             KtMessageObject ktMessageObject = new KtMessageObject();
-                            ktMessageObject.setMessage(records.getMsg());
-                            ktMessageObject.setFrom_id(records.getFID());
-                            ktMessageObject.setFrom_name(records.getFromName());
-                            ktMessageObject.setTo_id(records.getTID());
-                            String toName = records.getToName().replace("\"","");
+                            ktMessageObject.setMessage(records.getMessage());
+                            ktMessageObject.setFrom_id(records.getFrom_id());
+                            ktMessageObject.setFrom_name(records.getFrom_name());
+                            ktMessageObject.setTo_id(records.getTo_id());
+                            String toName = records.getTo_name().replace("\"","");
                             ktMessageObject.setTo_name(toName);
-                            ktMessageObject.setTime(records.getTime());
+                            ktMessageObject.setTimestamp(records.getTimestamp());
 
                             boolean exists = myDatabase.checkIfAlreadyExistsInKtMessage(ktMessageObject);
                             if (exists) {

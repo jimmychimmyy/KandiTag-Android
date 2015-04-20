@@ -3,7 +3,6 @@ package com.jimchen.kanditag;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
@@ -16,28 +15,28 @@ class Records_Deserializer implements JsonDeserializer<Records> {
 
     private String group;
 
-    private String msg, date, fID, tID;
+    private String message, from_id, to_id;
     private boolean sent;
 
-    private String qrcode, kt_id, fb_id, username, _id;
+    private String kt_id, fb_id, username, _id;
     private int placement;
-    private String fromName, toName;
+    private String from_name, to_name;
 
-    private String time;
+    private String timestamp;
 
-    private String kandiName;
+    private String kandi_name, kandi_id;
 
     public Records deserialize (JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
         JsonObject jsonObject = json.getAsJsonObject();
 
         try {
-            toName = jsonObject.get("toName").getAsString();
+            to_name = jsonObject.get("to_name").getAsString();
         } catch (NullPointerException nullEx) {
             nullEx.printStackTrace();
         }
 
         try {
-            msg = jsonObject.get("msg").getAsString();
+            message = jsonObject.get("message").getAsString();
         } catch (NullPointerException nulLEx) {}
 
         try {
@@ -52,24 +51,23 @@ class Records_Deserializer implements JsonDeserializer<Records> {
             kt_id = jsonObject.get("kt_id").getAsString();
         } catch (NullPointerException nullEx) {}
         try {
-            qrcode = jsonObject.get("qrcode").getAsString();
+            kandi_id = jsonObject.get("kandi_id").getAsString();
         } catch (NullPointerException nullEx) {}
         try {
-            kandiName = jsonObject.get("kandi_name").getAsString();
+            kandi_name = jsonObject.get("kandi_name").getAsString();
         } catch (NullPointerException nullEx) {}
         try {
-            time = jsonObject.get("date").getAsString();
+            timestamp = jsonObject.get("timestamp").getAsString();
         } catch (NullPointerException nullEx) {}
 
         try {
-            fromName = jsonObject.get("fromName").getAsString();
+            from_name = jsonObject.get("from_name").getAsString();
         } catch (NullPointerException nullEx) {
             nullEx.printStackTrace();
         }
         try {
-            fID = jsonObject.get("fID").getAsString();
-            tID = jsonObject.get("tID").getAsString();
-            date = jsonObject.get("date").getAsString();
+            from_id = jsonObject.get("from_id").getAsString();
+            to_id = jsonObject.get("to_id").getAsString();
             sent = jsonObject.get("sent").getAsBoolean();
         } catch (NullPointerException nullEx) {}
         try {
@@ -83,24 +81,28 @@ class Records_Deserializer implements JsonDeserializer<Records> {
         Records recordsObj = new Records();
 
         try {
-            recordsObj.setKandiName(kandiName);
+            recordsObj.setKandiID(kandi_id);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            recordsObj.setKandi_name(kandi_name);
         } catch (NullPointerException nullEx) {}
         try {
-            recordsObj.setTime(time);
+            recordsObj.setTimestamp(timestamp);
         } catch (NullPointerException nullEx) {}
         try {
-            recordsObj.setFromName(fromName);
-            recordsObj.setToName(toName);
+            recordsObj.setFrom_name(from_name);
+            recordsObj.setTo_name(to_name);
         } catch (NullPointerException nullEx) {}
         try {
-            recordsObj.setMsg(msg);
-            recordsObj.setFID(fID);
-            recordsObj.setTID(tID);
-            recordsObj.setDate(date);
+            recordsObj.setMessage(message);
+            recordsObj.setFrom_id(from_id);
+            recordsObj.setTo_id(to_id);
             recordsObj.setSent(sent);
         } catch (NullPointerException nullEx) {}
         try {
-            recordsObj.setQrcode(qrcode);
+            recordsObj.setQrcode(kandi_id);
             recordsObj.setKt_id(kt_id);
             recordsObj.setFb_id(fb_id);
             recordsObj.setUsername(username);

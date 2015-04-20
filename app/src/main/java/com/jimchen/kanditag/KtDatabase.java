@@ -85,11 +85,11 @@ public class KtDatabase extends SQLiteOpenHelper {
         onCreate(database);
     }
 
-    public boolean checkIfGroupMessageExists(GroupMessageItem item) {
+    public boolean checkIfGroupMessageExists(KtMessageObject item) {
         System.out.println("KtDatabase.checkIfGroupMessageExists");
         boolean exists = false;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("select * from kt_group_message where from_id='" + item.getFromID() + "' and from_name='" + item.getFromName() + "' and kandi_id='" + item.getQrCode() + "' and timestamp='" + item.getTime() + "'", null);
+        Cursor res = db.rawQuery("select * from kt_group_message where from_id='" + item.getFrom_id() + "' and from_name='" + item.getFrom_name() + "' and kandi_id='" + item.getKandiID() + "' and timestamp='" + item.getTimestamp() + "'", null);
         res.moveToFirst();
         if (res.getCount() == 1) {
             System.out.println("count = 1");
@@ -164,19 +164,22 @@ public class KtDatabase extends SQLiteOpenHelper {
         return true;
     }
 
-    public boolean saveGroupMessage(GroupMessageItem item) {
+    //saving group message
+    public boolean saveGroupMessage(KtMessageObject item) {
         System.out.println("KtDatabase.saveGroupMessage");
-        SQLiteDatabase db = this.getWritableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(GROUP_MESSAGE_COLUMN_MSSG, item.getMessage());
-        contentValues.put(GROUP_MESSAGE_COLUMN_FROM_ID, item.getFromID());
-        contentValues.put(GROUP_MESSAGE_COLUMN_FROM_NAME, item.getFromName());
-        contentValues.put(GROUP_MESSAGE_COLUMN_KANDI_NAME, item.getQrCode());
-        contentValues.put(GROUP_MESSAGE_COLUMN_TIMESTAMP, item.getTime());
+        contentValues.put(GROUP_MESSAGE_COLUMN_FROM_ID, item.getFrom_id());
+        contentValues.put(GROUP_MESSAGE_COLUMN_FROM_NAME, item.getFrom_name());
+        contentValues.put(GROUP_MESSAGE_COLUMN_KANDI_ID, item.getKandiID());
+        contentValues.put(GROUP_MESSAGE_COLUMN_KANDI_NAME, item.getKandiName());
+        contentValues.put(GROUP_MESSAGE_COLUMN_TIMESTAMP, item.getTimestamp());
         db.insert(GROUP_MESSAGE_TABLE, null, contentValues);
         return true;
     }
 
+    //saving messages
     public boolean saveMessage(KtMessageObject item) {
         System.out.println("KtDatabase.saveMessage");
         SQLiteDatabase db = this.getWritableDatabase();
@@ -186,7 +189,7 @@ public class KtDatabase extends SQLiteOpenHelper {
         contentValues.put(MESSAGE_COLUMN_FROM_NAME, item.getFrom_name());
         contentValues.put(MESSAGE_COLUMN_TO_ID, item.getTo_id());
         contentValues.put(MESSAGE_COLUMN_TO_NAME, item.getTo_name());
-        contentValues.put(MESSAGE_COLUMN_TIMESTAMP, item.getTime());
+        contentValues.put(MESSAGE_COLUMN_TIMESTAMP, item.getTimestamp());
         db.insert(MESSAGE_TABLE, null, contentValues);
         return true;
     }
@@ -195,7 +198,7 @@ public class KtDatabase extends SQLiteOpenHelper {
         System.out.println("KtDatabase.checkIfAlreadyExistsInKtMessage");
         boolean exists = false;
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("select * from kt_message where from_id='" + item.getFrom_id() + "' and to_id='" + item.getTo_id() + "' and timestamp='" + item.getTime() + "'", null);
+        Cursor res = db.rawQuery("select * from kt_message where from_id='" + item.getFrom_id() + "' and to_id='" + item.getTo_id() + "' and timestamp='" + item.getTimestamp() + "'", null);
         res.moveToFirst();
         if (res.getCount() == 1) {
             System.out.println("count = 1");
@@ -219,7 +222,7 @@ public class KtDatabase extends SQLiteOpenHelper {
         contentValues.put(MESSAGE_COLUMN_FROM_NAME, item.getSenderName());
         contentValues.put(MESSAGE_COLUMN_TO_ID, item.getRecipientID());
         contentValues.put(MESSAGE_COLUMN_TO_NAME, item.getRecipientName());
-        contentValues.put(MESSAGE_COLUMN_TIMESTAMP, item.getTime());
+        contentValues.put(MESSAGE_COLUMN_TIMESTAMP, item.getTimestamp());
         db.insert(MESSAGE_TABLE, null, contentValues);
         return true;
     }
@@ -314,24 +317,6 @@ public class KtDatabase extends SQLiteOpenHelper {
         return messageArrayList;
     }
 
-    public ArrayList<GroupMessageItem> getMessagesForGroup(String ktGroup) {
-        System.out.println("KtDatabase.getMessagesForGroup");
-        ArrayList<GroupMessageItem> groupMessageItems = new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res = db.rawQuery("select * from kt_group_message where kandi_id='" + ktGroup + "'", null);
-        res.moveToFirst();
-        while (!res.isAfterLast()) {
-            GroupMessageItem groupMessageItem = new GroupMessageItem();
-            groupMessageItem.setMessage(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_MSSG)));
-            groupMessageItem.setFromID(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_FROM_ID)));
-            groupMessageItem.setFromName(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_FROM_NAME)));
-            groupMessageItem.setQrCode(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_KANDI_NAME)));
-            groupMessageItem.setTime(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_TIMESTAMP)));
-            groupMessageItems.add(groupMessageItem);
-            res.moveToNext();
-        }
-        return groupMessageItems;
-    }
 
     public ArrayList<ConversationListItem> getArrayListOfAllGroupKtMessages() {
         System.out.println("KtDatabase.getArrayListOfAllGroupKtMessages");
@@ -601,7 +586,6 @@ public class KtDatabase extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor res = db.rawQuery("select * from kt_group_message where kandi_id='" + kandi_id + "'", null);
         res.moveToLast();
-
         MessageRowItem rowItem = new MessageRowItem();
         try {
             rowItem.setMessageText(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_MSSG)));
@@ -652,6 +636,46 @@ public class KtDatabase extends SQLiteOpenHelper {
             res.moveToNext();
         }
         return ktUsersList;
+    }
+
+    public ArrayList<GroupMessageItem> getMessagesForGroup(String ktGroup) {
+        System.out.println("KtDatabase.getMessagesForGroup");
+        ArrayList<GroupMessageItem> groupMessageItems = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("select * from kt_group_message where kandi_id='" + ktGroup + "'", null);
+        res.moveToFirst();
+        while (!res.isAfterLast()) {
+            GroupMessageItem groupMessageItem = new GroupMessageItem();
+            groupMessageItem.setMessage(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_MSSG)));
+            groupMessageItem.setFromID(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_FROM_ID)));
+            groupMessageItem.setFromName(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_FROM_NAME)));
+            groupMessageItem.setQrCode(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_KANDI_NAME)));
+            groupMessageItem.setTime(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_TIMESTAMP)));
+            groupMessageItems.add(groupMessageItem);
+            res.moveToNext();
+        }
+        return groupMessageItems;
+    }
+
+    // get all group messages for a single kandi_id
+    public ArrayList<MessageRowItem> getGroupMessagesFor(String kandi_id) {
+        System.out.println("KtDatabase.getGroupMessages");
+        ArrayList<MessageRowItem> messageRowItems = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("select * from kt_group_message where kandi_id='" + kandi_id + "'", null);
+        res.moveToFirst();
+        while (!res.isAfterLast()) {
+            MessageRowItem rowItem = new MessageRowItem();
+            rowItem.setMessageText(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_MSSG)));
+            rowItem.setMessageSenderID(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_FROM_ID)));
+            rowItem.setMessageSender(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_FROM_NAME)));
+            rowItem.setMessageKandiID(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_KANDI_ID)));
+            rowItem.setMessageKandiName(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_KANDI_NAME)));
+            rowItem.setMessageTimestamp(res.getString(res.getColumnIndex(GROUP_MESSAGE_COLUMN_TIMESTAMP)));
+            messageRowItems.add(rowItem);
+            res.moveToNext();
+        }
+        return messageRowItems;
     }
 
 }

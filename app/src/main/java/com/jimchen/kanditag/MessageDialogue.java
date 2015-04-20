@@ -1,13 +1,11 @@
 package com.jimchen.kanditag;
 
 import android.annotation.TargetApi;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -17,7 +15,6 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -36,6 +33,9 @@ import java.util.ArrayList;
 
 public class MessageDialogue extends FragmentActivity {
 
+    // boolean for group message
+    private boolean isGroupDialogue = false;
+
     // request codes
     private int ReturnToMessageActivityRequestCode = 1;
 
@@ -51,7 +51,7 @@ public class MessageDialogue extends FragmentActivity {
     private String kt_id, fb_id, user_name;
 
     //this is for group messages
-    private String kandi_id;
+    private String kandi_id, kandi_name;
 
     private String messageToSend;
 
@@ -126,6 +126,16 @@ public class MessageDialogue extends FragmentActivity {
         }
     });
 
+    // background task to get all group messages for list view
+    private GetAllGroupMessagesFromLocalDbAsyncTask getGroupMessagesTask = new GetAllGroupMessagesFromLocalDbAsyncTask(this, new ReturnMessageRowItemArrayListAsyncResponse() {
+        @Override
+        public void processFinish(ArrayList<MessageRowItem> output) {
+            messageRowItems.addAll(output);
+            messageDialogueListViewAdapter = new MessageDialogueListViewAdapter(MessageDialogue.this, R.layout.message_row_item, messageRowItems);
+            listView.setAdapter(messageDialogueListViewAdapter);
+        }
+    });
+
     private ArrayList<MessageRowItem> messageRowItems = new ArrayList<>();
 
     //adapter for list view
@@ -153,14 +163,43 @@ public class MessageDialogue extends FragmentActivity {
         //TODO need to change all fb_ids usage to kt_id
 
         Bundle bundleParams = getIntent().getExtras();
-        kt_id = bundleParams.getString("kt_id");
-        // get messages
-        getMessagesTask.execute(kt_id);
-        user_name = bundleParams.getString("username");
-        System.out.println(user_name);
-        //try to get kandiID, if none that means its a regular message
+
+        //try to get kt_id and username, if successful, this is a regular message dialogue
+
+        try {
+            kt_id = bundleParams.getString("kt_id");
+            getMessagesTask.execute(kt_id);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            user_name = bundleParams.getString("username");
+            if (!user_name.equals("")) {
+                System.out.println(user_name);
+                isGroupDialogue = false;
+                System.out.println("regular message");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // try to get kandi_id and kandi_name, if successful, this is a group message
+
         try {
             kandi_id = bundleParams.getString("kandi_id");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        try {
+            kandi_name = bundleParams.getString("kandi_name");
+            if (!kandi_name.equals("")) {
+                isGroupDialogue = true;
+                getGroupMessagesTask.execute(kandi_id);
+                System.out.println(kandi_name);
+                System.out.println("group message");
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -187,17 +226,18 @@ public class MessageDialogue extends FragmentActivity {
         userNameTextView = (TextView) findViewById(R.id.MessageDialogue_UserNameTextView);
         Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/kanditagfont-sth.ttf");
         userNameTextView.setTypeface(typeface);
-        userNameTextView.setText(user_name);
+        if (!isGroupDialogue) {
+            userNameTextView.setText(user_name);
+        } else if (isGroupDialogue) {
+            userNameTextView.setText(kandi_name);
+        }
 
         // edit text to write message
         //TODO need to make this expand when message gets long
         messageUIEditText = (EditText) findViewById(R.id.MessageDialogue_EditText);
-        //messageUIEditText.setBackgroundColor(Color.TRANSPARENT);
         messageUIEditText.setTextColor(Color.WHITE);
 
         messageUISendButton = (Button) findViewById(R.id.MessageDialogue_SendButton);
-        //messageUISendButton.setBackgroundColor(Color.TRANSPARENT);
-        //messageUISendButton.setBackgroundResource(R.drawable.send_icon);
         messageUISendButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -207,8 +247,12 @@ public class MessageDialogue extends FragmentActivity {
                     //TODO brush up on the animations
                     Animation anim = AnimationUtils.loadAnimation(MessageDialogue.this, R.anim.left_slide_out);
                     messageUISendButton.startAnimation(anim);
-                    //Sending the message
-                    newMessage(messageToSend, kt_id, MY_KT_ID, user_name, MY_USER_NAME);
+                    //Send the message
+                    if (!isGroupDialogue) {
+                        newMessage(messageToSend, kt_id, MY_KT_ID, user_name, MY_USER_NAME);
+                    } else if (isGroupDialogue) {
+                        newGroupMessage(messageToSend, MY_KT_ID, MY_USER_NAME, kandi_id, kandi_name);
+                    }
 
                     if (messageToSend != null) {
                         messageUIEditText.setText("");
@@ -231,7 +275,11 @@ public class MessageDialogue extends FragmentActivity {
             IO.Options options = new IO.Options();
             options.forceNew = true;
             socket = IO.socket(HOST, options);
-            socket.on("privatemessage", onNewMessage);
+            if (!isGroupDialogue) {
+                socket.on("privatemessage", onNewMessage);
+            } else if (isGroupDialogue) {
+                socket.on("group_message", onGroupMessage);
+            }
             socket.on(com.github.nkzawa.socketio.client.Socket.EVENT_CONNECT, new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
@@ -263,10 +311,75 @@ public class MessageDialogue extends FragmentActivity {
         }).start();
     }
 
+    private void newGroupMessage(String message, String myKTID, String fromName, String kandiID, String kandiName) {
+        System.out.println("MessageDialogue.newGroupMessage");
+        socket.emit("group_message", message, myKTID, fromName, kandiID, kandiName);
+    }
+
     private void newMessage(String message, String toKTID, String myKTID, String toName, String fromName) {
-        System.out.println("MessageDialogue.class.newMessage");
+        System.out.println("MessageDialogue.newMessage");
         socket.emit("privatemessage", message, toKTID, myKTID, toName, fromName);
     }
+
+    private Emitter.Listener onGroupMessage =  new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String message = (String) args[0];
+                    System.out.println("group message " + message);
+                    GsonBuilder gsonBuilder = new GsonBuilder();
+                    gsonBuilder.registerTypeAdapter(Res_End_Results.class, new Res_End_Results_Deserializer());
+                    gsonBuilder.registerTypeAdapter(Records.class, new Records_Deserializer());
+                    Gson gson = gsonBuilder.create();
+
+                    Res_End_Results re_obj = gson.fromJson(message, Res_End_Results.class);
+                    for (Records records:re_obj.getRecords()) {
+                        System.out.println("messages sent =" + records.getMessage());
+                        System.out.println("messages sent from id =" + records.getFrom_id());
+                        System.out.println("messages sent to kandi_id =" + records.getKandiID());
+                        System.out.println("messages sent to kandi_name =" + records.getKandi_name());
+                        System.out.println("messages sent from name =" + records.getFrom_name());
+                        System.out.println("messages sent timestamp =" + records.getTimestamp());
+                        KtMessageObject ktMessageObject = new KtMessageObject();
+                        ktMessageObject.setMessage(records.getMessage());
+                        ktMessageObject.setFrom_id(records.getFrom_id());
+                        ktMessageObject.setFrom_name(records.getFrom_name());
+                        ktMessageObject.setKandiID(records.getKandiID());
+                        ktMessageObject.setKandiName(records.getKandi_name());
+                        ktMessageObject.setTimestamp(records.getTimestamp());
+                        boolean exists = myDatabase.checkIfGroupMessageExists(ktMessageObject);
+                        if (exists) {
+                            System.out.println("exists");
+                        } else {
+                            System.out.println("does not exist");
+                            myDatabase.saveGroupMessage(ktMessageObject);
+
+                            // create messageRow object to add to the listView
+                            MessageRowItem rowItem = new MessageRowItem();
+                            rowItem.setMessageText(ktMessageObject.getMessage());
+                            rowItem.setMessageSender(ktMessageObject.getFrom_name());
+                            rowItem.setMessageSenderID(ktMessageObject.getFrom_id());
+                            rowItem.setMessageKandiName(ktMessageObject.getKandiName());
+                            rowItem.setMessageKandiID(ktMessageObject.getKandiID());
+                            rowItem.setMessageTimestamp(ktMessageObject.getTimestamp());
+
+                            messageRowItems.add(rowItem);
+                            messageDialogueListViewAdapter.notifyDataSetChanged();
+
+                            //TODO need to change all this to messageRowItems
+
+                            //messagingUIListViewArrayItems.add(conversationListItem);
+                            //conversationListAdapter.notifyDataSetChanged();
+                            listView.invalidate();
+
+                        }
+                    }
+                }
+            });
+        }
+    };
 
     private Emitter.Listener onNewMessage = new Emitter.Listener() {
         @Override
@@ -283,20 +396,19 @@ public class MessageDialogue extends FragmentActivity {
 
                     Res_End_Results re_obj = gson.fromJson(message, Res_End_Results.class);
                     for (Records records:re_obj.getRecords()) {
-                        System.out.println("messages sent =" + records.getMsg());
-                        System.out.println("messages sent from id =" + records.getFID());
-                        System.out.println("messages sent to id =" + records.getTID());
-                        System.out.println("messages sent date =" + records.getDate());
-                        System.out.println("messages sent to name =" + records.getToName());
-                        System.out.println("messages sent from name =" + records.getFromName());
-                        System.out.println("messages sent time =" + records.getTime());
+                        System.out.println("messages sent =" + records.getMessage());
+                        System.out.println("messages sent from id =" + records.getFrom_id());
+                        System.out.println("messages sent to id =" + records.getTo_id());
+                        System.out.println("messages sent to name =" + records.getTo_name());
+                        System.out.println("messages sent from name =" + records.getFrom_name());
+                        System.out.println("messages sent timestamp =" + records.getTimestamp());
                         KtMessageObject ktMessageObject = new KtMessageObject();
-                        ktMessageObject.setMessage(records.getMsg());
-                        ktMessageObject.setFrom_id(records.getFID());
-                        ktMessageObject.setFrom_name(records.getFromName());
-                        ktMessageObject.setTo_id(records.getTID());
-                        ktMessageObject.setTo_name(records.getToName());
-                        ktMessageObject.setTime(records.getTime());
+                        ktMessageObject.setMessage(records.getMessage());
+                        ktMessageObject.setFrom_id(records.getFrom_id());
+                        ktMessageObject.setFrom_name(records.getFrom_name());
+                        ktMessageObject.setTo_id(records.getTo_id());
+                        ktMessageObject.setTo_name(records.getTo_name());
+                        ktMessageObject.setTimestamp(records.getTimestamp());
                         boolean exists = myDatabase.checkIfAlreadyExistsInKtMessage(ktMessageObject);
                         if (exists) {
                             System.out.println("exists");
@@ -311,7 +423,7 @@ public class MessageDialogue extends FragmentActivity {
                             rowItem.setMessageSenderID(ktMessageObject.getFrom_id());
                             rowItem.setMessageRecipient(ktMessageObject.getTo_name());
                             rowItem.setMessageRecipientID(ktMessageObject.getTo_id());
-                            rowItem.setMessageTimestamp(ktMessageObject.getTime());
+                            rowItem.setMessageTimestamp(ktMessageObject.getTimestamp());
 
                             messageRowItems.add(rowItem);
                             messageDialogueListViewAdapter.notifyDataSetChanged();

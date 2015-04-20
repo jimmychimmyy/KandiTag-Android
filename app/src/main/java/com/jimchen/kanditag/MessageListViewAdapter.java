@@ -63,18 +63,23 @@ public class MessageListViewAdapter extends ArrayAdapter<MessageRowItem> {
         MessageRowItem rowItem = getItem(position);
         holder.message_text.setText(rowItem.getMessageText());
 
-        if (rowItem.getMessageSender().equals(MY_USER_NAME)) {
+        if (rowItem.getMessageSenderID().equals(MY_KT_ID)) {
             holder.message_sender.setText(rowItem.getMessageRecipient());
-        } else if (rowItem.getMessageRecipient().equals(MY_USER_NAME)) {
+        } else {
             holder.message_sender.setText(rowItem.getMessageSender());
-        } else if (!rowItem.getKandiName().equals("")) {
+        }
+
+        if (rowItem.getKandiName() != null) {
             holder.message_kandiname.setText(rowItem.getKandiName());
         }
+
         //format the timestamp into actual time AM/PM
-        Date d = new Date(Long.parseLong(rowItem.getMessageTimeStamp()));
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd " + "\n" + "hh:mm:ss");
-        String date = dateFormat.format(d);
-        holder.message_timestamp.setText(date);
+        try {
+            Date d = new Date(Long.parseLong(rowItem.getMessageTimeStamp()));
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd " + "\n" + "hh:mm:ss");
+            String date = dateFormat.format(d);
+            holder.message_timestamp.setText(date);
+        } catch (Exception e) {}
 
         return convertToView;
     }

@@ -5,17 +5,22 @@ package com.jimchen.kanditag;
  */
 public class KtMessageObject {
 
-    private String message, to_id, to_name, from_id, from_name, time;
+    private String message, from_id, from_name, timestamp;
+
+    // for message
+    private String to_id, to_name;
+
+    // for group message
+    private String kandi_id, kandi_name;
 
     public KtMessageObject() {}
 
-    public KtMessageObject(String mssg, String to_id, String to_name, String from_id, String from_name, String time) {
-        this.message = mssg;
-        this.to_id = to_id;
-        this.to_name = to_name;
-        this.from_id = from_id;
-        this.from_name = from_name;
-        this.time = time;
+    public void setKandiID(String id) {
+        this.kandi_id = id;
+    }
+
+    public void setKandiName(String name) {
+        this.kandi_name = name;
     }
 
     public void setMessage(String mssg) {
@@ -38,8 +43,8 @@ public class KtMessageObject {
         this.from_name = name;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 
     public String getMessage() {
@@ -62,8 +67,16 @@ public class KtMessageObject {
         return from_name;
     }
 
-    public String getTime() {
-        return time;
+    public String getTimestamp() {
+        return timestamp;
+    }
+
+    public String getKandiID() {
+        return kandi_id;
+    }
+
+    public String getKandiName() {
+        return kandi_name;
     }
 
 }

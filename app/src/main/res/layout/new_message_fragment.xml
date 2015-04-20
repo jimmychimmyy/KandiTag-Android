@@ -12,6 +12,14 @@
         android:layout_width="wrap_content"
         android:layout_height="65dp" />
 
+    <Button
+        android:id="@+id/NewMessageFragment_SwitchBetweenUserAndGroup"
+        android:text="Switch"
+        android:background="@color/gold"
+        android:layout_alignParentRight="true"
+        android:layout_width="180dp"
+        android:layout_height="65dp" />
+
     <ListView
         android:id="@+id/NewMessageFragment_ListView"
         android:layout_below="@+id/NewMessageFragment_TitleTextView"

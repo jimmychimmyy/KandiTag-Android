@@ -7,74 +7,76 @@ public class Records {
 
     private String qrcode, kt_id, fb_id, username, _id, group;
     private int placement;
-    private String msg, date, from_id, to_id;
+    private String message, timestamp, from_id, to_id;
     private boolean sent;
-    private String fromName, toName;
-    private String time;
-    private String kandiName;
+    private String from_name, to_name;
 
-    public void setKandiName(String name) {
-        this.kandiName = name;
+    //group message
+    private String kandi_id;
+    private String kandi_name;
+
+    public void setKandiID(String id) {
+        this.kandi_id = id;
     }
 
-    public String getKandiName() {
-        return kandiName;
+    public String getKandiID() {
+        return kandi_id;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public void setKandi_name(String name) {
+        this.kandi_name = name;
     }
 
-    public String getTime() {
-        return time;
+    public String getKandi_name() {
+        return kandi_name;
     }
 
-    public void setFromName(String name) {
-        this.fromName = name;
+    public void setFrom_name(String name) {
+        this.from_name = name;
     }
 
-    public void setToName(String name) {
-        this.toName = name;
+    public void setTo_name(String name) {
+        this.to_name = name;
     }
 
-    public String getFromName() {
-        return fromName;
+    public String getFrom_name() {
+        return from_name;
     }
 
-    public String getToName() {
-        return toName;
+    public String getTo_name() {
+        return to_name;
     }
 
-    public void setFID(String id) {
+    public void setFrom_id(String id) {
         this.from_id = id;
     }
 
-    public void setTID(String id) {
+    public void setTo_id(String id) {
         this.to_id = id;
     }
 
-    public String getFID() {
+    public String getFrom_id() {
         return from_id;
     }
 
-    public String getTID() {
+    public String getTo_id() {
         return to_id;
     }
 
-    public void setMsg(String msg) {
-        this.msg = msg;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
-    public String getMsg() {
-        return msg;
+    public String getMessage() {
+        return message;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 
-    public String getDate() {
-        return date;
+    public String getTimestamp() {
+        return timestamp;
     }
 
     public void setSent(boolean sent) {

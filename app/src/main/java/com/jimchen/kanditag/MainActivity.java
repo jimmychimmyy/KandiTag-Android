@@ -1795,9 +1795,9 @@ public class MainActivity extends FragmentActivity {
      **/
 
     //download group messages from server
-    DownloadGroupMessagesFromServerAsyncTask downloadGroupMessagesFromServerAsyncTask = new DownloadGroupMessagesFromServerAsyncTask(MainActivity.this, new ReturnGroupMessageArrayListAsyncResponse() {
+    DownloadGroupMessagesFromServerAsyncTask downloadGroupMessagesFromServerAsyncTask = new DownloadGroupMessagesFromServerAsyncTask(MainActivity.this, new ReturnKtMessageObjectArrayListAsyncResponse() {
         @Override
-        public void processFinish(ArrayList<GroupMessageItem> output) {
+        public void processFinish(ArrayList<KtMessageObject> output) {
             System.out.println("MainActivity.downloadGroupMessagesFromServerAsyncTask.processFinish.output.size() = " + output.size());
         }
     });

@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -40,7 +41,12 @@ public class NewMessageFragment extends Fragment {
     private ListView myListView;
     private TextView myTitle;
 
+    // this button is used to switch between users and groups
+    private Button switchButton;
+    private boolean isGroupListVisible = false;
+
     private KtUserObjectListAdapter ktUserObjectListAdapter;
+    private KtGroupListViewAdapter ktGroupListViewAdapter;
 
     private GetAllUsersFromLocalDbAsyncTask getAllUsersFromLocalDbAsyncTask;
     private GetAllGroupsFromLocalDbAsyncTask getAllGroupsFromLocalDbAsyncTask;
@@ -67,6 +73,56 @@ public class NewMessageFragment extends Fragment {
         MY_FB_ID = sharedPreferences.getString(FbId, "");
 
         myListView = (ListView) rootView.findViewById(R.id.NewMessageFragment_ListView);
+
+        switchButton = (Button) rootView.findViewById(R.id.NewMessageFragment_SwitchBetweenUserAndGroup);
+        switchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!isGroupListVisible) {
+                    isGroupListVisible = true;
+                    myListView.setAdapter(ktGroupListViewAdapter);
+                    myListView.invalidate();
+                    myListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                            System.out.println("NewMessageFragment.myListView.onItemClick = " + groupsForNewMessageList.get(i).getKandi_name());
+                            Intent startDialogue = new Intent(context, MessageDialogue.class);
+                            Bundle dialogueBundle = new Bundle();
+                            dialogueBundle.putString("kandi_id", groupsForNewMessageList.get(i).getKandi_id());
+                            dialogueBundle.putString("kandi_name", groupsForNewMessageList.get(i).getKandi_name());
+                            startDialogue.putExtras(dialogueBundle);
+                            startActivityForResult(startDialogue, ReturnToMessageActivityRequestCode);
+                            getActivity().overridePendingTransition(R.anim.abc_slide_in_bottom, R.anim.right_slide_out);
+                            getActivity().getSupportFragmentManager()
+                                    .beginTransaction()
+                                    .remove(NewMessageFragment.this)
+                                    .commit();
+                        }
+                    });
+                } else if (isGroupListVisible) {
+                    isGroupListVisible = false;
+                    myListView.setAdapter(ktUserObjectListAdapter);
+                    myListView.invalidate();
+                    myListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                            System.out.println("NewMessageFragment.myListView.onItemClick = " + usersForNewMessageList.get(i).getUsername());
+                            Intent startDialogue = new Intent(context, MessageDialogue.class);
+                            Bundle dialogueBundle = new Bundle();
+                            dialogueBundle.putString("kt_id", usersForNewMessageList.get(i).getKt_id());
+                            dialogueBundle.putString("username", usersForNewMessageList.get(i).getUsername());
+                            startDialogue.putExtras(dialogueBundle);
+                            startActivityForResult(startDialogue, ReturnToMessageActivityRequestCode);
+                            getActivity().overridePendingTransition(R.anim.abc_slide_in_bottom, R.anim.right_slide_out);
+                            getActivity().getSupportFragmentManager()
+                                    .beginTransaction()
+                                    .remove(NewMessageFragment.this)
+                                    .commit();
+                        }
+                    });
+                }
+            }
+        });
 
         /**
         myTitle = (TextView) rootView.findViewById(R.id.NewMessageFragment_TitleTextView);
@@ -98,7 +154,7 @@ public class NewMessageFragment extends Fragment {
             @Override
             public void processFinish(ArrayList<KandiObject> output) {
                 System.out.println("NewMessageFragment.getAllKandiFromLocalAsyncTask.processFinish.output.size() = " + output.size());
-                //getAllGroupsFromLocalDbAsyncTask.execute(output);
+                getAllGroupsFromLocalDbAsyncTask.execute(output);
             }
         });
 
@@ -108,11 +164,15 @@ public class NewMessageFragment extends Fragment {
             public void processFinish(ArrayList<KandiGroupObjectParcelable> output) {
                 System.out.println("NewMessageFragment.getAllGroupsFromLocalDbAsyncTask.processFinish.output.size() = " + output.size());
                 groupsForNewMessageList.addAll(output);
+                ktGroupListViewAdapter.notifyDataSetChanged();
+                myListView.invalidate();
             }
         });
 
         getAllUsersFromLocalDbAsyncTask.execute();
         getAllKandiFromLocalDbAsyncTask.execute();
+
+        ktGroupListViewAdapter = new KtGroupListViewAdapter(getActivity(), R.id.DisplayForNewMessage_ListView, groupsForNewMessageList);
 
         ktUserObjectListAdapter = new KtUserObjectListAdapter(getActivity(), R.id.DisplayForNewMessage_ListView, usersForNewMessageList);
         myListView.setAdapter(ktUserObjectListAdapter);

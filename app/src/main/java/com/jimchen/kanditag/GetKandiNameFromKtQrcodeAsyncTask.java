@@ -93,10 +93,10 @@ public class GetKandiNameFromKtQrcodeAsyncTask extends AsyncTask<Void, Void, Arr
                         Log.d(TAG, records.getFb_id());
                         Log.d(TAG, records.getUsername());
                         Log.d(TAG, records.getQrcode());
-                        Log.d(TAG, records.getKandiName());
+                        Log.d(TAG, records.getKandi_name());
                          **/
 
-                        KandiObject kandiObject = new KandiObject(records.getQrcode(), records.getKandiName());
+                        KandiObject kandiObject = new KandiObject(records.getQrcode(), records.getKandi_name());
 
                         boolean exists = myDatabase.checkIfKandiExists(kandiObject);
                         if (exists) {

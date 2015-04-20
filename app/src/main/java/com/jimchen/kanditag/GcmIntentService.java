@@ -35,7 +35,7 @@ public class GcmIntentService extends IntentService {
     private String kandiMsg;
 
     //group message var
-    private String kandi_group, kandi_name;
+    private String kandi_id, kandi_name;
     private GroupMessageItem groupMessageItem;
 
     public GcmIntentService() {
@@ -54,7 +54,13 @@ public class GcmIntentService extends IntentService {
             //TODO change the server key to timestamp
             timestamp = intent.getStringExtra("time");
 
-            ktMessageObject = new KtMessageObject(msg, to_id, to_name, from_id, from_name, timestamp);
+            ktMessageObject = new KtMessageObject();
+            ktMessageObject.setMessage(msg);
+            ktMessageObject.setTo_id(to_id);
+            ktMessageObject.setTo_name(to_name);
+            ktMessageObject.setFrom_id(from_id);
+            ktMessageObject.setFrom_name(from_name);
+            ktMessageObject.setTimestamp(timestamp);
 
             myDatabase = new KtDatabase(getApplicationContext());
             myDatabase.saveMessage(ktMessageObject);
@@ -69,14 +75,21 @@ public class GcmIntentService extends IntentService {
             msg = intent.getStringExtra("msg");
             from_id = intent.getStringExtra("from_id");
             from_name = intent.getStringExtra("from_name");
-            kandi_group = intent.getStringExtra("kandi_group");
+            kandi_id = intent.getStringExtra("kandi_id");
             kandi_name = intent.getStringExtra("kandi_name");
             timestamp = intent.getStringExtra("time");
 
-            groupMessageItem = new GroupMessageItem(msg, from_id, from_name, kandi_group, timestamp);
+            ktMessageObject = new KtMessageObject();
+            ktMessageObject.setMessage(msg);
+            ktMessageObject.setKandiID(kandi_id);
+            ktMessageObject.setKandiName(kandi_name);
+            ktMessageObject.setFrom_id(from_id);
+            ktMessageObject.setFrom_name(from_name);
+            ktMessageObject.setTimestamp(timestamp);
+
 
             myDatabase = new KtDatabase(getApplicationContext());
-            myDatabase.saveGroupMessage(groupMessageItem);
+            myDatabase.saveGroupMessage(ktMessageObject);
 
         } catch (NullPointerException nullEx) {}
 
@@ -104,7 +117,7 @@ public class GcmIntentService extends IntentService {
                     newMessageNotification(ktMessageObject);
                 } else if (kandiMsg != null) {
                     newKandiUserNotification(kandiMsg);
-                } else if (kandi_group != null) {
+                } else if (kandi_id != null) {
                     newGroupMessageNotification(groupMessageItem);
                 } else {
                     sendNotification(extras.toString());
@@ -160,7 +173,7 @@ public class GcmIntentService extends IntentService {
         myNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
 
         //Intent toGroupMessageIntent = new Intent(getApplicationContext(), Message.class);
-        //toGroupMessageIntent.putExtra("kandi_group", message.getKandi_id());
+        //toGroupMessageIntent.putExtra("kandi_id", message.getKandi_id());
 
         //PendingIntent contentIntent = PendingIntent.getActivity(this, 0, toGroupMessageIntent, 0);
 
