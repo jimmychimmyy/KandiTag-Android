@@ -135,7 +135,7 @@ public class Menu extends Fragment {
             if (resultCode == getActivity().RESULT_OK) {
                 Toast.makeText(getActivity(), "You are now logged out", Toast.LENGTH_SHORT).show();
                 Log.i(TAG, "result ok from setting");
-                Intent loginIntent = new Intent(getActivity(), Login.class);
+                Intent loginIntent = new Intent(getActivity(), LoginActivity.class);
                 startActivityForResult(loginIntent, 1);
                 getActivity().finish();
             } else if (resultCode == getActivity().RESULT_CANCELED) {

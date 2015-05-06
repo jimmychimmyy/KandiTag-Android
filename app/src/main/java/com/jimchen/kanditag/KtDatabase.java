@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.CursorIndexOutOfBoundsException;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
@@ -57,6 +58,9 @@ public class KtDatabase extends SQLiteOpenHelper {
     private static final String KT_USERS_COLUMN_KANDI_ID = "kandi_id";
     private static final String KT_USERS_COLUMN_PLACEMENT = "placement";
 
+    private static final String PROFILE_IMAGES_TABLE = "kt_profile_images";
+    private static final String PROFILE_IMAGES_KTID = "kt_id";
+    private static final String PROFILE_IMAGES_IMAGE = "image";
 
 
     KtDatabase(Context context) {
@@ -65,7 +69,8 @@ public class KtDatabase extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        Log.i(TAG, "onCreate");
+        Log.i(TAG, "KtDatabase.onCreate");
+        db.execSQL(CREATE_TABLE + PROFILE_IMAGES_TABLE + " (_id integer primary key, kt_id VARCHAR(32), image BLOB);");
         db.execSQL(CREATE_TABLE + KANDI_TABLE + " (_id integer primary key, kandi_id VARCHAR(32), kandi_name VARCHAR(32));");
         db.execSQL(CREATE_TABLE + MESSAGE_TABLE + " (_id integer primary key, message text, from_id VARCHAR(32), from_name VARCHAR(32), to_id VARCHAR(32), to_name VARCHAR(32), timestamp integer);");
         db.execSQL(CREATE_TABLE + GROUP_MESSAGE_TABLE + " (_id integer primary key, message text, from_id VARCHAR(32), from_name VARCHAR(32), kandi_id VARCHAR(32), kandi_name VARCHAR(32), timestamp integer);");
@@ -83,6 +88,42 @@ public class KtDatabase extends SQLiteOpenHelper {
     @Override
     public void onUpgrade(SQLiteDatabase database, int oldVersion, int newVersion) {
         onCreate(database);
+    }
+
+    public boolean checkIfProfileImageExists(String kt_id) {
+        System.out.println("KtDatabase.checkIfProfileImageExists");
+        SQLiteDatabase db = this.getReadableDatabase();
+        boolean exists = false;
+        Cursor res = db.rawQuery("select * from kt_profile_image where kt_id='" + kt_id + "'", null);
+        res.moveToFirst();
+        if (res.getCount() == 1) {
+            System.out.println("count = 1");
+            exists = true;
+        } else if (res.getCount() > 1) {
+            exists = true;
+            System.out.println("count exceeds 1, error check db");
+        } else if (res.getCount() < 1) {
+            exists = false;
+            System.out.println("count < 1");
+        }
+        return exists;
+    }
+
+    public void saveProfileImage(String kt_id, byte[] image) throws SQLiteException {
+        System.out.println("KtDatabase.saveProfileImage");
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(PROFILE_IMAGES_KTID, kt_id);
+        cv.put(PROFILE_IMAGES_IMAGE, image);
+        db.insert(PROFILE_IMAGES_TABLE, null, cv);
+    }
+
+    public byte[] getProfileImage(String kt_id) {
+        System.out.println("KtDatabase.getProfileImage");
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res = db.rawQuery("select * from kt_profile_images where kt_id='" + kt_id + "'", null);
+        res.moveToFirst();
+        return res.getBlob(res.getColumnIndex(PROFILE_IMAGES_IMAGE));
     }
 
     public boolean checkIfGroupMessageExists(KtMessageObject item) {

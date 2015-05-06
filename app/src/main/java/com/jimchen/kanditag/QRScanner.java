@@ -242,7 +242,7 @@ public class QRScanner extends Fragment {
         if (requestCode == 1) {
             if (resultCode == Activity.RESULT_OK) {
                 Log.d(TAG, "logged out, log in to continue");
-                Intent login = new Intent(getActivity(), Login.class);
+                Intent login = new Intent(getActivity(), LoginActivity.class);
                 startActivity(login);
             }
         }

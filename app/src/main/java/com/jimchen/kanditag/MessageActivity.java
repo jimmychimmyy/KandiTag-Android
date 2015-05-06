@@ -13,6 +13,8 @@ import android.widget.ImageView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class MessageActivity extends FragmentActivity {
 
@@ -50,6 +52,13 @@ public class MessageActivity extends FragmentActivity {
             System.out.println("MessageActivity.displayLatestGroupMessageAsyncTask.processFinish.output.size() = " + output.size());
             // add the latest group message into message row items list
             messageRowItems.addAll(output);
+            //TODO check to see if this puts the list of messages in descending order, latest at the top
+            Collections.sort(messageRowItems, new Comparator<MessageRowItem>() {
+                @Override
+                public int compare(MessageRowItem messageRowItem, MessageRowItem messageRowItem2) {
+                    return messageRowItem.getMessageTimeStamp().compareTo(messageRowItem2.getMessageTimeStamp());
+                }
+            });
             //create message list view adapter for list view
             messageListViewAdapter = new MessageListViewAdapter(MessageActivity.this, R.layout.message_row_item, messageRowItems);
             listView.setAdapter(messageListViewAdapter);

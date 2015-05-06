@@ -130,7 +130,7 @@ public class ProfileFragment extends Fragment {
                 getActivity().finish();
 
                 //Show Login Page
-                Intent showLoginPage = new Intent(getActivity(), Login.class);
+                Intent showLoginPage = new Intent(getActivity(), LoginActivity.class);
                 startActivity(showLoginPage);
 
             }

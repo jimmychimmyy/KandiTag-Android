@@ -1,14 +1,22 @@
 package com.jimchen.kanditag;
 
+import android.graphics.Bitmap;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Dictionary;
 
 /**
  * Created by Jim on 3/1/15.
  */
 public class JsonQrObject extends JSONObject {
 
-    private String kandi_id, kt_id, fb_id, user_name, kandi_name, token;
+    private String kandi_id, kt_id, fb_id, user_name, kandi_name, token, img_caption;
+    private Bitmap img;
+    private byte[] image;
+    private ArrayList<String> tags;
 
     public JsonQrObject() {}
 
@@ -18,6 +26,58 @@ public class JsonQrObject extends JSONObject {
         try {
             this.put("qrcode", kandi_id);
         } catch (JSONException jsonEx) {}
+    }
+
+    public void setImage(byte[] img) {
+        this.image = img;
+        try {
+            this.put("image", image);
+        } catch (JSONException e) {
+
+        }
+    }
+
+    public byte[] getImage() {
+        return image;
+    }
+
+    public void setTags(ArrayList<String> list) {
+        this.tags = list;
+        try {
+            this.put("tags", tags);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public ArrayList<String> getTags() {
+        return tags;
+    }
+
+    public void setImgCaption(String caption) {
+        this.img_caption = caption;
+        try {
+            this.put("img_caption", img_caption);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getImgCaption() {
+        return img_caption;
+    }
+
+    public void setImg(Bitmap image) {
+        this.img = image;
+        try {
+            this.put("img", img);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public Bitmap getImg() {
+        return img;
     }
 
     public void setKt_id(String kt_id) {
@@ -73,6 +133,18 @@ public class JsonQrObject extends JSONObject {
 
     public String getFb_id() {
         return fb_id;
+    }
+
+    // for posting images
+    public JsonQrObject(String kt_id, Bitmap img) {
+        this.kt_id = kt_id;
+        this.img = img;
+        try {
+            this.put("kt_id", kt_id);
+            this.put("img", img);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     public JsonQrObject(String qr, String kt, String fb, String name) {
