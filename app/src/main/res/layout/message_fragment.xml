@@ -3,70 +3,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/light_gray" >
+    android:background="@color/black" >
 
-    <View
-        android:id="@+id/MessageFragment_TopNavBar"
-        android:layout_width="fill_parent"
-        android:layout_height="70dp"
-        android:background="@color/dark_charcoal"/>
-
-    <ImageView
-        android:layout_width="190dp"
-        android:layout_height="60dp"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="29dp"
-        android:background="@drawable/popout_layout_textbanner_message"/>
-
-    <ImageView
-        android:id="@+id/MessageFragment_ExitButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="8dp"
-        android:background="@drawable/kanditag_back_button"/>
-
-    <ImageView
-        android:id="@+id/MessageFragment_NewMessageButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="8dp"
-        android:layout_toRightOf="@+id/MessageFragment_ExitButton"
-        android:background="@drawable/kanditag_plus_button"/>
-
-    <FrameLayout
-        android:id="@+id/MessageFragment_SearchBarContainer"
-        android:layout_width="fill_parent"
-        android:layout_height="60dp"
-        android:layout_below="@+id/MessageFragment_TopNavBar"/>
-
-    <!--
-    <ImageView
-        android:id="@+id/MessageFragment_ExitButton"
-        android:layout_width="40dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="10dp"
-        android:layout_alignParentRight="true"
-        android:background="@drawable/kanditagsidebar_rightexit"/>
-        -->
-
-    <!--
-
-    <TextView
-        android:text="Messages"
-        android:paddingTop="10dp"
-        android:gravity="center"
-        android:id="@+id/MessageFragment_TitleTextView"
-        android:layout_centerHorizontal="true"
-        android:layout_width="wrap_content"
-        android:layout_height="65dp" />
-
-        -->
 
     <ListView
         android:id="@+id/MessageFragment_ListView"
-        android:layout_below="@+id/MessageFragment_SearchBarContainer"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"></ListView>
 

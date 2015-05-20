@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black">
+
+    <TextView
+        android:id="@+id/ProfileAboutMeFragment_bio"
+        android:text="Bio: \nThis is a little about me.. Its a long story, don't worry, I'll keep it short"
+        android:textColor="@color/white"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+
+    <GridView
+        android:layout_below="@+id/ProfileAboutMeFragment_bio"
+        android:numColumns="4"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"></GridView>
+
+</RelativeLayout>

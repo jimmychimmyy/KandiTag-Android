@@ -4,9 +4,9 @@
 
     <ImageView
         android:id="@+id/GalleryGridItem_Image"
-        android:layout_width="70dp"
-        android:layout_height="70dp"
-        android:background="@drawable/splash_screen_kt_logo_universal"/>
+        android:scaleType="centerCrop"
+        android:layout_width="80dp"
+        android:layout_height="80dp"/>
 
     <TextView
         android:id="@+id/GalleryGridItem_ImageId"

@@ -2,6 +2,7 @@ package com.jimchen.kanditag;
 
 
 import android.app.AlertDialog;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -40,8 +41,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
 
 import android.util.Base64;
 import android.util.DisplayMetrics;
@@ -92,19 +95,15 @@ import org.apache.http.protocol.HTTP;
 
 public class MainActivity extends FragmentActivity {
 
+    private ImageView notifications, flashlight, flipcamera;
+
+    private static final int RESULT_LOGGED_OUT = 9;
+
     // VerticalZoomBar for zooming in/out camera
     private VerticalZoomBar zoomBar;
 
     // Handler for runnables (UI updates)
     private Handler myHandler = new Handler();
-
-    //popout menu buttons
-    private ImageView toProfile, toMessage, toExchange, toFeed, toMeet;
-    //boolean to check if menu items are visible
-    private boolean isMenuVisible = false;
-
-    //popout menu banners
-    private ImageView toProfileBanner, toMessageBanner, toExchangeBanner, toFeedBanner, toMeetBanner;
 
     //flashlight button
     private ImageView flashlightButton;
@@ -124,8 +123,8 @@ public class MainActivity extends FragmentActivity {
     //bottom and top of the preview
     private View previewTopBar, previewBottomBar;
 
-    //viewPager TODO this is outdated
     private ViewPager myViewPager;
+    private MyPageAdapter pageAdapter;
 
     //Gcm variables
     public static final String EXTRA_MESSAGE = "message";
@@ -225,6 +224,33 @@ public class MainActivity extends FragmentActivity {
         }).start();
     }
 
+    private void uploadProfileImage(final byte[] img) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Log.i(TAG, "connecting socket and uploading profile image");
+                socket.connect();
+                socket.emit("upload_profile_image", MY_KT_ID, img);
+                socket.on("upload_profile_image", onUploadProfileImage);
+            }
+        }).start();
+    }
+
+    private Emitter.Listener onUploadProfileImage = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    String message = (String) args[0];
+                    System.out.println("onUploadImage: " + message);
+                    //socket.disconnect();
+                }
+            });
+        }
+    };
+
+
     private Emitter.Listener onUploadImage = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
@@ -233,7 +259,7 @@ public class MainActivity extends FragmentActivity {
                 public void run() {
                     String message = (String) args[0];
                     System.out.println("onUploadImage: " + message);
-                    socket.disconnect();
+                    //socket.disconnect();
                 }
             });
         }
@@ -269,7 +295,7 @@ public class MainActivity extends FragmentActivity {
         super.onBackPressed();
         //System.out.println("MainActivity.onBackPressed()");
         // when returning to main from a fragment, set window to fullscreen
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
@@ -304,18 +330,6 @@ public class MainActivity extends FragmentActivity {
                     // begin animation to show menu items
                     // by not checking for menu visibility, we are able to keep the fade in animation every time the use swipes
                     //if (!isMenuVisible) {
-                        myHandler.postDelayed(showToProfileRunnable, 10);
-                        myHandler.postDelayed(showToMessageRunnable, 110);
-                        myHandler.postDelayed(showToFeedRunnable, 210);
-                        myHandler.postDelayed(showToExchangeRunnable, 310);
-                        myHandler.postDelayed(showToMeetRunnable, 410);
-
-                        // begin animations to show menu banners
-                        myHandler.postDelayed(showToProfileBannerRunnable, 10);
-                        myHandler.postDelayed(showToMessageBannerRunnable, 110);
-                        myHandler.postDelayed(showToFeedBannerRunnable, 210);
-                        myHandler.postDelayed(showToExchangeBannerRunnable, 310);
-                        myHandler.postDelayed(showToMeetBannerRunnable, 410);
 
                     //}
 
@@ -323,21 +337,7 @@ public class MainActivity extends FragmentActivity {
                 if (leftToRightDeltaX > MIN_DISTANCE) {
                     //this is a left to right swipe (this will hide menu);
                     // begin animation to hide menu items
-                    if (isMenuVisible) {
-                        myHandler.postDelayed(hideToProfileRunnable, 50);
-                        myHandler.postDelayed(hideToMessageRunnable, 150);
-                        myHandler.postDelayed(hideToFeedRunnable, 250);
-                        myHandler.postDelayed(hideToExchangeRunnable, 350);
-                        myHandler.postDelayed(hideToMeetRunnable, 450);
 
-                        // begin animations to hide menu banners
-                        myHandler.postDelayed(hideToProfileBannerRunnable, 0);
-                        myHandler.postDelayed(hideToMessageBannerRunnable, 50);
-                        myHandler.postDelayed(hideToFeedBannerRunnable, 100);
-                        myHandler.postDelayed(hideToExchangeBannerRunnable, 150);
-                        myHandler.postDelayed(hideToMeetBannerRunnable, 200);
-
-                    }
                 }
 
                 break;
@@ -352,7 +352,7 @@ public class MainActivity extends FragmentActivity {
         try {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
-            img_value = new URL("https://graph.facebook.com/" + id + "/picture?width=500&height=500");
+            img_value = new URL("https://graph.facebook.com/" + id + "/picture?width=1000&height=1000");
             mIcon = BitmapFactory.decodeStream(img_value.openConnection().getInputStream());
         } catch (Exception e) {
             e.printStackTrace();
@@ -373,6 +373,35 @@ public class MainActivity extends FragmentActivity {
         myDatabase = new KtDatabase(this);
         sqLiteDatabase = openOrCreateDatabase(DATABASE_NAME, MODE_PRIVATE, null);
         sharedPreferences = this.getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+
+        Intent finishSplash = new Intent(MainActivity.this, SplashActivity.class);
+        setResult(RESULT_OK, finishSplash);
+
+        MY_KT_ID = sharedPreferences.getString(KTID, "");
+        MY_USER_NAME = sharedPreferences.getString(NAME, "");
+        MY_FB_ID = sharedPreferences.getString(FBID, "");
+
+        // connecting socket
+        try {
+            IO.Options options = new IO.Options();
+            options.forceNew = true;
+            socket = IO.socket(HOST, options);
+            socket.on("upload_image", onUploadImage );
+            socket.on("upload_profile_image", onUploadProfileImage);
+            socket.on(com.github.nkzawa.socketio.client.Socket.EVENT_CONNECT, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+
+                }
+            }).on(com.github.nkzawa.socketio.client.Socket.EVENT_DISCONNECT, new Emitter.Listener() {
+                @Override
+                public void call(Object... args) {
+                    System.out.println("socket disconnected in MainActivity");
+                }
+            });
+        } catch (URISyntaxException use) {
+            use.printStackTrace();
+        }
 
         //TODO make sure this check works
         boolean openedBefore = sharedPreferences.getBoolean(OPENED_BEFORE, false);
@@ -395,13 +424,12 @@ public class MainActivity extends FragmentActivity {
             }
              **/
 
+            // saving profile picture to server
+            uploadProfileImage(compressByteArray(getProfileImage(MY_FB_ID)));
+
         } else {
             System.out.println("KandiTag is ready to go!");
         }
-
-        MY_KT_ID = sharedPreferences.getString(KTID, "");
-        MY_USER_NAME = sharedPreferences.getString(NAME, "");
-        MY_FB_ID = sharedPreferences.getString(FBID, "");
 
         if (checkPlayServices()) {
             //proceed
@@ -423,51 +451,72 @@ public class MainActivity extends FragmentActivity {
             }
         } catch (Exception e) {}
 
+        uploadProfileImage(compressByteArray(getProfileImage(MY_FB_ID)));
 
-        // connecting socket
-        try {
-            IO.Options options = new IO.Options();
-            options.forceNew = true;
-            socket = IO.socket(HOST, options);
-            socket.on("upload_image", onUploadImage );
-            socket.on(com.github.nkzawa.socketio.client.Socket.EVENT_CONNECT, new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-
-                }
-            }).on(com.github.nkzawa.socketio.client.Socket.EVENT_DISCONNECT, new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    System.out.println("socket disconnected");
-                }
-            });
-        } catch (URISyntaxException use) {
-            use.printStackTrace();
-        }
 
         myScaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
 
         main_rootView = (RelativeLayout) findViewById(R.id.main_relativeLayout);
+
+        // find take picture button, flipcamera button, notification, flashlight
+        takePicture = (ImageView) findViewById(R.id.Main_CameraButton);
+        flipcamera = (ImageView) findViewById(R.id.Main_FlipCamera);
+        notifications = (ImageView) findViewById(R.id.Main_Notifications);
+        flashlight = (ImageView) findViewById(R.id.Main_Flashlight);
+
+        pageAdapter = new MyPageAdapter(getSupportFragmentManager(), getFragmentList());
+        myViewPager = (ViewPager) findViewById(R.id.Main_ViewPager);
+        myViewPager.setAdapter(pageAdapter);
+        myViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                switch (position) {
+                    case 0:
+                        takePicture.setVisibility(View.VISIBLE);
+                        flipcamera.setVisibility(View.VISIBLE);
+                        notifications.setVisibility(View.VISIBLE);
+                        flashlight.setVisibility(View.VISIBLE);
+                        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                        myHandler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                            }
+                        }, 500);
+                        break;
+                    case 1:
+                        takePicture.setVisibility(View.GONE);
+                        flipcamera.setVisibility(View.GONE);
+                        notifications.setVisibility(View.GONE);
+                        flashlight.setVisibility(View.GONE);
+                        //getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                        myHandler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                            }
+                        }, 500);
+                        break;
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+            }
+        });
 
         previewTopBar = findViewById(R.id.Main_PreviewTop);
         previewBottomBar = findViewById(R.id.Main_PreviewBottom);
         previewTopBar.setVisibility(View.GONE);
         previewBottomBar.setVisibility(View.GONE);
 
-        // find menu buttons in the xml file
-        toProfile = (ImageView) findViewById(R.id.Main_toProfile);
-        toMessage = (ImageView) findViewById(R.id.Main_toMessage);
-        toFeed = (ImageView) findViewById(R.id.Main_toFeed);
-        toExchange = (ImageView) findViewById(R.id.Main_toExchange);
-        toMeet = (ImageView) findViewById(R.id.Main_toMeet);
 
-        // find menu banners in xml file
-        toProfileBanner = (ImageView) findViewById(R.id.Main_toProfileBanner);
-        toMessageBanner = (ImageView) findViewById(R.id.Main_toMessageBanner);
-        toFeedBanner = (ImageView) findViewById(R.id.Main_toFeedBanner);
-        toExchangeBanner = (ImageView) findViewById(R.id.Main_toExchangeBanner);
-        toMeetBanner = (ImageView) findViewById(R.id.Main_toMeetBanner);
-
+        /**
         //find zoomBar in xml file and set on Camera Zoom
         zoomBar = (VerticalZoomBar) findViewById(R.id.Main_ZoomBar);
         zoomBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -485,104 +534,9 @@ public class MainActivity extends FragmentActivity {
             public void onStopTrackingTouch(SeekBar seekBar) {
             }
         });
+         **/
 
 
-        // set menu buttons to onClickListener to open their respective activities/fragments
-        // use async task to speed up the process
-        toProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //start intent to enter Message Activity
-                //TODO check if i should use startActivityForResultCode
-                Intent showProfile = new Intent(MainActivity.this, ProfileActivity.class);
-                startActivity(showProfile);
-                //custom animation
-                overridePendingTransition(R.anim.right_slide_in, R.anim.right_slide_out);
-            }
-        });
-
-        toFeed.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AsyncTask<Void, Void, Void> showFeed = new AsyncTask<Void, Void, Void>() {
-                    @Override
-                    protected Void doInBackground(Void... voids) {
-                        getSupportFragmentManager()
-                                .beginTransaction()
-                                .setCustomAnimations(R.anim.abc_fade_in, R.anim.abc_fade_out)
-                                .add(R.id.Main_FragmentsFrameLayout, FeedFragment.newInstance(), MY_KT_ID)
-                                .addToBackStack("FeedFragment")
-                                .commit();
-                        return null;
-                    }
-                };
-                showFeed.execute();
-            }
-        });
-
-        toExchange.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AsyncTask<Void, Void, Void> showTicket = new AsyncTask<Void, Void, Void>() {
-                    @Override
-                    protected Void doInBackground(Void... voids) {
-                        getSupportFragmentManager()
-                                .beginTransaction()
-                                .setCustomAnimations(R.anim.abc_fade_in, R.anim.abc_fade_out)
-                                .add(R.id.Main_FragmentsFrameLayout, ExchangeFragment.newInstance(), MY_KT_ID)
-                                .addToBackStack("ExchangeFragment")
-                                .commit();
-                        return null;
-                    }
-                };
-                showTicket.execute();
-            }
-        });
-
-        toMessage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                //start intent to enter Message Activity
-                //TODO check if i should use startActivityForResultCode
-                Intent showMessage = new Intent(MainActivity.this, MessageActivity.class);
-                startActivity(showMessage);
-                //custom animation
-                overridePendingTransition(R.anim.right_slide_in, R.anim.right_slide_out);
-            }
-        });
-
-        toMeet.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AsyncTask<Void, Void, Void> showMeet = new AsyncTask<Void, Void, Void>() {
-                    @Override
-                    protected Void doInBackground(Void... voids) {
-                        getSupportFragmentManager()
-                                .beginTransaction()
-                                .setCustomAnimations(R.anim.abc_fade_in, R.anim.abc_fade_out)
-                                .add(R.id.Main_FragmentsFrameLayout, MeetFragment.newInstance(), MY_KT_ID)
-                                .addToBackStack("MeetFragment")
-                                .commit();
-                        return null;
-                    }
-                };
-                showMeet.execute();
-            }
-        });
-
-        // begin animations to remove buttons
-        myHandler.postDelayed(hideToProfileRunnable, 3000);
-        myHandler.postDelayed(hideToMessageRunnable, 3100);
-        myHandler.postDelayed(hideToFeedRunnable, 3200);
-        myHandler.postDelayed(hideToExchangeRunnable, 3300);
-        myHandler.postDelayed(hideToMeetRunnable, 3400);
-
-        // begin animations to hide menu banners
-        myHandler.postDelayed(hideToProfileBannerRunnable, 2900);
-        myHandler.postDelayed(hideToMessageBannerRunnable, 3000);
-        myHandler.postDelayed(hideToFeedBannerRunnable, 3100);
-        myHandler.postDelayed(hideToExchangeBannerRunnable, 3200);
-        myHandler.postDelayed(hideToMeetBannerRunnable, 3300);
 
         // starting camera
         myCamera = getCameraInstance();
@@ -613,7 +567,6 @@ public class MainActivity extends FragmentActivity {
         shadedBackground.setVisibility(View.INVISIBLE);
 
         // set up button to take pictures TODO take videos
-        takePicture = (ImageView) findViewById(R.id.main_CameraButton);
         takePicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -685,6 +638,39 @@ public class MainActivity extends FragmentActivity {
         flashMode = "auto";
         flashlightButton.setBackgroundResource(R.drawable.flash_auto_icon);
         flashlightButton.invalidate();
+    }
+
+    // method to turn bytes into string
+    private String convertBytesIntoString(byte[] bytes) {
+        String s = new String(bytes);
+        return s;
+    }
+
+
+    // method to compress image before posting
+    private byte[] compressByteArray(byte[] bytes) {
+
+        ByteArrayOutputStream baos = null;
+        Deflater deflater = new Deflater();
+        deflater.setLevel(Deflater.BEST_COMPRESSION);
+        deflater.setInput(bytes);
+        deflater.finish();
+        baos = new ByteArrayOutputStream();
+        byte[] temp = new byte[64*1024];
+        try {
+            while (!deflater.finished()) {
+                int size = deflater.deflate(temp);
+                baos.write(temp, 0, size);
+            }
+        } catch (Exception e) {
+
+        } finally {
+            try {
+                if (baos != null) baos.close();
+            } catch (Exception e) {}
+        }
+
+        return baos.toByteArray();
     }
 
 
@@ -784,7 +770,10 @@ public class MainActivity extends FragmentActivity {
 
                            //TODO allow user to caption their image and add tags before uploading
                            //streamImageToServer(MY_KT_ID, data, null);
-                            uploadImage(data, defaultCaption);
+                            //uploadImage(data, defaultCaption);
+
+                            // attempting to compress bytes before sending
+                            uploadImage(compressByteArray(data), defaultCaption);
 
                             takenPictureContainer.setVisibility(View.GONE);
                             closePictureDisplay.setVisibility(View.GONE);
@@ -859,17 +848,15 @@ public class MainActivity extends FragmentActivity {
         myViewPager.setCurrentItem(4);
     }
 
-    private List<Fragment> getFragmentList() {
-        List<Fragment> fList = new ArrayList<Fragment>();
-        fList.add(TicketFragment.newInstance());
-        fList.add(KandiFragment.newInstance());
-        fList.add(CameraPreview.newInstance());
-        fList.add(MessageFragment.newInstance());
-        fList.add(GroupFragment.newInstance());
+     **/
+
+    private List<android.support.v4.app.Fragment> getFragmentList() {
+        List<android.support.v4.app.Fragment> fList = new ArrayList<>();
+        fList.add(EmptyFragment.newInstance());
+        fList.add(DataFragment.newInstance());
         return fList;
     }
 
-     **/
 
 
     // connect and stream
@@ -1150,12 +1137,14 @@ public class MainActivity extends FragmentActivity {
             }
         }
 
-        if (requestCode == SETTINGS_REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                Log.i(TAG, "result ok from setting");
+        // this happens when user logs out
+        if (requestCode == 9) {
+            if (resultCode == RESULT_LOGGED_OUT) {
                 Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivityForResult(loginIntent, 1);
+                overridePendingTransition(R.anim.abc_slide_in_top, R.anim.abc_fade_out);
                 finish();
+                overridePendingTransition(R.anim.abc_slide_in_bottom, R.anim.abc_fade_out);
             }
         }
     }
@@ -1355,6 +1344,7 @@ public class MainActivity extends FragmentActivity {
     });
 
 
+/**
 
     // Methods to hide and show menu items/banners *************************************************
 
@@ -1969,5 +1959,7 @@ public class MainActivity extends FragmentActivity {
     };
 
     // End Runnables to update UI with hide/show toMenuItems ***************************************
+
+ **/
 
 }

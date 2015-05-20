@@ -77,7 +77,6 @@ public class MessageFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
     @Override
@@ -94,16 +93,7 @@ public class MessageFragment extends Fragment {
 
         myListView = (ListView) rootView.findViewById(R.id.MessageFragment_ListView);
 
-        exitButton = (ImageView) rootView.findViewById(R.id.MessageFragment_ExitButton);
-        exitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_slide_in, R.anim.right_slide_out).remove(MessageFragment.this).commit();
-                FragmentManager fm = getActivity().getSupportFragmentManager();
-                fm.popBackStack();
-                getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            }
-        });
+
 
         /**
         myTitle = (TextView) rootView.findViewById(R.id.MessageFragment_TitleTextView);

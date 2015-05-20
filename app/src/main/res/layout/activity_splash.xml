@@ -1,16 +1,62 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="fill_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:background="@color/black"
     tools:context="com.jimchen.kanditag.SplashActivity">
 
+    <!--
+
+    <View
+        android:id="@+id/Splash_marker"
+        android:layout_width="fill_parent"
+        android:layout_height="2dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"/>
+
+    <View
+        android:id="@+id/Splash_marker_vertical"
+        android:layout_width="2dp"
+        android:layout_height="fill_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"/>
+
+        -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_gravity="center"
+            android:src="@drawable/kanditag_splashscreenlogo"
+            android:layout_width="200dp"
+            android:layout_height="50dp"
+            android:layout_weight=".5"
+            android:layout_marginBottom="50dp"/>
+
+    </LinearLayout>
+
+    <!--
+
     <ImageView
-        android:paddingBottom="25dp"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:id="@+id/Splash_KtLogo"
-        android:src="@drawable/splash_screen_kt_logo_universal"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_width="55dp"
+        android:layout_height="55dp"
+        android:id="@+id/Splash_logo"
+        android:layout_above="@+id/Splash_marker"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="68dp"
+        android:src="@drawable/splash_screen_kt_logo_universal"/>
+
+    <ImageView
+        android:layout_width="310dp"
+        android:layout_height="100dp"
+        android:id="@+id/Splash_kanditag_text"
+        android:src="@drawable/kanditag_login_title"
+        android:layout_above="@+id/Splash_marker"
+        android:paddingTop="47dp"/>
+
+        -->
 
 </RelativeLayout>

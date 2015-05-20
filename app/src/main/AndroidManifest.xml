@@ -49,7 +49,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:largeHeap="true"
-        android:theme="@style/AppTheme" >
+        android:theme="@android:style/Theme.Translucent.NoTitleBar" >
         <receiver
             android:name=".GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
@@ -67,7 +67,8 @@
             android:configChanges="orientation"
             android:hardwareAccelerated="false"
             android:label="@string/app_name"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
         </activity>
         <activity
             android:name=".SplashActivity"
@@ -77,7 +78,6 @@
             android:theme="@android:style/Theme.Black.NoTitleBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -131,47 +131,21 @@
             android:label="@string/title_activity_browse"
             android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" >
         </activity>
-        <activity
-            android:name=".Menu"
-            android:label="@string/title_activity_scan" >
-        </activity>
-        <activity
-            android:name=".VerticalViewPager"
-            android:label="@string/title_activity_vertical_view_pager" >
-        </activity>
+
         <activity
             android:name=".ProfileActivity"
             android:label="@string/title_activity_profile">
         </activity>
-        <activity
-            android:name=".CameraPreview"
-            android:label="@string/title_activity_camera_preview" >
-        </activity>
+
         <activity
             android:name=".MessageDialogue"
             android:label="@string/title_activity_messaging_ui"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" >
         </activity>
-        <activity
-            android:name=".FeedFragment"
-            android:label="@string/title_activity_kandi_fragment"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" >
-        </activity>
+
         <activity
             android:name=".TakenPictureContainer"
             android:label="@string/title_activity_taken_picture_container" >
-        </activity>
-        <activity
-            android:name=".ConversationListItem"
-            android:label="@string/title_activity_conversation_list_item" >
-        </activity>
-        <activity
-            android:name=".MiniProfileView"
-            android:label="@string/title_activity_mini_profile_view" >
-        </activity>
-        <activity
-            android:name=".DisplayUsersForNewMessage"
-            android:label="@string/title_activity_display_users_for_new_message" >
         </activity>
         <activity
             android:name=".GroupMessageDialogue"
@@ -179,32 +153,12 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar" >
         </activity>
         <activity
-            android:name=".ProfileFragment"
-            android:label="@string/title_activity_profile_fragment" >
-        </activity>
-        <activity
-            android:name=".BannerFragment"
-            android:label="@string/title_activity_banner_fragment" >
-        </activity>
-        <activity
-            android:name=".NavigationBarFragment"
-            android:label="@string/title_activity_navigation_bar_fragment" >
-        </activity>
-        <activity
-            android:name=".ExchangeFragment"
-            android:label="@string/title_activity_ticket_fragment" >
-        </activity>
-        <activity
-            android:name=".GroupFragment"
-            android:label="@string/title_activity_group_fragment" >
-        </activity>
-        <activity
-            android:name=".NavBarScalable"
-            android:label="@string/title_activity_nav_bar_scaleable" >
-        </activity>
-        <activity
             android:name=".MessageActivity"
             android:label="@string/title_activity_message"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+        </activity>
+        <activity android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
         </activity>
     </application>

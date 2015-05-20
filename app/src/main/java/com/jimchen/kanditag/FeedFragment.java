@@ -48,7 +48,6 @@ public class FeedFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
     }
 
     @Override
@@ -70,18 +69,8 @@ public class FeedFragment extends Fragment {
 
         rootView.setId(CONTAINER_TYPE);
 
-        kandiGridView = (GridView) rootView.findViewById(R.id.kandiGridView);
+        kandiGridView = (GridView) rootView.findViewById(R.id.FeedFragment_GridView);
 
-        exitButton = (ImageView) rootView.findViewById(R.id.FeedFragment_ExitButton);
-        exitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.right_slide_in, R.anim.right_slide_out).remove(FeedFragment.this).commit();
-                FragmentManager fm = getActivity().getSupportFragmentManager();
-                fm.popBackStack();
-                getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            }
-        });
 
         /**
 

@@ -12,7 +12,10 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
+import java.util.zip.Deflater;
+import java.util.zip.Inflater;
 
 /**
  * Created by Jim on 5/5/15.
@@ -47,11 +50,10 @@ public class ImageGridAdapter extends ArrayAdapter<byte[]> {
 
         }
 
-        byte[] image = getItem(position);
+        byte[] image = decompressByteArray(getItem(position));
 
         Bitmap bitmap = BitmapFactory.decodeByteArray(image, 0, image.length);
 
-        /**
         if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
             Bitmap scaledB = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth() / 2, bitmap.getHeight() / 2, true);
             int width = scaledB.getWidth();
@@ -63,7 +65,6 @@ public class ImageGridAdapter extends ArrayAdapter<byte[]> {
             bitmap = Bitmap.createBitmap(scaledB, 0, 0, width, height, matrix, true);
 
         }
-         **/
 
         holder.image.setImageBitmap(bitmap);
 
@@ -89,6 +90,30 @@ public class ImageGridAdapter extends ArrayAdapter<byte[]> {
     private class Holder {
         public ImageView image;
         public TextView _id;
+    }
+
+    // method to decompress image before posting
+    private byte[] decompressByteArray(byte[] bytes) {
+
+        ByteArrayOutputStream baos = null;
+        Inflater inflater = new Inflater();
+        inflater.setInput(bytes);
+        baos = new ByteArrayOutputStream();
+        byte[] temp = new byte[4*1024];
+        try {
+            while (!inflater.finished()) {
+                int size = inflater.inflate(temp);
+                baos.write(temp, 0, size);
+            }
+        } catch (Exception e) {
+
+        } finally {
+            try {
+                if (baos != null) baos.close();
+            } catch (Exception e) {}
+        }
+
+        return baos.toByteArray();
     }
 
 }

@@ -1,28 +1,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/light_gray"
+    android:background="@color/black"
     tools:context="com.jimchen.kanditag.FeedFragment">
 
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="70dp"
-        android:background="@color/dark_charcoal"/>
 
-    <ImageView
-        android:layout_width="195dp"
-        android:layout_height="60dp"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="40dp"
-        android:background="@drawable/popout_layout_textbanner_feed"/>
-
-    <ImageView
-        android:id="@+id/FeedFragment_ExitButton"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="8dp"
-        android:background="@drawable/kanditag_back_button"/>
 
     <!--
 
@@ -38,15 +21,13 @@
         -->
 
     <GridView
-        android:id="@+id/kandiGridView"
+        android:id="@+id/FeedFragment_GridView"
         android:layout_width="fill_parent"
         android:layout_height="match_parent"
         android:background="@color/white"
-        android:layout_marginTop="80dp"
-        android:columnWidth="45dp"
         android:stretchMode="columnWidth"
-        android:numColumns="4"
-        android:minHeight="50dp"
+        android:numColumns="1"
+        android:minHeight="80dp"
         android:backgroundTint="@color/transparent"/>
 
 </RelativeLayout>

@@ -2,57 +2,40 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/white"
+    android:background="@color/black"
     tools:context="com.jimchen.kanditag.ProfileFragment">
 
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
     <ImageView
-        android:id="@+id/ProfileFragment_ProfilePicture"
+        android:id="@+id/ProfileFragment_BackgroundPictureContainer"
         android:layout_width="fill_parent"
-        android:layout_height="200dp"
+        android:layout_height="225dp"
         android:scaleType="centerCrop"
-        android:background="@drawable/modernsplash_goldongold_dark_640x1136"/>
+        android:background="@color/white"/>
 
-    <ImageView
-        android:id="@+id/ProfileFragment_CircularProfilePicture"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="60dp"/>
-
-    <TextView
-        android:id="@+id/ProfileFragment_Username"
-        android:text="USERNAME"
-        android:gravity="center"
-        android:background="@drawable/username_holder"
-        android:layout_width="210dp"
-        android:layout_height="40dp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="175dp"/>
-
-    <ImageView
-        android:id="@+id/ProfileFragment_ExitButton"
-        android:layout_width="35dp"
-        android:layout_height="80dp"
-        android:background="@drawable/kanditagsidebar_profile"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="50dp"/>
-
-    <GridView
-        android:id="@+id/ProfileFragment_KandiGroupsGridView"
-        android:layout_marginTop="8dp"
-        android:layout_below="@+id/ProfileFragment_ProfilePicture"
-        android:layout_width="fill_parent"
-        android:layout_height="100dp"
-        android:numColumns="5"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
-        android:verticalSpacing="1dp"/>
 
     <GridView
         android:id="@+id/ProfileFragment_GalleryGridView"
-        android:layout_below="@+id/ProfileFragment_KandiGroupsGridView"
-        android:layout_width="fill_parent"
+        android:layout_below="@+id/ProfileFragment_BackgroundPictureContainer"
+        android:layout_weight="4"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:numColumns="4"/>
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/ProfileFragment_ProfilePictureContainer"
+        android:layout_marginTop="70dp"
+        android:layout_weight=".25"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/golden_kt_logo"/>
 
 </RelativeLayout>
