@@ -12,6 +12,7 @@
         android:layout_height="50dp"/>
     
     <LinearLayout
+        android:id="@+id/DataFragment_ButtonsLinearLayout"
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -63,9 +64,51 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/DataFragment_ButtonsBottomLinearLayout"
+        android:layout_marginTop="50dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <Button
+            android:id="@+id/DataFragment_FeedButtonBottom"
+            android:background="@color/gold"
+            android:layout_weight=".1"
+            android:layout_width="90dp"
+            android:layout_height="2dp"/>
+
+        <Button
+            android:id="@+id/DataFragment_MessageButtonBottom"
+            android:layout_toRightOf="@+id/DataFragment_FeedButtonBottom"
+            android:background="@color/white"
+            android:layout_width="90dp"
+            android:layout_height="2dp"
+            android:layout_weight=".1"/>
+
+        <Button
+            android:id="@+id/DataFragment_ExchangeButtonBottom"
+            android:layout_toRightOf="@+id/DataFragment_MessageButtonBottom"
+            android:background="@color/white"
+            android:layout_width="90dp"
+            android:layout_height="2dp"
+            android:layout_weight=".1"/>
+
+
+        <Button
+            android:id="@+id/DataFragment_ProfileButtonBottom"
+            android:layout_toRightOf="@+id/DataFragment_ExchangeButtonBottom"
+            android:background="@color/white"
+            android:layout_width="90dp"
+            android:layout_height="2dp"
+            android:layout_weight=".1"/>
+
+    </LinearLayout>
+
     <android.support.v4.view.ViewPager
         android:id="@+id/DataFragment_ViewPager"
-        android:layout_below="@+id/DataFragment_Topbar"
+        android:layout_below="@+id/DataFragment_ButtonsBottomLinearLayout"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"/>
 

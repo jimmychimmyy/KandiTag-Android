@@ -25,6 +25,9 @@ public class DataFragment extends Fragment {
     // buttons TODO use images on the buttons
     private Button feed, message, exchange, profile;
 
+    // bottom of buttons
+    private Button feedB, messageB, exchangeB, profileB;
+
     public static DataFragment newInstance() {
         DataFragment fragment = new DataFragment();
         return fragment;
@@ -48,6 +51,12 @@ public class DataFragment extends Fragment {
         exchange = (Button) rootView.findViewById(R.id.DataFragment_ExchangeButton);
         profile = (Button) rootView.findViewById(R.id.DataFragment_ProfileButton);
 
+        // find button bottoms
+        feedB = (Button) rootView.findViewById(R.id.DataFragment_FeedButtonBottom);
+        messageB = (Button) rootView.findViewById(R.id.DataFragment_MessageButtonBottom);
+        exchangeB = (Button) rootView.findViewById(R.id.DataFragment_ExchangeButtonBottom);
+        profileB = (Button) rootView.findViewById(R.id.DataFragment_ProfileButtonBottom);
+
         // set up on page listener to change button colors
         viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -63,24 +72,44 @@ public class DataFragment extends Fragment {
                         message.setTextColor(getResources().getColor(R.color.white));
                         exchange.setTextColor(getResources().getColor(R.color.white));
                         profile.setTextColor(getResources().getColor(R.color.white));
+
+                        feedB.setBackgroundColor(getResources().getColor(R.color.gold));
+                        messageB.setBackgroundColor(getResources().getColor(R.color.white));
+                        exchangeB.setBackgroundColor(getResources().getColor(R.color.white));
+                        profileB.setBackgroundColor(getResources().getColor(R.color.white));
                         break;
                     case 1:
                         feed.setTextColor(getResources().getColor(R.color.white));
                         message.setTextColor(getResources().getColor(R.color.gold));
                         exchange.setTextColor(getResources().getColor(R.color.white));
                         profile.setTextColor(getResources().getColor(R.color.white));
+
+                        feedB.setBackgroundColor(getResources().getColor(R.color.white));
+                        messageB.setBackgroundColor(getResources().getColor(R.color.gold));
+                        exchangeB.setBackgroundColor(getResources().getColor(R.color.white));
+                        profileB.setBackgroundColor(getResources().getColor(R.color.white));
                         break;
                     case 2:
                         feed.setTextColor(getResources().getColor(R.color.white));
                         message.setTextColor(getResources().getColor(R.color.white));
                         exchange.setTextColor(getResources().getColor(R.color.gold));
                         profile.setTextColor(getResources().getColor(R.color.white));
+
+                        feedB.setBackgroundColor(getResources().getColor(R.color.white));
+                        messageB.setBackgroundColor(getResources().getColor(R.color.white));
+                        exchangeB.setBackgroundColor(getResources().getColor(R.color.gold));
+                        profileB.setBackgroundColor(getResources().getColor(R.color.white));
                         break;
                     case 3:
                         feed.setTextColor(getResources().getColor(R.color.white));
                         message.setTextColor(getResources().getColor(R.color.white));
                         exchange.setTextColor(getResources().getColor(R.color.white));
                         profile.setTextColor(getResources().getColor(R.color.gold));
+
+                        feedB.setBackgroundColor(getResources().getColor(R.color.white));
+                        messageB.setBackgroundColor(getResources().getColor(R.color.white));
+                        exchangeB.setBackgroundColor(getResources().getColor(R.color.white));
+                        profileB.setBackgroundColor(getResources().getColor(R.color.gold));
                         break;
                 }
             }

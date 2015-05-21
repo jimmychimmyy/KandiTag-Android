@@ -173,6 +173,22 @@
         android:indeterminate="true"/>
         -->
 
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="80dp">
+
+    <ImageView
+        android:id="@+id/LoginActivity_kanditaglogo"
+        android:src="@drawable/kanditag_splashscreenlogo"
+        android:layout_width="wrap_content"
+        android:layout_height="70dp" />
+
+    </LinearLayout>
+
+    <!--
+
     <ImageView
         android:layout_marginTop="70dp"
         android:paddingLeft="30dp"
@@ -190,6 +206,8 @@
         android:layout_height="65dp"
         android:id="@+id/login_logo"
         android:src="@drawable/splash_screen_kt_logo_universal" />
+
+        -->
 
 
 </RelativeLayout>

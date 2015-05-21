@@ -95,7 +95,14 @@ import org.apache.http.protocol.HTTP;
 
 public class MainActivity extends FragmentActivity {
 
+    // buttons in xml
     private ImageView notifications, flashlight, flipcamera;
+
+    // notification buttons
+    private ImageView notif_feed, notif_message, notif_exchange;
+
+    // bool to keep track of if notification expanded
+    private boolean isNotificationsOpen;
 
     private static final int RESULT_LOGGED_OUT = 9;
 
@@ -461,8 +468,80 @@ public class MainActivity extends FragmentActivity {
         // find take picture button, flipcamera button, notification, flashlight
         takePicture = (ImageView) findViewById(R.id.Main_CameraButton);
         flipcamera = (ImageView) findViewById(R.id.Main_FlipCamera);
-        notifications = (ImageView) findViewById(R.id.Main_Notifications);
+        notifications = (ImageView) findViewById(R.id.Main_NotificationMaster);
         flashlight = (ImageView) findViewById(R.id.Main_Flashlight);
+
+        // find notification buttons
+        notif_feed = (ImageView) findViewById(R.id.Main_NotificationFeed);
+        notif_message = (ImageView) findViewById(R.id.Main_NotificationMessage);
+        notif_exchange = (ImageView) findViewById(R.id.Main_NotificationExchange);
+
+        // make notification buttons invisible
+        notif_feed.setVisibility(View.GONE);
+        notif_message.setVisibility(View.GONE);
+        notif_exchange.setVisibility(View.GONE);
+
+        // initally set isNotificationOpen to false
+        isNotificationsOpen = false;
+
+        // set notification button onclick listener to expand view
+        notifications.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if (!isNotificationsOpen) {
+                    //if notifications are not open, then open them and set bool to true
+                    isNotificationsOpen = true;
+
+                    myHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            notif_exchange.setVisibility(View.VISIBLE);
+
+                        }
+                    }, 150);
+                    myHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            notif_message.setVisibility(View.VISIBLE);
+
+                        }
+                    }, 250);
+                    myHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            notif_feed.setVisibility(View.VISIBLE);
+
+                        }
+                    }, 350);
+                } else {
+                    //else close them and set bool to false
+                    isNotificationsOpen = false;
+
+                    myHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            notif_feed.setVisibility(View.GONE);
+
+                        }
+                    }, 150);
+                    myHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            notif_message.setVisibility(View.GONE);
+
+                        }
+                    }, 250);
+                    myHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            notif_exchange.setVisibility(View.GONE);
+
+                        }
+                    }, 350);
+                }
+            }
+        });
 
         pageAdapter = new MyPageAdapter(getSupportFragmentManager(), getFragmentList());
         myViewPager = (ViewPager) findViewById(R.id.Main_ViewPager);
@@ -494,6 +573,10 @@ public class MainActivity extends FragmentActivity {
                         flipcamera.setVisibility(View.GONE);
                         notifications.setVisibility(View.GONE);
                         flashlight.setVisibility(View.GONE);
+                        notif_feed.setVisibility(View.GONE);
+                        notif_message.setVisibility(View.GONE);
+                        notif_exchange.setVisibility(View.GONE);
+                        isNotificationsOpen = false;
                         //getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
                         myHandler.postDelayed(new Runnable() {
                             @Override

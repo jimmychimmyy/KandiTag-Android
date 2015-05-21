@@ -470,7 +470,7 @@ public class MessageDialogue extends FragmentActivity {
         socket.close();
         //LocalBroadcastManager.getInstance(this).unregisterReceiver(newMessageBroadcastReceiver);
         super.onDestroy();
-        Intent result = new Intent();
+        Intent result = new Intent(this, MessageFragment.class);
         setResult(RESULT_OK, result);
         finish();
     }

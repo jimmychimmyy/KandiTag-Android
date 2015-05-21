@@ -18,11 +18,19 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Created by Jim on 3/18/15.
  */
 public class MessageFragment extends Fragment {
+
+    // bool to check if messages have already been loaded
+    private boolean messagesLoaded = false;
+
+    //request codes
+    private int ReturnToMessageFragmentRequestCode = 1;
 
     private KtDatabase myDatabase;
     SharedPreferences sharedPreferences;
@@ -36,26 +44,26 @@ public class MessageFragment extends Fragment {
 
     private View rootView;
     private ListView myListView;
-    private TextView myTitle;
 
-    private MessageListAdapter messageListAdapter;
-    private GroupMessageListAdapter groupMessageListAdapter;
+    //List View Adapters
+    private MessageListViewAdapter messageListViewAdapter;
 
-    private ArrayList<MessageListItem> messageListItemsArray;
-    private ArrayList<GroupMessageItem> groupMessageItemArray;
+    //arrays for the async tasks
+    private ArrayList<MessageRowItem> messageRowItems = new ArrayList<>();
 
-    // AsyncTask Vars
-    private GetLatestMessageRowsFromLocalDbAsyncTask getLatestMessageRowsFromLocalDbAsyncTask;
-    private GetLatestGroupMessageRowsFromLocalDbAsyncTask getLatestGroupMessageRowsFromLocalDbAsyncTask;
-    private GetAllUsersFromLocalDbAsyncTask getAllUsersFromLocalDbAsyncTask;
-    private GetAllGroupsFromLocalDbAsyncTask getAllGroupsFromLocalDbAsyncTask;
-    private GetAllKandiFromLocalDbAsyncTask getAllKandiFromLocalDbAsyncTask;
 
     private ArrayList<KtUserObjectParcelable> usersForNewMessageList = new ArrayList<>();
     private ArrayList<KandiGroupObjectParcelable> groupsForNewMessageList = new ArrayList<>();
 
     //exit button to return to main
     private ImageView exitButton;
+
+    // Async Tasks
+    private GetLatestGroupMessageRowsFromLocalDbAsyncTask getLatestGroupMessageRowsFromLocalDbAsyncTask;
+    private GetLatestMessageRowsFromLocalDbAsyncTask getLatestMessageRowsFromLocalDbAsyncTask;
+    private GetAllUsersFromLocalDbAsyncTask getAllUsersFromLocalDbAsyncTask;
+    private GetAllKandiFromLocalDbAsyncTask getAllKandiFromLocalDbAsyncTask;
+    private GetAllGroupsFromLocalDbAsyncTask getAllGroupsFromLocalDbAsyncTask;
 
 
     public static final MessageFragment newInstance() {
@@ -77,7 +85,15 @@ public class MessageFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        messagesLoaded = false;
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -93,76 +109,77 @@ public class MessageFragment extends Fragment {
 
         myListView = (ListView) rootView.findViewById(R.id.MessageFragment_ListView);
 
-
-
-        /**
-        myTitle = (TextView) rootView.findViewById(R.id.MessageFragment_TitleTextView);
-        myTitle.setText("");
-        myTitle.setTextSize(45);
-        myTitle.setTextColor(Color.BLACK);
-        Typeface typeface = Typeface.createFromAsset(getActivity().getAssets(),"fonts/stalemate_regular.ttf");
-        myTitle.setTypeface(typeface);
-         **/
-
-        //TODO show the message banner in a cleaner way
-        /**
-        FragmentManager fragmentManager = myFragmentContext.getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.setCustomAnimations(R.anim.abc_slide_in_top, R.anim.abc_slide_out_top);
-        BannerFragment bannerFragment = new BannerFragment();
-        Bundle extras = new Bundle();
-        extras.putString("title", "Messages");
-        bannerFragment.setArguments(extras);
-         //this has been changed to MessageFragment_SearchBarContainer
-        fragmentTransaction.add(R.id.MessageFragment_FrameLayout, bannerFragment);
-        fragmentTransaction.commit();
-         **/
-
-        /**
-        exitButton = (ImageView) rootView.findViewById(R.id.MessageFragment_ExitButton);
-        exitButton.setOnClickListener(new View.OnClickListener() {
+        //gets latest group message from local db
+        getLatestGroupMessageRowsFromLocalDbAsyncTask = new GetLatestGroupMessageRowsFromLocalDbAsyncTask(getActivity(), new ReturnMessageRowItemArrayListAsyncResponse() {
             @Override
-            public void onClick(View v) {
-                getActivity().getSupportFragmentManager().beginTransaction().setCustomAnimations(R.anim.left_slide_in, R.anim.right_slide_out).remove(MessageFragment.this).commit();
-            }
-        });
-
-
-        getLatestMessageRowsFromLocalDbAsyncTask = new GetLatestMessageRowsFromLocalDbAsyncTask(this.context, new ReturnMessageListItemArrayAsyncResponse() {
-            @Override
-            public void processFinish(final ArrayList<MessageListItem> output) {
-                messageListItemsArray = output;
-                messageListAdapter = new MessageListAdapter(getActivity(), R.id.list_item, messageListItemsArray);
-                myListView.setAdapter(messageListAdapter);
-
-                myListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void processFinish(ArrayList<MessageRowItem> output) {
+                System.out.println("MessageFragment.displayLatestGroupMessageAsyncTask.processFinish.output.size() = " + output.size());
+                // add the latest group message into message row items list
+                messageRowItems.addAll(output);
+                //TODO check to see if this puts the list of messages in descending order, latest at the top
+                Collections.sort(messageRowItems, new Comparator<MessageRowItem>() {
                     @Override
-                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                        System.out.println("messageListView.onItemClick.position = " + position);
-                        System.out.println("fbId = " + output.get(position).getSender());
-                        Intent openMessageWithUser = new Intent(getActivity(), MessageDialogue.class);
-                        Bundle bundle = new Bundle();
-                        bundle.putString("fb_id", output.get(position).getSender());
-                        openMessageWithUser.putExtras(bundle);
-                        startActivity(openMessageWithUser);
-                        getActivity().overridePendingTransition(R.anim.right_slide_in, R.anim.left_slide_out);
-                        //setInvisibleMessageTitleMessageButton();
+                    public int compare(MessageRowItem messageRowItem, MessageRowItem messageRowItem2) {
+                        return messageRowItem.getMessageTimeStamp().compareTo(messageRowItem2.getMessageTimeStamp());
                     }
                 });
-                System.out.println("MessageFragment.displayLatestMessagesAsyncTask.processFinish.output.size() = " + output.size());
+                //create message list view adapter for list view
+                messageListViewAdapter = new MessageListViewAdapter(getActivity(), R.layout.message_row_item, messageRowItems);
+                myListView.setAdapter(messageListViewAdapter);
+                messageListViewAdapter.notifyDataSetChanged();
+                myListView.invalidate();
+                // set list view on item click listener to be able to open message dialogues
+                myListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        Intent startDialogue = new Intent(getActivity(), MessageDialogue.class);
+                        Bundle dialogueBundle = new Bundle();
+                        if (messageRowItems.get(i).getMessageKandiID() == null) {
+                            if (messageRowItems.get(i).getMessageSenderID().equals(MY_KT_ID)) {
+                                System.out.println("MessageFragment.onItemClick = " + messageRowItems.get(i).getMessageRecipient());
+                                dialogueBundle.putString("username", messageRowItems.get(i).getMessageRecipient());
+                                dialogueBundle.putString("kt_id", messageRowItems.get(i).getMessageRecipientID());
+                            } else if (messageRowItems.get(i).getMessageRecipientID().equals(MY_KT_ID)) {
+                                System.out.println("MessageFragment.onItemClick = " + messageRowItems.get(i).getMessageSender());
+                                dialogueBundle.putString("username", messageRowItems.get(i).getMessageSender());
+                                dialogueBundle.putString("kt_id", messageRowItems.get(i).getMessageSenderID());
+                            }
+                        } else if (messageRowItems.get(i).getMessageKandiID() != null) {
+                            try {
+                                dialogueBundle.putString("kandi_id", messageRowItems.get(i).getMessageKandiID());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            try {
+                                dialogueBundle.putString("kandi_name", messageRowItems.get(i).getKandiName());
+                                System.out.println("MessageFragment.onItemClick = " + messageRowItems.get(i).getKandiName());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        startDialogue.putExtras(dialogueBundle);
+                        startActivityForResult(startDialogue, ReturnToMessageFragmentRequestCode);
+                    }
+                });
             }
         });
 
-        getLatestGroupMessageRowsFromLocalDbAsyncTask = new GetLatestGroupMessageRowsFromLocalDbAsyncTask(getActivity(), new ReturnGroupMessageArrayListAsyncResponse() {
+        //gets latest messages from local db
+        getLatestMessageRowsFromLocalDbAsyncTask = new GetLatestMessageRowsFromLocalDbAsyncTask(getActivity(), new ReturnMessageRowItemArrayListAsyncResponse() {
             @Override
-            public void processFinish(ArrayList<GroupMessageItem> output) {
-                System.out.println("MessageFragment.displayLatestGroupMessageAsyncTask.processFinish.output.size() = " + output.size());
-                groupMessageItemArray = output;
-                groupMessageListAdapter = new GroupMessageListAdapter(getActivity(), R.id.list_item, groupMessageItemArray, MY_FB_ID);
+            public void processFinish(final ArrayList<MessageRowItem> output) {
+                System.out.println("MessageFragment.displayLatestMessagesAsyncTask.processFinish.output.size() = " + output.size());
+                // remove all messages before adding the new ones
+                messageRowItems.removeAll(messageRowItems);
+                //put all the latest messages into message row items list
+                messageRowItems.addAll(output);
+                //get latest group messages from local db
+                getLatestGroupMessageRowsFromLocalDbAsyncTask.execute(myDatabase.getKandi());
             }
         });
 
-        //this returns a list of all users you are connected to
+        //gets list of all your friends
         getAllUsersFromLocalDbAsyncTask = new GetAllUsersFromLocalDbAsyncTask(getActivity(), new ReturnKtUserObjectParcelableArrayListAsyncResponse() {
             @Override
             public void processFinish(ArrayList<KtUserObjectParcelable> output) {
@@ -171,15 +188,8 @@ public class MessageFragment extends Fragment {
             }
         });
 
-        getAllKandiFromLocalDbAsyncTask = new GetAllKandiFromLocalDbAsyncTask(getActivity(), new ReturnKandiObjectArrayAsyncResponse() {
-            @Override
-            public void processFinish(ArrayList<KandiObject> output) {
-                System.out.println("MessageFragment.getAllKandiFromLocalAsyncTask.processFinish.output.size() = " + output.size());
-                getAllGroupsFromLocalDbAsyncTask.execute(output);
-            }
-        });
 
-        //this returns a list of kandi you own
+        //get list of all groups you are in
         getAllGroupsFromLocalDbAsyncTask = new GetAllGroupsFromLocalDbAsyncTask(getActivity(), new ReturnKandiGroupObjectParcelableArrayList() {
             @Override
             public void processFinish(ArrayList<KandiGroupObjectParcelable> output) {
@@ -188,11 +198,93 @@ public class MessageFragment extends Fragment {
             }
         });
 
-        getLatestMessageRowsFromLocalDbAsyncTask.execute(myDatabase.getFb_IdFromKtUserToDisplayLatestMessage());
-        getLatestGroupMessageRowsFromLocalDbAsyncTask.execute(myDatabase.getKandi());
-        getAllUsersFromLocalDbAsyncTask.execute();
-        getAllKandiFromLocalDbAsyncTask.execute();
-**/
+        //gets all kandi you own (have ownership of) for the kandi name
+        getAllKandiFromLocalDbAsyncTask = new GetAllKandiFromLocalDbAsyncTask(getActivity(), new ReturnKandiObjectArrayAsyncResponse() {
+            @Override
+            public void processFinish(ArrayList<KandiObject> output) {
+                System.out.println("MessageFragment.getAllKandiFromLocalAsyncTask.processFinish.output.size() = " + output.size());
+                getAllGroupsFromLocalDbAsyncTask.execute(output);
+            }
+        });
+
+        if (!messagesLoaded) {
+            //get latest messages from local db
+            getLatestMessageRowsFromLocalDbAsyncTask.execute(myDatabase.getKTIDsFromLocalDb());
+            //get list of all friends from local db
+            getAllUsersFromLocalDbAsyncTask.execute();
+            //get list of all kandi (groups) you belong to
+            getAllKandiFromLocalDbAsyncTask.execute();
+
+            messagesLoaded = true;
+        }
+
         return rootView;
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == ReturnToMessageFragmentRequestCode) {
+            // just came back from message dialogue
+
+
+            //TODO this can only be executed once, find another way to do this
+            new GetLatestMessageRowsFromLocalDbAsyncTask(getActivity(), new ReturnMessageRowItemArrayListAsyncResponse() {
+                @Override
+                public void processFinish(ArrayList<MessageRowItem> output) {
+                    System.out.println("MessageFragment.displayLatestMessagesAsyncTask.processFinish.output.size() = " + output.size());
+                    messageRowItems.removeAll(messageRowItems);
+                    messageRowItems.addAll(output);
+                    new GetLatestGroupMessageRowsFromLocalDbAsyncTask(getActivity(), new ReturnMessageRowItemArrayListAsyncResponse() {
+                        @Override
+                        public void processFinish(ArrayList<MessageRowItem> output) {
+                            System.out.println("MessageFragment.displayLatestGroupMessageAsyncTask.processFinish.output.size() = " + output.size());
+                            // add the latest group message into message row items list
+                            messageRowItems.addAll(output);
+                            //create message list view adapter for list view
+                            messageListViewAdapter = new MessageListViewAdapter(getActivity(), R.layout.message_row_item, messageRowItems);
+                            myListView.setAdapter(messageListViewAdapter);
+                            messageListViewAdapter.notifyDataSetChanged();
+                            myListView.invalidate();
+                            // set list view on item click listener to be able to open message dialogues
+                            myListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                @Override
+                                public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                    Intent startDialogue = new Intent(getActivity(), MessageDialogue.class);
+                                    Bundle dialogueBundle = new Bundle();
+                                    if (messageRowItems.get(i).getMessageKandiID() == null) {
+                                        if (messageRowItems.get(i).getMessageSenderID().equals(MY_KT_ID)) {
+                                            System.out.println("MessageFragment.onItemClick = " + messageRowItems.get(i).getMessageRecipient());
+                                            dialogueBundle.putString("username", messageRowItems.get(i).getMessageRecipient());
+                                            dialogueBundle.putString("kt_id", messageRowItems.get(i).getMessageRecipientID());
+                                        } else if (messageRowItems.get(i).getMessageRecipientID().equals(MY_KT_ID)) {
+                                            System.out.println("MessageFragment.onItemClick = " + messageRowItems.get(i).getMessageSender());
+                                            dialogueBundle.putString("username", messageRowItems.get(i).getMessageSender());
+                                            dialogueBundle.putString("kt_id", messageRowItems.get(i).getMessageSenderID());
+                                        }
+                                    } else if (messageRowItems.get(i).getMessageKandiID() != null) {
+                                        try {
+                                            dialogueBundle.putString("kandi_id", messageRowItems.get(i).getMessageKandiID());
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                        try {
+                                            dialogueBundle.putString("kandi_name", messageRowItems.get(i).getKandiName());
+                                            System.out.println("MessageFragment.onItemClick = " + messageRowItems.get(i).getKandiName());
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    startDialogue.putExtras(dialogueBundle);
+                                    startActivityForResult(startDialogue, ReturnToMessageFragmentRequestCode);
+                                }
+                            });
+                        }
+                    }).execute(myDatabase.getKandi());
+                }
+            }).execute(myDatabase.getKTIDsFromLocalDb());
+        }
+    }
+
 }

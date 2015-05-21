@@ -34,15 +34,55 @@
 
         -->
 
+    <LinearLayout
+        android:id="@+id/Main_NotificationLinearLayout"
+        android:orientation="vertical"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
     <ImageView
-        android:id="@+id/Main_Notifications"
+        android:id="@+id/Main_NotificationFeed"
         android:layout_marginRight="35dp"
-        android:layout_marginBottom="30dp"
+        android:layout_marginBottom="20dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:background="@drawable/kanditag_notification_none"
         android:layout_width="60dp"
         android:layout_height="60dp" />
+
+        <ImageView
+            android:id="@+id/Main_NotificationMessage"
+            android:layout_marginRight="35dp"
+            android:layout_marginBottom="20dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/kanditag_notification_none"
+            android:layout_width="60dp"
+            android:layout_height="60dp" />
+
+        <ImageView
+            android:id="@+id/Main_NotificationExchange"
+            android:layout_marginRight="35dp"
+            android:layout_marginBottom="20dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/kanditag_notification_none"
+            android:layout_width="60dp"
+            android:layout_height="60dp" />
+
+        <ImageView
+            android:id="@+id/Main_NotificationMaster"
+            android:layout_marginRight="35dp"
+            android:layout_marginBottom="35dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/kanditag_notification_none"
+            android:layout_width="60dp"
+            android:layout_height="60dp" />
+
+    </LinearLayout>
 
     <ImageView
         android:id="@+id/Main_Flashlight"
@@ -123,6 +163,7 @@
         android:layout_height="fill_parent"
         android:id="@+id/main_takenPictureContainer"/>
 
+
     <Button
         android:text="discard"
         android:textColor="@color/yellow"
@@ -144,13 +185,11 @@
         android:layout_marginBottom="5dp"
         android:layout_alignParentRight="true"/>
 
-        -->
 
     <ImageView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:id="@+id/main_shadedBackground"
-        android:background="@color/transparent_gray"/>
+        android:id="@+id/main_shadedBackground"/>
 
     <FrameLayout
         android:id="@+id/Main_FragmentsFrameLayout"

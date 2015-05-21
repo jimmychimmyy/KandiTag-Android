@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -77,8 +78,29 @@ public class MessageListViewAdapter extends ArrayAdapter<MessageRowItem> {
         try {
             Date d = new Date(Long.parseLong(rowItem.getMessageTimeStamp()));
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd " + "\n" + "hh:mm:ss");
+            SimpleDateFormat dateOfMessage = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat timeOfMessage = new SimpleDateFormat("hh:mm a");
+
             String date = dateFormat.format(d);
-            holder.message_timestamp.setText(date);
+            String message_date = dateOfMessage.format(d);
+            String message_time = timeOfMessage.format(d);
+
+            Calendar calendar = Calendar.getInstance();
+            calendar.set(Calendar.HOUR, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            calendar.set(Calendar.SECOND, 0);
+
+            // get today's date
+            Date today = calendar.getTime();
+
+            if (d.before(today)) {
+                holder.message_timestamp.setText(message_date);
+            } else {
+                holder.message_timestamp.setText(message_time);
+            }
+
+            //holder.message_timestamp.setText(date);
+
         } catch (Exception e) {}
 
         return convertToView;
