@@ -96,10 +96,10 @@ public class CheckKtOwnershipForMeAsyncTask extends AsyncTask<Void, Void, ArrayL
                          **/
                         KtUserObject ktUserObject = new KtUserObject();
                         ktUserObject.setKt_id(records.getKt_id());
-                        ktUserObject.setFb_id(records.getFb_id());
-                        ktUserObject.setName(records.getUsername());
+                        ktUserObject.setUsername(records.getUsername());
                         ktUserObject.setPlacement(records.getPlacement());
-                        ktUserObject.setQrCode(records.getQrcode());
+                        ktUserObject.setKandiId(records.getQrcode());
+                        /**
                         boolean exists = myDatabase.checkIfKtUserExists(ktUserObject);
                         if (exists) {
 
@@ -107,6 +107,7 @@ public class CheckKtOwnershipForMeAsyncTask extends AsyncTask<Void, Void, ArrayL
                             ktUserObjectArrayList.add(ktUserObject);
                             myDatabase.saveKtUser(ktUserObject);
                         }
+                         **/
                     }
                 }
             } catch (Exception e) {

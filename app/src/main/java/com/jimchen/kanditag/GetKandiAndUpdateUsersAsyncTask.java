@@ -90,6 +90,7 @@ public class GetKandiAndUpdateUsersAsyncTask extends AsyncTask<ArrayList<String>
                         Log.i("GetKandiAsyncTask:", resObj.getSuccess().toString());
 
                         for (Records records: resObj.getRecords()) {
+                            /**
                             Log.i("GetKandiAndUpdateUsersAsyncTask:", records.getQrcode());
                             Log.i("GetKandiAndUpdateUsersAsyncTask:", records.getKt_id());
                             Log.i("GetKandiAndUpdateUsersAsyncTask:", records.getFb_id());
@@ -97,8 +98,9 @@ public class GetKandiAndUpdateUsersAsyncTask extends AsyncTask<ArrayList<String>
                             Log.i("GetKandiAndUpdateUsersAsyncTask:", records.get_id());
                             System.out.println("placement:" + records.getPlacement());
 
-                            KtUserObject tempObject = new KtUserObject(records.getUsername(), records.getKt_id(), records.getFb_id(), records.getQrcode(), records.getPlacement());
+                            //KtUserObject tempObject = new KtUserObject(records.getUsername(), records.getKt_id(), records.getFb_id(), records.getQrcode(), records.getPlacement());
 
+                            /**
                             boolean exists = myDatabase.checkIfKtUserExists(tempObject);
 
                             if (exists) {
@@ -109,6 +111,7 @@ public class GetKandiAndUpdateUsersAsyncTask extends AsyncTask<ArrayList<String>
                             }
 
                             ktUserObjectArrayList.add(tempObject);
+                             **/
 
                             //TODO this would be a good place to cross check if the ownership row exists in the local db already
                         }

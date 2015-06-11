@@ -44,5 +44,13 @@
     <string name="title_activity_ticket_fragment">TicketFragment</string>
     <string name="title_activity_group_fragment">GroupFragment</string>
     <string name="title_activity_nav_bar_scaleable">NavBarScaleable</string>
+    <string name="title_activity_post_new_exchange">PostNewExchangeActivity</string>
+
+    <string-array name="ticket_type">
+        <item>Online E-Ticket</item>
+        <item>Hard Copy Ticket</item>
+    </string-array>
+    <string name="title_activity_main">Main</string>
+    <string name="title_activity_captured_image_preview">CapturedImagePreviewActivity</string>
 
 </resources>

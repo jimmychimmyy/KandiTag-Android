@@ -1,7 +1,13 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:id="@+id/cameraPreviewRelativeLayout"
+    android:background="@color/black"
     tools:context="com.jimchen.kanditag.CameraPreview">
+
+    <FrameLayout
+        android:id="@+id/CameraPreview_PreviewContainer"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"/>
 
 </RelativeLayout>

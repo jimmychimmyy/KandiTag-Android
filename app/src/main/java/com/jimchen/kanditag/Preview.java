@@ -1,13 +1,26 @@
 package com.jimchen.kanditag;
 
 import android.content.Context;
+import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.util.Size;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Toast;
 
-//import com.dlazaro66.qrcodereaderview.QRCodeReaderView;
-//import com.google.zxing.client.android.camera.open.CameraManager;
+import com.google.zxing.BinaryBitmap;
+import com.google.zxing.ChecksumException;
+import com.google.zxing.FormatException;
+import com.google.zxing.LuminanceSource;
+import com.google.zxing.NotFoundException;
+import com.google.zxing.RGBLuminanceSource;
+import com.google.zxing.Reader;
+import com.google.zxing.Result;
+import com.google.zxing.common.HybridBinarizer;
+import com.google.zxing.qrcode.QRCodeReader;
 
 import java.io.IOException;
 import java.util.List;
@@ -16,6 +29,26 @@ import java.util.List;
  * Created by Jim on 2/3/15.
  */
 class Preview extends SurfaceView implements SurfaceHolder.Callback {
+
+    private static final String TAG = "Preview";
+
+    private SurfaceHolder myHolder;
+    public Camera myCamera;
+    private Context myContext;
+    private SurfaceView mySurfaceView;
+    private Size myPreviewSize;
+    private List<String> mySupportedFlashModes;
+    private List<Camera.Size> mySupportedPreviewSizes;
+
+    public Preview(Context context, Camera camera) {
+        super(context);
+        myCamera = camera;
+        myHolder = getHolder();
+        myHolder.addCallback(this);
+        myHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+
+    }
+
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
@@ -32,42 +65,6 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
 
     @Override
     public void onLayout(boolean changed, int x, int y, int z, int a) {
-
-    }
-
-    public static final String TAG = "Preview";
-
-    private SurfaceHolder myHolder;
-    public Camera myCamera;
-    private Context myContext;
-    private SurfaceView mySurfaceView;
-    private Size myPreviewSize;
-    private List<String> mySupportedFlashModes;
-    private List<Camera.Size> mySupportedPreviewSizes;
-
-    /**
-     * Preview (Context context) {
-     * super(context);
-     * myHolder = getHolder();
-     * myHolder.addCallback(this);
-     * myHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-     * myCamera = openBackFacingCamera();
-     * //myCamera.setDisplayOrientation(90);
-     * }
-     * <p/>
-     * /**
-     * public Preview(Context context, AttributeSet attrs) {
-     * super(context, attrs);
-     * myContext = context;
-     * }
-     */
-
-    public Preview(Context context, Camera camera) {
-        super(context);
-        myCamera = camera;
-        myHolder = getHolder();
-        myHolder.addCallback(this);
-        myHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
     }
 
@@ -94,6 +91,10 @@ class Preview extends SurfaceView implements SurfaceHolder.Callback {
 
             myCamera.startPreview();
         }
+    }
+
+    public void changeCameraOrientation() {
+
     }
 
     private void stopPreviewAndFreeCamera() {

@@ -21,22 +21,22 @@ public class MessageDialogueListViewAdapter extends ArrayAdapter<MessageRowItem>
     //array for constructor
     private ArrayList<MessageRowItem> messageRowItems;
 
-    SharedPreferences sharedPreferences;
+    private SharedPreferences sharedPreferences;
     private String MY_KT_ID, MY_FB_ID, MY_USER_NAME;
-    public static final String MyPreferences = "MyPrefs";
-    public static final String Name = "nameKey";
-    public static final String FbId = "fbidKey";
-    public static final String UserId = "userIdKey";
+    public static final String USER_PREFERENCES = "com.jimchen.kanditag.extra.PREFERENCES";
+    public static final String USERNAME = "com.jimchen.kanditag.extra.USERNAME";
+    public static final String FBID = "com.jimchen.kanditag.extra.FBID";
+    public static final String KTID = "com.jimchen.kanditag.extra.KTID";
 
     //constructor
     public MessageDialogueListViewAdapter(Context context, int layoutResourceId, ArrayList<MessageRowItem> messageRowItems) {
         super(context, layoutResourceId);
         this.context = context;
         this.messageRowItems = messageRowItems;
-        sharedPreferences = context.getSharedPreferences(MyPreferences, Context.MODE_PRIVATE);
-        MY_KT_ID = sharedPreferences.getString(UserId, "");
-        MY_USER_NAME = sharedPreferences.getString(Name, "");
-        MY_FB_ID = sharedPreferences.getString(FbId, "");
+        sharedPreferences = context.getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
+        MY_KT_ID = sharedPreferences.getString(KTID, "");
+        MY_USER_NAME = sharedPreferences.getString(USERNAME, "");
+        MY_FB_ID = sharedPreferences.getString(FBID, "");
     }
 
     @Override
@@ -59,13 +59,13 @@ public class MessageDialogueListViewAdapter extends ArrayAdapter<MessageRowItem>
         }
 
         MessageRowItem rowItem = getItem(position);
-        holder.message_text.setText(rowItem.getMessageText());
+        holder.message_text.setText(rowItem.getMessageContent());
 
         try {
-            if (rowItem.getMessageSender().equals(MY_USER_NAME)) {
-                holder.message_sender.setText(rowItem.getMessageSender());
-            } else if (rowItem.getMessageRecipient().equals(MY_USER_NAME)) {
-                holder.message_sender.setText(rowItem.getMessageRecipient());
+            if (rowItem.getFrom_Name().equals(MY_USER_NAME)) {
+                holder.message_sender.setText(rowItem.getFrom_Name());
+            } else if (rowItem.getTo_Name().equals(MY_USER_NAME)) {
+                holder.message_sender.setText(rowItem.getTo_Name());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -73,7 +73,7 @@ public class MessageDialogueListViewAdapter extends ArrayAdapter<MessageRowItem>
 
         //format the timestamp into actual time AM/PM
         try {
-            Date d = new Date(Long.parseLong(rowItem.getMessageTimeStamp()));
+            Date d = new Date(Long.parseLong(rowItem.getTimestamp()));
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd " + "\n" + "hh:mm:ss");
             String date = dateFormat.format(d);
             holder.message_timestamp.setText(date);

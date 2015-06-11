@@ -45,7 +45,6 @@ public class KtUserObjectListAdapter extends ArrayAdapter<KtUserObjectParcelable
             holder = new Holder();
             LayoutInflater vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView1 = vi.inflate(R.layout.users_groups_for_new_message_list_item, null);
-            holder.kt_id = (TextView) convertView1.findViewById(R.id.UsersAndGroupsForNewMessageListItem_ktid);
             holder.user_name = (TextView) convertView1.findViewById(R.id.UsersAndGroupsForNewMessageListItem_Username);
             holder.kandi_name = (TextView) convertView1.findViewById(R.id.UsersAndGroupsForNewMessageListItem_KandiName);
             holder.profileImage = (ImageView) convertView1.findViewById(R.id.UsersAndGroupsForNewMessageListItem_ImageView);
@@ -57,7 +56,6 @@ public class KtUserObjectListAdapter extends ArrayAdapter<KtUserObjectParcelable
         KtUserObjectParcelable user = getItem(position);
 
         holder.user_name.setText(user.getUsername());
-        holder.kt_id.setText(user.getKt_id());
         //holder.fb_id.setText(user.getFb_id());
 
         URL img_value = null;
@@ -102,7 +100,7 @@ public class KtUserObjectListAdapter extends ArrayAdapter<KtUserObjectParcelable
     }
 
     private class Holder {
-        public TextView kt_id, fb_id, user_name, kandi_name;
+        public TextView user_name, kandi_name;
         public ImageView profileImage;
     }
 }

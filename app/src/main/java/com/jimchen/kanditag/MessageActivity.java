@@ -1,12 +1,10 @@
 package com.jimchen.kanditag;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ImageView;
@@ -56,7 +54,7 @@ public class MessageActivity extends FragmentActivity {
             Collections.sort(messageRowItems, new Comparator<MessageRowItem>() {
                 @Override
                 public int compare(MessageRowItem messageRowItem, MessageRowItem messageRowItem2) {
-                    return messageRowItem.getMessageTimeStamp().compareTo(messageRowItem2.getMessageTimeStamp());
+                    return messageRowItem.getTimestamp().compareTo(messageRowItem2.getTimestamp());
                 }
             });
             //create message list view adapter for list view
@@ -70,25 +68,25 @@ public class MessageActivity extends FragmentActivity {
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                     Intent startDialogue = new Intent(MessageActivity.this, MessageDialogue.class);
                     Bundle dialogueBundle = new Bundle();
-                    if (messageRowItems.get(i).getMessageKandiID() == null) {
-                        if (messageRowItems.get(i).getMessageSenderID().equals(MY_KT_ID)) {
-                            System.out.println("MessageActivity.onItemClick = " + messageRowItems.get(i).getMessageRecipient());
-                            dialogueBundle.putString("username", messageRowItems.get(i).getMessageRecipient());
-                            dialogueBundle.putString("kt_id", messageRowItems.get(i).getMessageRecipientID());
-                        } else if (messageRowItems.get(i).getMessageRecipientID().equals(MY_KT_ID)) {
-                            System.out.println("MessageActivity.onItemClick = " + messageRowItems.get(i).getMessageSender());
-                            dialogueBundle.putString("username", messageRowItems.get(i).getMessageSender());
-                            dialogueBundle.putString("kt_id", messageRowItems.get(i).getMessageSenderID());
+                    if (messageRowItems.get(i).getTo_Kandi_Id() == null) {
+                        if (messageRowItems.get(i).getFrom_Id().equals(MY_KT_ID)) {
+                            System.out.println("MessageActivity.onItemClick = " + messageRowItems.get(i).getTo_Name());
+                            dialogueBundle.putString("username", messageRowItems.get(i).getTo_Name());
+                            dialogueBundle.putString("kt_id", messageRowItems.get(i).getTo_Id());
+                        } else if (messageRowItems.get(i).getTo_Id().equals(MY_KT_ID)) {
+                            System.out.println("MessageActivity.onItemClick = " + messageRowItems.get(i).getFrom_Name());
+                            dialogueBundle.putString("username", messageRowItems.get(i).getFrom_Name());
+                            dialogueBundle.putString("kt_id", messageRowItems.get(i).getFrom_Id());
                         }
-                    } else if (messageRowItems.get(i).getMessageKandiID() != null) {
+                    } else if (messageRowItems.get(i).getTo_Kandi_Id() != null) {
                         try {
-                            dialogueBundle.putString("kandi_id", messageRowItems.get(i).getMessageKandiID());
+                            dialogueBundle.putString("kandi_id", messageRowItems.get(i).getTo_Kandi_Id());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                         try {
-                            dialogueBundle.putString("kandi_name", messageRowItems.get(i).getKandiName());
-                            System.out.println("MessageActivity.onItemClick = " + messageRowItems.get(i).getKandiName());
+                            dialogueBundle.putString("kandi_name", messageRowItems.get(i).getTo_Kandi_Name());
+                            System.out.println("MessageActivity.onItemClick = " + messageRowItems.get(i).getTo_Kandi_Name());
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -243,25 +241,25 @@ public class MessageActivity extends FragmentActivity {
                                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                                     Intent startDialogue = new Intent(MessageActivity.this, MessageDialogue.class);
                                     Bundle dialogueBundle = new Bundle();
-                                    if (messageRowItems.get(i).getMessageKandiID() == null) {
-                                        if (messageRowItems.get(i).getMessageSenderID().equals(MY_KT_ID)) {
-                                            System.out.println("MessageActivity.onItemClick = " + messageRowItems.get(i).getMessageRecipient());
-                                            dialogueBundle.putString("username", messageRowItems.get(i).getMessageRecipient());
-                                            dialogueBundle.putString("kt_id", messageRowItems.get(i).getMessageRecipientID());
-                                        } else if (messageRowItems.get(i).getMessageRecipientID().equals(MY_KT_ID)) {
-                                            System.out.println("MessageActivity.onItemClick = " + messageRowItems.get(i).getMessageSender());
-                                            dialogueBundle.putString("username", messageRowItems.get(i).getMessageSender());
-                                            dialogueBundle.putString("kt_id", messageRowItems.get(i).getMessageSenderID());
+                                    if (messageRowItems.get(i).getTo_Kandi_Id() == null) {
+                                        if (messageRowItems.get(i).getFrom_Id().equals(MY_KT_ID)) {
+                                            System.out.println("MessageActivity.onItemClick = " + messageRowItems.get(i).getTo_Name());
+                                            dialogueBundle.putString("username", messageRowItems.get(i).getTo_Name());
+                                            dialogueBundle.putString("kt_id", messageRowItems.get(i).getTo_Id());
+                                        } else if (messageRowItems.get(i).getTo_Id().equals(MY_KT_ID)) {
+                                            System.out.println("MessageActivity.onItemClick = " + messageRowItems.get(i).getFrom_Name());
+                                            dialogueBundle.putString("username", messageRowItems.get(i).getFrom_Name());
+                                            dialogueBundle.putString("kt_id", messageRowItems.get(i).getFrom_Id());
                                         }
-                                    } else if (messageRowItems.get(i).getMessageKandiID() != null) {
+                                    } else if (messageRowItems.get(i).getTo_Kandi_Id() != null) {
                                         try {
-                                            dialogueBundle.putString("kandi_id", messageRowItems.get(i).getMessageKandiID());
+                                            dialogueBundle.putString("kandi_id", messageRowItems.get(i).getTo_Kandi_Id());
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
                                         try {
-                                            dialogueBundle.putString("kandi_name", messageRowItems.get(i).getKandiName());
-                                            System.out.println("MessageActivity.onItemClick = " + messageRowItems.get(i).getKandiName());
+                                            dialogueBundle.putString("kandi_name", messageRowItems.get(i).getTo_Kandi_Name());
+                                            System.out.println("MessageActivity.onItemClick = " + messageRowItems.get(i).getTo_Kandi_Name());
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }

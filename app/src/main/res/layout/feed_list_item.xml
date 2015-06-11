@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="@color/transparent"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/FeedListItemRelativeLayout">
+
+    <com.jimchen.kanditag.DynamicImageView
+        android:id="@+id/FeedListItem_mediaContainer"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:scaleType="centerCrop"/>
+
+    <LinearLayout
+        android:background="@color/black"
+        android:layout_below="@+id/FeedListItem_mediaContainer"
+        android:id="@+id/FeedListItem_LinearLayout"
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <View
+            android:layout_width="10dp"
+            android:layout_height="70dp"/>
+
+    <ImageView
+        android:background="@color/black"
+        android:id="@+id/FeedListItem_profileImageContainer"
+        android:layout_width="50dp"
+        android:layout_height="65dp"
+        android:src="@drawable/golden_kt_logo"/>
+
+        <LinearLayout
+            android:layout_marginTop="12dp"
+            android:orientation="vertical"
+            android:layout_marginLeft="8dp"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+    <TextView
+        android:background="@color/black"
+        android:id="@+id/FeedListItem_usernameContainer"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="Name"/>
+
+    <TextView
+        android:background="@color/black"
+        android:id="@+id/FeedListItem_captionContainer"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:text="Caption"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</RelativeLayout>

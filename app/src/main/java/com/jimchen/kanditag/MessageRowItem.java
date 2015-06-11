@@ -6,74 +6,74 @@ package com.jimchen.kanditag;
 public class MessageRowItem {
 
     //vars for all messages
-    private String message_text, message_sender, message_senderID, message_timestamp;
-    private String message_recipient, message_recipientID;
+    private String message, from_name, from_id, timestamp;
+    private String to_name, to_id;
     //vars for group messages
-    private String message_kandiID, message_kandiName;
+    private String to_kandi_id, to_kandi_name;
 
     public MessageRowItem() {}
 
-    public void setMessageText(String message_text) {
-        this.message_text = message_text;
+    public void setMessageContent(String message_text) {
+        this.message = message_text;
     }
 
-    public void setMessageSender(String sender) {
-        this.message_sender = sender;
+    public void setFrom_Name(String sender) {
+        this.from_name = sender;
     }
 
-    public void setMessageSenderID(String id) {
-        this.message_senderID = id;
+    public void setFrom_Id(String id) {
+        this.from_id = id;
     }
 
-    public void setMessageRecipient(String recipient) {
-        this.message_recipient = recipient;
+    public void setTo_Name(String recipient) {
+        this.to_name = recipient;
     }
 
-    public void setMessageRecipientID(String id) {
-        this.message_recipientID = id;
+    public void setTo_Id(String id) {
+        this.to_id = id;
     }
 
-    public void setMessageTimestamp(String timestamp) {
-        this.message_timestamp = timestamp;
+    public void setTimestamp(String timestamp) {
+        this.timestamp = timestamp;
     }
 
-    public void setMessageKandiID(String kandiID) {
-        this.message_kandiID = kandiID;
+    public void setTo_Kandi_Id(String kandiID) {
+        this.to_kandi_id = kandiID;
     }
 
-    public void setMessageKandiName(String kandiName) {
-        this.message_kandiName = kandiName;
+    public void setTo_Kandi_Name(String kandiName) {
+        this.to_kandi_name = kandiName;
     }
 
-    public String getMessageText() {
-        return message_text;
+    public String getMessageContent() {
+        return message;
     }
 
-    public String getMessageSender() {
-        return message_sender;
+    public String getFrom_Name() {
+        return from_name;
     }
 
-    public String getMessageSenderID() {
-        return message_senderID;
+    public String getFrom_Id() {
+        return from_id;
     }
 
-    public String getMessageRecipient() {
-        return message_recipient;
+    public String getTo_Name() {
+        return to_name;
     }
 
-    public String getMessageRecipientID() {
-        return message_recipientID;
+    public String getTo_Id() {
+        return to_id;
     }
 
-    public String getMessageTimeStamp() {
-        return message_timestamp;
+    public String getTimestamp() {
+        return timestamp;
     }
 
-    public String getMessageKandiID() {
-        return message_kandiID;
+    public String getTo_Kandi_Id() {
+        return to_kandi_id;
     }
 
-    public String getKandiName() {
-        return message_kandiName;
+    public String getTo_Kandi_Name() {
+        return to_kandi_name;
     }
 }

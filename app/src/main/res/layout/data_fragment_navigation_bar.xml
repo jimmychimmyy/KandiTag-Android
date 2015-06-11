@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:background="@color/transparent"
+        android:orientation="horizontal"
+        android:id="@+id/DataFragmentNavigationBar_LinearLayout"
+        android:layout_alignParentBottom="true"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+        <View
+            android:layout_weight=".05"
+            android:layout_width="0dp"
+            android:layout_height="40dp"/>
+
+        <ImageView
+            android:id="@+id/DataFragmentNavigationBar_newPost"
+            android:layout_marginTop="3dp"
+            android:padding="5dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/kanditag_newpost"
+            android:background="@drawable/kanditag_default_button"/>
+
+        <View
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="40dp"/>
+
+        <ImageView
+            android:id="@+id/DataFragmentNavigationBar_toSetting"
+            android:layout_marginTop="3dp"
+            android:padding="5dp"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/kanditag_setting"
+            android:background="@drawable/kanditag_default_button"/>
+
+        <View
+            android:layout_weight=".05"
+            android:layout_width="0dp"
+            android:layout_height="40dp"/>
+
+    </LinearLayout>
+
+</LinearLayout>

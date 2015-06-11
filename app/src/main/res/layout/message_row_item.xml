@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:paddingTop="6dp"
+    android:paddingRight="8dp"
+    android:paddingLeft="8dp"
+    android:paddingBottom="6dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/black">
+    android:background="@color/transparent">
 
     <View
         android:layout_width="fill_parent"
-        android:layout_height="75dp"/>
+        android:layout_height="75dp"
+        android:background="@color/black"/>
 
     <ImageView
         android:id="@+id/MessageRowItem_SenderProfileImageContainer"
@@ -48,12 +53,13 @@
         android:layout_marginTop="19dp"/>
 
     <TextView
-        android:text="Message goes in here..."
+        android:text="Message goes in here... Lets assume the message gets really long then what it just goes off the page doesnt it"
         android:id="@+id/MessageRowItem_MessageText"
         android:layout_marginTop="0dp"
         android:layout_marginLeft="2dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:lines="1"
         android:layout_below="@+id/MessageRowItem_SenderName"
         android:layout_toRightOf="@+id/MessageRowItem_SenderProfileImageContainer"
         android:textColor="@color/white"

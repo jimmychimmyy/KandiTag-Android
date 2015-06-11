@@ -41,7 +41,7 @@ public class GetLatestGroupMessageRowsFromLocalDbAsyncTask extends AsyncTask<Arr
 
         for (int i = 0; i < kandiObjectList.size(); i++) {
             MessageRowItem rowItem = myDatabase.getMessageRowItemForGroup(kandiObjectList.get(i).getKandi_id());
-            if (rowItem.getMessageText() != null) {
+            if (rowItem.getMessageContent() != null) {
                 messageRowItems.add(rowItem);
             }
         }

@@ -23,25 +23,11 @@ public class SplashActivity extends Activity {
             @Override
             public void run() {
                 Intent i = new Intent(SplashActivity.this, LoginActivity.class);
-                startActivityForResult(i, 0);
-                //finish(); // close this activity
+                startActivity(i);
+                finish(); // close this activity
             }
         }, myTimer);
 
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        Session.getActiveSession().onActivityResult(this, requestCode, resultCode, data);
-
-
-        if (requestCode == 0) {
-            if (resultCode == RESULT_OK) {
-                System.out.println("Splash: Main Loaded.");
-                finish();
-            }
-        }
     }
 
 }

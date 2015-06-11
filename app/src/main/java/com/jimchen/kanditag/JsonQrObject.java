@@ -18,6 +18,73 @@ public class JsonQrObject extends JSONObject {
     private byte[] image;
     private ArrayList<String> tags;
 
+    // for message
+    private String message, from_id, from_name;
+    private String to_id, to_name, to_kandi_id, to_kandi_name;
+
+    public void setMessage(String message) {
+        this.message = message;
+        try {
+            this.put("message", message);
+        } catch (JSONException e) {
+
+        }
+    }
+
+    public void setFrom_id(String from_id) {
+        this.from_id = from_id;
+        try {
+            this.put("from_id", from_id);
+        } catch (JSONException e) {
+
+        }
+    }
+
+    public void setFrom_name(String from_name) {
+        this.from_name = from_name;
+        try {
+            this.put("from_name", from_name);
+        } catch (JSONException e) {
+
+        }
+    }
+
+    public void setTo_id(String to_id) {
+        this.to_id = to_id;
+        try {
+            this.put("to_id", to_id);
+        } catch (JSONException e) {
+
+        }
+    }
+
+    public void setTo_name(String to_name) {
+        this.to_name = to_name;
+        try {
+            this.put("to_name", to_name);
+        } catch (JSONException e) {
+
+        }
+    }
+
+    public void setTo_kandi_id(String kandi_id) {
+        this.to_kandi_id = kandi_id;
+        try {
+            this.put("to_kandi_id", to_kandi_id);
+        } catch (JSONException e) {
+
+        }
+    }
+
+    public void setTo_kandi_name(String kandi_name) {
+        this.to_kandi_name = kandi_name;
+        try {
+            this.put("to_kandi_name", to_kandi_name);
+        } catch (JSONException e) {
+
+        }
+    }
+
     public JsonQrObject() {}
 
     //this is to check for the qr

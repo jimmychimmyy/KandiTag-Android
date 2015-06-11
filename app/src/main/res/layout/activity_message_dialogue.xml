@@ -2,13 +2,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/light_gray"
+    android:background="@color/black"
     tools:context="com.jimchen.kanditag.MessageDialogue">
 
     <View
         android:layout_width="fill_parent"
+        android:layout_height="66dp"
+        android:background="@color/gold"/>
+
+    <View
+        android:layout_width="fill_parent"
         android:layout_height="65dp"
-        android:background="@color/dark_charcoal"/>
+        android:background="@color/black"/>
 
     <TextView
         android:text="first-name last-name"
@@ -66,23 +71,38 @@
         android:layout_centerHorizontal="true"/>
         -->
 
+    <LinearLayout
+        android:id="@+id/MessageDialogue_LinearLayout"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
     <EditText
         android:hint="Say Hello!"
         android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:inputType="text|textMultiLine|textAutoCorrect"
         android:id="@+id/MessageDialogue_EditText"
-        android:layout_width="fill_parent"
+        android:layout_weight="12"
+        android:layout_width="5dp"
         android:layout_height="50dp"
-        android:background="@color/dark_charcoal"
+        android:textColor="@color/black"
+        android:background="@color/white"
         android:layout_alignParentBottom="true"/>
 
     <Button
+        android:layout_gravity="center"
         android:text="send"
         android:id="@+id/MessageDialogue_SendButton"
         android:background="@color/gold"
+        android:layout_weight=".5"
         android:layout_width="80dp"
         android:layout_height="50dp"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"/>
+
+    </LinearLayout>
 
 
 

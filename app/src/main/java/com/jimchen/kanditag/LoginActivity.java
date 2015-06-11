@@ -1,25 +1,16 @@
 package com.jimchen.kanditag;
 
 import android.app.Activity;
-import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.BitmapShader;
-import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Shader;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 
 import android.os.StrictMode;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 
 import android.widget.Button;
@@ -43,13 +34,9 @@ import com.google.gson.JsonParseException;
 
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Type;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
 
 import android.util.Log;
 
@@ -77,12 +64,15 @@ public class LoginActivity extends Activity {
     private String SUCCESS = "success";
     private String USERID = "user_id";
 
-    SharedPreferences sharedPreferences;
-    public static final String MY_PREFERENCES = "MyPrefs";
-    public static final String USERNAME = "nameKey";
-    public static final String FB_ID = "fbidKey";
-    public static final String KT_ID = "userIdKey";
-    public static final String NEW_MESSAGE = "NEW_MESSAGE";
+    // Shared Preferences
+    private SharedPreferences sharedPreferences;
+    public static final String USER_PREFERENCES = "com.jimchen.kanditag.extra.PREFERENCES";
+    public static final String USERNAME = "com.jimchen.kanditag.extra.USERNAME";
+    public static final String FBID = "com.jimchen.kanditag.extra.FBID";
+    public static final String KTID = "com.jimchen.kanditag.extra.KTID";
+    public static final String USER_PROFILE_IMAGE = "com.jimchen.kanditag.extra.USER_PROFILE_IMAGE";
+    public static final String OPENED_BEFORE = "com.jimchen.kanditag.extra.OPENED_BEFORE";
+    public static final String NEW_MESSAGE = "com.jimchen.kanditag.extra.NEW_MESSAGE";
 
     String Pref_Name;
     String Pref_FbId;
@@ -97,6 +87,9 @@ public class LoginActivity extends Activity {
     public MyPageAdapter pageAdapter;
     public ViewPager viewPager;
     public LoginImageAdapter loginImageAdapter;
+
+    // login progress spinner
+    private ProgressDialog progressDialog;
 
     private UiLifecycleHelper uiHelper;
     private Session.StatusCallback callback = new Session.StatusCallback() {
@@ -115,7 +108,7 @@ public class LoginActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        sharedPreferences = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+        sharedPreferences = getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
 
         if (!isConnectedToNetwork()) {
             Toast.makeText(LoginActivity.this, "No Internet Connection", Toast.LENGTH_LONG).show();
@@ -124,9 +117,12 @@ public class LoginActivity extends Activity {
         Log.d(TAG, "user logged in? : " + isLoggedIn() );
 
         if (isLoggedIn()) {
-            Intent intent_to_start = new Intent(this, MainActivity.class);
+            Intent intent_to_start = new Intent(this, Main.class);
             startActivity(intent_to_start);
+            //overridePendingTransition(R.anim.abc_slide_in_bottom, R.anim.abc_slide_out_bottom);
             finish();
+            Intent dismissSplash = new Intent();
+            setResult(RESULT_OK, dismissSplash);
         }
 
         fbLoginButton = (LoginButton) findViewById(R.id.login_fbLoginButton);
@@ -138,6 +134,8 @@ public class LoginActivity extends Activity {
             @Override
             public void onClick(View view) {
                 openFacebookSession();
+                progressDialog = ProgressDialog.show(LoginActivity.this, "", "Logging in..");
+
             }
         });
 
@@ -280,27 +278,30 @@ public class LoginActivity extends Activity {
                 Gson gson = gsonBuilder.create();
 
                 Login_Res_End resEndObj = gson.fromJson(line, Login_Res_End.class);
-                /**
+
                 String resEndKt_id = resEndObj.getKt_id();
                 String resEndUserName = resEndObj.getUsername();
                 String resEndFb_id = resEndObj.getFb_id();
-                **/
 
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString(KT_ID, resEndKt_id);
-                editor.putString(FB_ID, resEndFb_id);
+                editor.putString(KTID, resEndKt_id);
+                editor.putString(FBID, resEndFb_id);
                 editor.putString(USERNAME, resEndUserName);
                 editor.commit();
 
-                String myKt_id = sharedPreferences.getString(KT_ID, "");
-                String myFb_id = sharedPreferences.getString(FB_ID, "");
+                String myKt_id = sharedPreferences.getString(KTID, "");
+                String myFb_id = sharedPreferences.getString(FBID, "");
                 String myUserName = sharedPreferences.getString(USERNAME, "");
 
                 System.out.println("Login: " + myUserName + " (" + myKt_id + ") " + "(" + myFb_id + ") " + "is logged in");
 
-                Intent intent_to_start = new Intent(this, MainActivity.class);
+                Intent intent_to_start = new Intent(this, Main.class);
                 startActivity(intent_to_start);
+                //overridePendingTransition(R.anim.abc_slide_in_bottom, R.anim.abc_slide_out_bottom);
+                progressDialog.dismiss();
                 finish();
+                Intent dismissSplash = new Intent();
+                setResult(RESULT_OK, dismissSplash);
 
             }
         } catch (Exception e) {
@@ -317,7 +318,7 @@ public class LoginActivity extends Activity {
             Intent returnIntent = new Intent();
             setResult(RESULT_OK, returnIntent);
             finish(); */
-            //Intent intent_to_start = new Intent(this, MainActivity.class);
+            //Intent intent_to_start = new Intent(this, Main.class);
             //startActivity(intent_to_start);
         } else if (state.isClosed()) {
             Log.i(TAG, "Logged out");
@@ -353,6 +354,8 @@ public class LoginActivity extends Activity {
     public void onDestroy() {
         super.onDestroy();
         uiHelper.onDestroy();
+        Intent dismissSplash = new Intent();
+        setResult(RESULT_OK, dismissSplash);
     }
 
     @Override

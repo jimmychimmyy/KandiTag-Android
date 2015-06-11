@@ -44,7 +44,6 @@ public class KtGroupListViewAdapter extends ArrayAdapter<KandiGroupObjectParcela
             holder = new Holder();
             LayoutInflater vi = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView1 = vi.inflate(R.layout.users_groups_for_new_message_list_item, null);
-            holder.kandi_id = (TextView) convertView1.findViewById(R.id.UsersAndGroupsForNewMessageListItem_kandiId);
             holder.kandi_name = (TextView) convertView1.findViewById(R.id.UsersAndGroupsForNewMessageListItem_KandiName);
             holder.profileImage = (ImageView) convertView1.findViewById(R.id.UsersAndGroupsForNewMessageListItem_ImageView);
             convertView1.setTag(holder);

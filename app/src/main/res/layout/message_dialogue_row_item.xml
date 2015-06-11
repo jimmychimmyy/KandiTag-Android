@@ -1,43 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="6dp">
+
 
     <ImageView
         android:id="@+id/MessageDialogueRowItem_SenderProfileImageContainer"
         android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:paddingRight="10dp"
         android:layout_marginLeft="10dp"
-        android:layout_marginTop="3dp"/>
+        android:layout_marginTop="8dp"/>
 
     <TextView
         android:text="Name"
         android:id="@+id/MessageDialogueRowItem_SenderName"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="5dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/MessageDialogueRowItem_SenderProfileImageContainer"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textSize="11dp" />
 
     <TextView
         android:id="@+id/MessageDialogueRowItem_TimeStamp"
         android:text="12:34:56"
+        android:textColor="@color/black"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_marginRight="12dp"
-        android:layout_marginTop="15dp"/>
+        android:layout_marginTop="5dp"/>
 
     <TextView
-        android:text="Message goes in here..."
+        android:text="Message goes in here... But lets say the message gets really long then what? will everything be okay to space it? Lets make it even longer and see how it looks... Hmm it looks alright but what if we add EVEN MOREEE"
         android:id="@+id/MessageDialogueRowItem_MessageText"
         android:layout_marginTop="0dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingRight="20dp"
         android:layout_below="@+id/MessageDialogueRowItem_SenderName"
         android:layout_toRightOf="@+id/MessageDialogueRowItem_SenderProfileImageContainer"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textSize="14dp" />
+
+    />
 
 </RelativeLayout>

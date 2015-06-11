@@ -2,17 +2,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/black"
+    android:background="@color/transparent"
     tools:context="com.jimchen.kanditag.ProfileFragment">
 
 
     <LinearLayout
+        android:id="@+id/ProfileFragment_LinearLayout"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
     <ImageView
-        android:id="@+id/ProfileFragment_BackgroundPictureContainer"
+        android:id="@+id/ProfileFragment_BackgroundImageContainer"
         android:layout_width="fill_parent"
         android:layout_height="225dp"
         android:scaleType="centerCrop"
@@ -21,7 +22,7 @@
 
     <GridView
         android:id="@+id/ProfileFragment_GalleryGridView"
-        android:layout_below="@+id/ProfileFragment_BackgroundPictureContainer"
+        android:layout_below="@+id/ProfileFragment_BackgroundImageContainer"
         android:layout_weight="4"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -30,12 +31,12 @@
     </LinearLayout>
 
     <ImageView
-        android:id="@+id/ProfileFragment_ProfilePictureContainer"
+        android:id="@+id/ProfileFragment_ProfileImageContainer"
         android:layout_marginTop="70dp"
         android:layout_weight=".25"
         android:layout_width="80dp"
         android:layout_height="80dp"
-        android:layout_centerHorizontal="true"
-        android:src="@drawable/golden_kt_logo"/>
+        android:layout_centerHorizontal="true"/>
+
 
 </RelativeLayout>

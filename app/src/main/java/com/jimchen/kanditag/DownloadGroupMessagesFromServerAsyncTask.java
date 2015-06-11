@@ -91,9 +91,9 @@ public class DownloadGroupMessagesFromServerAsyncTask extends AsyncTask<Void, Vo
                     messageObject.setMessage(records.getMessage());
                     messageObject.setFrom_id(records.getFrom_id());
                     messageObject.setFrom_name(records.getFrom_name());
-                    messageObject.setKandiID(records.getQrcode());
+                    messageObject.setTo_Kandi_Id(records.getQrcode());
                     try {
-                        messageObject.setKandiName(records.getKandi_name());
+                        messageObject.setTo_Kandi_Name(records.getKandi_name());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

@@ -11,16 +11,16 @@ public class KtMessageObject {
     private String to_id, to_name;
 
     // for group message
-    private String kandi_id, kandi_name;
+    private String to_kandi_id, to_kandi_name;
 
     public KtMessageObject() {}
 
-    public void setKandiID(String id) {
-        this.kandi_id = id;
+    public void setTo_Kandi_Id(String id) {
+        this.to_kandi_id = id;
     }
 
-    public void setKandiName(String name) {
-        this.kandi_name = name;
+    public void setTo_Kandi_Name(String name) {
+        this.to_kandi_name = name;
     }
 
     public void setMessage(String mssg) {
@@ -71,12 +71,12 @@ public class KtMessageObject {
         return timestamp;
     }
 
-    public String getKandiID() {
-        return kandi_id;
+    public String getTo_Kandi_Id() {
+        return to_kandi_id;
     }
 
-    public String getKandiName() {
-        return kandi_name;
+    public String getTo_Kandi_Name() {
+        return to_kandi_name;
     }
 
 }

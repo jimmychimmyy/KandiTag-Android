@@ -8,8 +8,8 @@ import android.os.Parcelable;
  */
 public class KtUserObject implements Parcelable {
 
-    private String name, kt_id, fb_id, qrCode;
-    private int placement;
+    private String name, kt_id, kandi_id;
+    public int placement;
 
     public KtUserObject() {}
 
@@ -21,8 +21,7 @@ public class KtUserObject implements Parcelable {
     public void writeToParcel(Parcel parcel, int flags) {
         parcel.writeString(name);
         parcel.writeString(kt_id);
-        parcel.writeString(fb_id);
-        parcel.writeString(qrCode);
+        parcel.writeString(kandi_id);
         parcel.writeInt(placement);
     }
 
@@ -40,21 +39,19 @@ public class KtUserObject implements Parcelable {
     private KtUserObject(Parcel parcel) {
         name = parcel.readString();
         kt_id = parcel.readString();
-        fb_id = parcel.readString();
-        qrCode = parcel.readString();
+        kandi_id = parcel.readString();
         placement = parcel.readInt();
     }
 
-    public KtUserObject(String nameString, String ktString, String fbString, String qrCode, int placement) {
-        this.name = nameString;
-        this.kt_id = ktString;
-        this.fb_id = fbString;
-        this.qrCode = qrCode;
+    public KtUserObject(String username, String kt_id, String kandi_id, int placement) {
+        this.name = username;
+        this.kt_id = kt_id;
+        this.kandi_id = kandi_id;
         this.placement = placement;
     }
 
 
-    public void setName(String name) {
+    public void setUsername(String name) {
         this.name = name;
     }
 
@@ -62,13 +59,8 @@ public class KtUserObject implements Parcelable {
         this.kt_id = kt_id;
     }
 
-    public void setFb_id(String fb_id) {
-        this.fb_id = fb_id;
-    }
-
-
-    public void setQrCode(String kandi) {
-        this.qrCode = kandi;
+    public void setKandiId(String kandi) {
+        this.kandi_id = kandi;
     }
 
     public void setPlacement(int placement) {
@@ -77,7 +69,7 @@ public class KtUserObject implements Parcelable {
 
 
 
-    public String getName() {
+    public String getUsername() {
         return name;
     }
 
@@ -85,12 +77,8 @@ public class KtUserObject implements Parcelable {
         return kt_id;
     }
 
-    public String getFb_id() {
-        return fb_id;
-    }
-
-    public String getQrCode() {
-        return qrCode;
+    public String getKandiId() {
+        return kandi_id;
     }
 
     public int getPlacement() {

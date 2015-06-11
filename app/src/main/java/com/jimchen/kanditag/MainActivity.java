@@ -1,10 +1,7 @@
 package com.jimchen.kanditag;
 
 
-import android.app.AlertDialog;
-import android.app.Fragment;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -23,18 +20,14 @@ import android.os.StrictMode;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.FileInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
+import java.io.UnsupportedEncodingException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.DateFormat;
@@ -43,10 +36,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 
-import android.util.Base64;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
@@ -74,26 +65,24 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.SeekBar;
 import android.widget.Toast;
 
-import org.apache.http.HttpConnection;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
 
-
 public class MainActivity extends FragmentActivity {
+
+    // request codes
+    public static final int SIGN_OUT_REQUEST = 0;
+    public static final int RESULT_LOGGED_OUT = 9;
 
     // buttons in xml
     private ImageView notifications, flashlight, flipcamera;
@@ -103,8 +92,6 @@ public class MainActivity extends FragmentActivity {
 
     // bool to keep track of if notification expanded
     private boolean isNotificationsOpen;
-
-    private static final int RESULT_LOGGED_OUT = 9;
 
     // VerticalZoomBar for zooming in/out camera
     private VerticalZoomBar zoomBar;
@@ -173,6 +160,7 @@ public class MainActivity extends FragmentActivity {
     public static final String NAME = "nameKey";
     public static final String FBID = "fbidKey";
     public static final String KTID = "userIdKey";
+    public static final String MyProfilePicture = "My_Profile_Picture";
     public static final String OPENED_BEFORE = "opened_before";
 
 // RequestCodes ********************************
@@ -223,10 +211,9 @@ public class MainActivity extends FragmentActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Log.i(TAG, "connecting socket and uploading image");
                 socket.connect();
-                socket.emit("upload_image", MY_KT_ID, img, img_caption);
                 socket.on("upload_image", onUploadImage);
+                socket.emit("upload_image", MY_KT_ID, img, img_caption);
             }
         }).start();
     }
@@ -235,7 +222,6 @@ public class MainActivity extends FragmentActivity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                Log.i(TAG, "connecting socket and uploading profile image");
                 socket.connect();
                 socket.emit("upload_profile_image", MY_KT_ID, img);
                 socket.on("upload_profile_image", onUploadProfileImage);
@@ -258,6 +244,8 @@ public class MainActivity extends FragmentActivity {
     };
 
 
+    //TODO write a service to upload images
+
     private Emitter.Listener onUploadImage = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
@@ -265,7 +253,7 @@ public class MainActivity extends FragmentActivity {
                 @Override
                 public void run() {
                     String message = (String) args[0];
-                    System.out.println("onUploadImage: " + message);
+                    Log.d(TAG, message);
                     //socket.disconnect();
                 }
             });
@@ -281,25 +269,27 @@ public class MainActivity extends FragmentActivity {
     @Override
     public void onPause() {
         super.onPause();
-        //System.out.println("MainActivity.onPause()");
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
+        //getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
         if (myCamera != null) {
             myCamera.stopPreview();
             myCamera.release();
         }
         socket.disconnect();
         socket.close();
-
     }
 
     // when the back button is clicked
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        //getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
         //System.out.println("MainActivity.onBackPressed()");
         // when returning to main from a fragment, set window to fullscreen
         //getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -376,17 +366,17 @@ public class MainActivity extends FragmentActivity {
         setContentView(R.layout.main_activity);
         context = getApplicationContext();
         baseContext = getBaseContext();
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         myDatabase = new KtDatabase(this);
         sqLiteDatabase = openOrCreateDatabase(DATABASE_NAME, MODE_PRIVATE, null);
         sharedPreferences = this.getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
 
-        Intent finishSplash = new Intent(MainActivity.this, SplashActivity.class);
-        setResult(RESULT_OK, finishSplash);
-
         MY_KT_ID = sharedPreferences.getString(KTID, "");
         MY_USER_NAME = sharedPreferences.getString(NAME, "");
         MY_FB_ID = sharedPreferences.getString(FBID, "");
+
+        Intent dismissSplash = new Intent();
+        setResult(RESULT_OK, dismissSplash);
 
         // connecting socket
         try {
@@ -398,12 +388,12 @@ public class MainActivity extends FragmentActivity {
             socket.on(com.github.nkzawa.socketio.client.Socket.EVENT_CONNECT, new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
-
+                    Log.d(TAG, "socket connected");
                 }
             }).on(com.github.nkzawa.socketio.client.Socket.EVENT_DISCONNECT, new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
-                    System.out.println("socket disconnected in MainActivity");
+                    Log.d(TAG, "socket disconnected");
                 }
             });
         } catch (URISyntaxException use) {
@@ -432,7 +422,15 @@ public class MainActivity extends FragmentActivity {
              **/
 
             // saving profile picture to server
-            uploadProfileImage(compressByteArray(getProfileImage(MY_FB_ID)));
+            // save profile picture into shared preferences
+            byte[] profile_image_bytes = getProfileImage(MY_FB_ID);
+            uploadProfileImage(compressByteArray(profile_image_bytes));
+            try {
+                String profile_image_string = new String(profile_image_bytes, "UTF-8");
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putString(MyProfilePicture, profile_image_string);
+                editor.commit();
+            } catch (UnsupportedEncodingException e) {}
 
         } else {
             System.out.println("KandiTag is ready to go!");
@@ -451,15 +449,23 @@ public class MainActivity extends FragmentActivity {
             Log.i(TAG, "No valid Google Play Services APK found");
         }
 
+
+        // this is unneeded, this will only be used if the user has never logged in
+        /**
+        byte[] profile_image_bytes = getProfileImage(MY_FB_ID);
+        //uploadProfileImage(compressByteArray(profile_image_bytes));
         try {
-            boolean exists = myDatabase.checkIfProfileImageExists(MY_KT_ID);
-            if (!exists) {
-                myDatabase.saveProfileImage(MY_KT_ID, getProfileImage(MY_FB_ID));
-            }
-        } catch (Exception e) {}
+            String profile_image_string = new String(profile_image_bytes, "UTF-8");
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putString(MyProfilePicture, profile_image_string);
+            editor.commit();
+        } catch (UnsupportedEncodingException e) {}
+         **/
 
-        uploadProfileImage(compressByteArray(getProfileImage(MY_FB_ID)));
 
+        // instantiate services
+        IntentServiceDownloadFeed downloadFeed = new IntentServiceDownloadFeed();
+        downloadFeed.startDownloadingFeed(MainActivity.this, MY_KT_ID);
 
         myScaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
 
@@ -560,11 +566,11 @@ public class MainActivity extends FragmentActivity {
                         flipcamera.setVisibility(View.VISIBLE);
                         notifications.setVisibility(View.VISIBLE);
                         flashlight.setVisibility(View.VISIBLE);
-                        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
                         myHandler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
                                 getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                                //getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
                             }
                         }, 500);
                         break;
@@ -577,11 +583,11 @@ public class MainActivity extends FragmentActivity {
                         notif_message.setVisibility(View.GONE);
                         notif_exchange.setVisibility(View.GONE);
                         isNotificationsOpen = false;
-                        //getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
                         myHandler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
                                 getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                                getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
                             }
                         }, 500);
                         break;
@@ -620,6 +626,7 @@ public class MainActivity extends FragmentActivity {
          **/
 
 
+        //TODO need to set up camera to switch between front and back
 
         // starting camera
         myCamera = getCameraInstance();
@@ -772,7 +779,7 @@ public class MainActivity extends FragmentActivity {
             Log.d(TAG, "onPictureTaken - rawCallback");
             //TODO make sure this clears the scannedQrUsersArrayList
             scannedQrUsersArrayList.removeAll(scannedQrUsersArrayList);
-            System.out.println("scannedQrUsersArrayList.size() = " + scannedQrUsersArrayList.size());
+            //System.out.println("scannedQrUsersArrayList.size() = " + scannedQrUsersArrayList.size());
         }
     };
 
@@ -804,6 +811,23 @@ public class MainActivity extends FragmentActivity {
                     Matrix matrix = new Matrix();
                     matrix.postRotate(90);
                     bitmap = Bitmap.createBitmap(scaledB, 0, 0, width, height, matrix, true);
+                    /**
+
+                    DateFormat dateFormat = new SimpleDateFormat("_yyyy-MM-dd_HH-mm-ss");
+                    Date date = new Date();
+                    String defaultCaption = MY_KT_ID + dateFormat.format(date);
+
+                    // TODO saving image into shared image library
+                    String fileUrl = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, defaultCaption, defaultCaption);
+
+                    if (fileUrl == null) {
+                        Log.d(TAG, "Image insert failed");
+                        return;
+                    } else {
+                        Uri picUri = Uri.parse(fileUrl);
+                        Log.d(TAG, picUri.toString());
+                    }
+                     **/
 
                     int[] intArray = new int[bitmap.getWidth() * bitmap.getHeight()];
                     bitmap.getPixels(intArray, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
@@ -833,39 +857,37 @@ public class MainActivity extends FragmentActivity {
                 }
 
                 if (decodedQrString.equals("")) {
-                    decodedQrString = "";
-                    takenPictureContainer.setVisibility(View.VISIBLE);
-                    takenPictureContainer.setImageBitmap(bitmap);
-                    closePictureDisplay.setVisibility(View.VISIBLE);
 
-                    previewTopBar.setVisibility(View.VISIBLE);
-                    previewBottomBar.setVisibility(View.VISIBLE);
+                        decodedQrString = "";
+                        takenPictureContainer.setVisibility(View.VISIBLE);
+                        takenPictureContainer.setImageBitmap(bitmap);
+                        closePictureDisplay.setVisibility(View.VISIBLE);
 
-                    saveAndClosePictureDisplay.setVisibility(View.VISIBLE);
-                    saveAndClosePictureDisplay.setOnClickListener(new View.OnClickListener() {
+                        previewTopBar.setVisibility(View.VISIBLE);
+                        previewBottomBar.setVisibility(View.VISIBLE);
+
+                        saveAndClosePictureDisplay.setVisibility(View.VISIBLE);
+                        saveAndClosePictureDisplay.setOnClickListener(new View.OnClickListener() {
                         @SuppressWarnings("null")
                         @Override
                         public void onClick(View v) {
 
-                           DateFormat dateFormat = new SimpleDateFormat("-yyyy/MM/dd-HH:mm:ss");
-                           Date date = new Date();
-                           String defaultCaption = MY_KT_ID + dateFormat.format(date);
+                        DateFormat dateFormat = new SimpleDateFormat("_yyyy-MM-dd_HH-mm-ss");
+                        Date date = new Date();
+                        String filename = MY_KT_ID + dateFormat.format(date);
 
-                           //TODO allow user to caption their image and add tags before uploading
-                           //streamImageToServer(MY_KT_ID, data, null);
-                            //uploadImage(data, defaultCaption);
 
-                            // attempting to compress bytes before sending
-                            uploadImage(compressByteArray(data), defaultCaption);
+                        //TODO allow user to caption their image and add tags before uploading
+                        uploadImage(compressByteArray(data), filename);
 
-                            takenPictureContainer.setVisibility(View.GONE);
-                            closePictureDisplay.setVisibility(View.GONE);
+                        takenPictureContainer.setVisibility(View.GONE);
+                        closePictureDisplay.setVisibility(View.GONE);
 
-                            previewTopBar.setVisibility(View.GONE);
-                            previewBottomBar.setVisibility(View.GONE);
+                        previewTopBar.setVisibility(View.GONE);
+                        previewBottomBar.setVisibility(View.GONE);
 
-                            saveAndClosePictureDisplay.setVisibility(View.GONE);
-                            myPreview.myCamera.startPreview();
+                        saveAndClosePictureDisplay.setVisibility(View.GONE);
+                        myPreview.myCamera.startPreview();
                         }
                     });
 
@@ -879,6 +901,40 @@ public class MainActivity extends FragmentActivity {
             }
         }
     };
+
+    private File saveImageToInternalStorage(byte[] image) {
+        String path = "";
+        File file = new File("");
+
+        DateFormat dateFormat = new SimpleDateFormat("-yyyy-MM-dd_HH-mm-ss");
+        Date date = new Date();
+        String defaultCaption = MY_KT_ID + dateFormat.format(date) + ".png";
+
+        String FILENAME = defaultCaption;
+        try {
+            FileOutputStream fos = openFileOutput(FILENAME, Context.MODE_PRIVATE);
+            fos.write(image);
+            fos.close();
+
+            file = new File(getFilesDir() + "/" + FILENAME);
+            Log.d(TAG, file.toString());
+            path = file.toString();
+
+        } catch (FileNotFoundException e) {
+
+        } catch (IOException e) {
+
+        }
+
+        return file;
+    }
+
+    // TODO will need a method to delete image from internal storage
+
+    private void deleteImageFromInternalStorage() {
+        
+    }
+
 
     //show mini profile card of ktUser when qr code is scanned TODO not sure if im still using this or metaio
     private void showMiniProfileView(ArrayList<MiniProfileViewItem> list) {
@@ -940,15 +996,6 @@ public class MainActivity extends FragmentActivity {
         return fList;
     }
 
-
-
-    // connect and stream
-    private void streamImageToServer(String id, byte[] img, ArrayList<String> tags) {
-
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(policy);
-
-    }
 
 
     //method to check/save user's profile image to server
@@ -1062,9 +1109,8 @@ public class MainActivity extends FragmentActivity {
                             Log.d(TAG, records.getQrcode());
 
                             KtUserObject tempKtObj = new KtUserObject();
-                            tempKtObj.setFb_id(records.getFb_id());
                             tempKtObj.setKt_id(records.getKt_id());
-                            tempKtObj.setName(records.getUsername());
+                            tempKtObj.setUsername(records.getUsername());
                             tempKtObj.setPlacement(records.getPlacement());
                             scannedQrUsersArrayList.add(tempKtObj);
 
@@ -1075,10 +1121,8 @@ public class MainActivity extends FragmentActivity {
                         //for (int i = 0; i < scannedQrUsersArrayList.size(); i++) {
                         for (KtUserObject scannedQrUser : scannedQrUsersArrayList) {
 
-                            scannedQrUsersFb_idArrayList.add(scannedQrUser.getFb_id());
                             MiniProfileViewItem tempItem = new MiniProfileViewItem();
-                            tempItem.setFb_id(scannedQrUser.getFb_id());
-                            tempItem.setUser_name(scannedQrUser.getName());
+                            tempItem.setUser_name(scannedQrUser.getUsername());
                             tempItem.setPlacement(scannedQrUser.getPlacement());
                             miniProfileViewItemArrayList.add(tempItem);
 
@@ -1202,6 +1246,22 @@ public class MainActivity extends FragmentActivity {
         super.onActivityResult(requestCode, resultCode, data);
         Session.getActiveSession().onActivityResult(this, requestCode, resultCode, data);
 
+        if (requestCode == SIGN_OUT_REQUEST) {
+            if (resultCode == RESULT_LOGGED_OUT) {
+                Session session = Session.getActiveSession();
+                session.closeAndClearTokenInformation();
+                Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivityForResult(loginIntent, 1);
+                overridePendingTransition(R.anim.abc_slide_in_top, R.anim.abc_fade_out);
+                finish();
+                overridePendingTransition(R.anim.abc_slide_in_bottom, R.anim.abc_fade_out);
+            }
+
+            if (resultCode == RESULT_CANCELED) {
+
+            }
+        }
+
 
         if (requestCode == 1) {
             if (resultCode == RESULT_OK) {
@@ -1217,17 +1277,6 @@ public class MainActivity extends FragmentActivity {
         if (requestCode == 3) {
             if (resultCode == RESULT_OK) {
                 Log.i(TAG, "back in Main");
-            }
-        }
-
-        // this happens when user logs out
-        if (requestCode == 9) {
-            if (resultCode == RESULT_LOGGED_OUT) {
-                Intent loginIntent = new Intent(MainActivity.this, LoginActivity.class);
-                startActivityForResult(loginIntent, 1);
-                overridePendingTransition(R.anim.abc_slide_in_top, R.anim.abc_fade_out);
-                finish();
-                overridePendingTransition(R.anim.abc_slide_in_bottom, R.anim.abc_fade_out);
             }
         }
     }
@@ -1366,7 +1415,7 @@ public class MainActivity extends FragmentActivity {
     GetAllUsersFromLocalDbAsyncTask getAllUsersFromLocalDbAsyncTask = new GetAllUsersFromLocalDbAsyncTask(MainActivity.this, new ReturnKtUserObjectParcelableArrayListAsyncResponse() {
         @Override
         public void processFinish(ArrayList<KtUserObjectParcelable> output) {
-            System.out.println("MainActivity.getAllUsersFromLocalDbAsyncTask.processFinish.output.size() = " + output.size());
+            //System.out.println("MainActivity.getAllUsersFromLocalDbAsyncTask.processFinish.output.size() = " + output.size());
             listOfUsers = output;
         }
     });
@@ -1386,7 +1435,7 @@ public class MainActivity extends FragmentActivity {
     DownloadGroupMessagesFromServerAsyncTask downloadGroupMessagesFromServerAsyncTask = new DownloadGroupMessagesFromServerAsyncTask(MainActivity.this, new ReturnKtMessageObjectArrayListAsyncResponse() {
         @Override
         public void processFinish(ArrayList<KtMessageObject> output) {
-            System.out.println("MainActivity.downloadGroupMessagesFromServerAsyncTask.processFinish.output.size() = " + output.size());
+            //System.out.println("MainActivity.downloadGroupMessagesFromServerAsyncTask.processFinish.output.size() = " + output.size());
         }
     });
 
@@ -1394,7 +1443,7 @@ public class MainActivity extends FragmentActivity {
     DownloadMessagesFromServerAsyncTask downloadMessagesFromServerAsyncTask = new DownloadMessagesFromServerAsyncTask(MainActivity.this, new ReturnKtMessageObjectArrayListAsyncResponse() {
         @Override
         public void processFinish(ArrayList<KtMessageObject> output) {
-            System.out.println("MainActivity.downloadMessagesFromServerAsyncTask.processFinish.output.size() = " + output.size());
+            //System.out.println("MainActivity.downloadMessagesFromServerAsyncTask.processFinish.output.size() = " + output.size());
         }
     });
 
@@ -1402,7 +1451,7 @@ public class MainActivity extends FragmentActivity {
     CheckKtOwnershipForMeAsyncTask checkKtOwnershipForMeAsyncTask = new CheckKtOwnershipForMeAsyncTask(MainActivity.this, new CheckKtOwnershipAsyncResponse() {
         @Override
         public void processFinish(ArrayList<KtUserObject> output) {
-            System.out.println("MainActivity.checkKtOwnershipForMeKandiAsyncTask.processFinish.output.size() = " + output.size());
+            //System.out.println("MainActivity.checkKtOwnershipForMeKandiAsyncTask.processFinish.output.size() = " + output.size());
         }
     });
 
@@ -1410,7 +1459,7 @@ public class MainActivity extends FragmentActivity {
     CheckKtOwnershipForUsersAsyncTask checkKtOwnershipForUsersAsyncTask = new CheckKtOwnershipForUsersAsyncTask(MainActivity.this, new CheckKtOwnershipAsyncResponse() {
         @Override
         public void processFinish(ArrayList<KtUserObject> output) {
-            System.out.println("MainActivity.checkKtOwnershipForUsersAsyncTask.processFinish.output.size() = " + output.size());
+            //System.out.println("MainActivity.checkKtOwnershipForUsersAsyncTask.processFinish.output.size() = " + output.size());
         }
     });
 
@@ -1418,13 +1467,15 @@ public class MainActivity extends FragmentActivity {
     GetKandiNameFromKtQrcodeAsyncTask getKandiNameFromKtQrcodeAsyncTask = new GetKandiNameFromKtQrcodeAsyncTask(MainActivity.this, new ReturnKandiObjectArrayAsyncResponse() {
         @Override
         public void processFinish(ArrayList<KandiObject> output) {
-            System.out.println("MainActivity.getKandiNameFromKtQrCodeAsyncTask.processFinish.output.size() = " + output.size());
+            //System.out.println("MainActivity.getKandiNameFromKtQrCodeAsyncTask.processFinish.output.size() = " + output.size());
             // when this task is done running, set the opened_before to true so that these task will not be executed again
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putBoolean(OPENED_BEFORE, true);
             editor.commit();
         }
     });
+
+
 
 
 /**

@@ -2,7 +2,12 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/transparent"
+    android:paddingLeft="12dp"
+    android:paddingRight="12dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp">
 
     <!--
     <ImageView
@@ -11,6 +16,11 @@
         android:src="@drawable/message_bubble_empty"/>
         -->
 
+    <View
+        android:layout_width="fill_parent"
+        android:layout_height="65dp"
+        android:background="@color/black"/>
+
     <TextView
         android:id="@+id/MessageListItem_userfbid"
         android:layout_width="0dp"
@@ -18,31 +28,33 @@
 
     <ImageView
         android:id="@+id/MessageListItem_profilePic"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:paddingRight="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="3dp"/>
+        android:layout_width="66dp"
+        android:layout_height="65dp"
+        android:padding="3dp"
+        android:src="@drawable/splash_screen_kt_logo_universal"/>
 
     <TextView
-        android:text="NAME"
+        android:text="Username"
         android:id="@+id/MessageListItem_name"
+        android:layout_marginLeft="5dp"
         android:layout_marginTop="15dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/MessageListItem_profilePic"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textSize="16dp" />
 
     <TextView
-        android:text="message"
+        android:text="message content.. goes here.. lets see how far it goes"
+        android:lines="1"
         android:id="@+id/MessageListItem_description"
         android:layout_marginTop="0dp"
+        android:layout_marginLeft="5dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/MessageListItem_name"
         android:layout_toRightOf="@+id/MessageListItem_profilePic"
-        android:textColor="@color/black"
+        android:textColor="@color/white"
         android:textSize="14dp" />
 
 </RelativeLayout>

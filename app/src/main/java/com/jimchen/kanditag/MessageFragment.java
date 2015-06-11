@@ -7,15 +7,13 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,6 +24,8 @@ import java.util.Comparator;
  */
 public class MessageFragment extends Fragment {
 
+    private String TAG = "MessageFragment";
+
     // bool to check if messages have already been loaded
     private boolean messagesLoaded = false;
 
@@ -33,12 +33,13 @@ public class MessageFragment extends Fragment {
     private int ReturnToMessageFragmentRequestCode = 1;
 
     private KtDatabase myDatabase;
-    SharedPreferences sharedPreferences;
-    public static final String MyPreferences = "MyPrefs";
-    public static final String Name = "nameKey";
-    public static final String FbId = "fbidKey";
-    public static final String UserId = "userIdKey";
-    public static final String NEW_MESSAGE = "NEW_MESSAGE";
+    // Shared Preferences
+    private SharedPreferences sharedPreferences;
+    public static final String USER_PREFERENCES = "com.jimchen.kanditag.extra.PREFERENCES";
+    public static final String USERNAME = "com.jimchen.kanditag.extra.USERNAME";
+    public static final String FBID = "com.jimchen.kanditag.extra.FBID";
+    public static final String KTID = "com.jimchen.kanditag.extra.KTID";
+    public static final String USER_PROFILE_IMAGE = "com.jimchen.kanditag.extra.USER_PROFILE_IMAGE";
     private String MY_KT_ID, MY_FB_ID, MY_USER_NAME;
     private Context context;
 
@@ -47,6 +48,7 @@ public class MessageFragment extends Fragment {
 
     //List View Adapters
     private MessageListViewAdapter messageListViewAdapter;
+    private KtUserObjectListAdapter userListViewAdapter;
 
     //arrays for the async tasks
     private ArrayList<MessageRowItem> messageRowItems = new ArrayList<>();
@@ -54,6 +56,9 @@ public class MessageFragment extends Fragment {
 
     private ArrayList<KtUserObjectParcelable> usersForNewMessageList = new ArrayList<>();
     private ArrayList<KandiGroupObjectParcelable> groupsForNewMessageList = new ArrayList<>();
+
+    // new message button
+    private ImageView newMessageButton;
 
     //exit button to return to main
     private ImageView exitButton;
@@ -102,25 +107,46 @@ public class MessageFragment extends Fragment {
         this.context = getActivity();
 
         myDatabase = new KtDatabase(getActivity());
-        sharedPreferences = getActivity().getSharedPreferences(MyPreferences, Context.MODE_PRIVATE);
-        MY_KT_ID = sharedPreferences.getString(UserId, "");
-        MY_USER_NAME = sharedPreferences.getString(Name, "");
-        MY_FB_ID = sharedPreferences.getString(FbId, "");
+        sharedPreferences = getActivity().getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
+        MY_KT_ID = sharedPreferences.getString(KTID, "");
+        MY_USER_NAME = sharedPreferences.getString(USERNAME, "");
+        MY_FB_ID = sharedPreferences.getString(FBID, "");
 
         myListView = (ListView) rootView.findViewById(R.id.MessageFragment_ListView);
+        myListView.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
+
+        newMessageButton = (ImageView) rootView.findViewById(R.id.MessageFragment_NewMessageButton);
+        newMessageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                myListView.setAdapter(userListViewAdapter);
+                myListView.invalidate();
+                myListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        Intent startDialogue = new Intent(getActivity(), MessageDialogue.class);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("kt_id", usersForNewMessageList.get(i).getKt_id());
+                        bundle.putString("username", usersForNewMessageList.get(i).getUsername());
+                        startDialogue.putExtras(bundle);
+                        startActivityForResult(startDialogue, ReturnToMessageFragmentRequestCode);
+                    }
+                });
+            }
+        });
 
         //gets latest group message from local db
         getLatestGroupMessageRowsFromLocalDbAsyncTask = new GetLatestGroupMessageRowsFromLocalDbAsyncTask(getActivity(), new ReturnMessageRowItemArrayListAsyncResponse() {
             @Override
             public void processFinish(ArrayList<MessageRowItem> output) {
-                System.out.println("MessageFragment.displayLatestGroupMessageAsyncTask.processFinish.output.size() = " + output.size());
+                //System.out.println("MessageFragment.displayLatestGroupMessageAsyncTask.processFinish.output.size() = " + output.size());
                 // add the latest group message into message row items list
                 messageRowItems.addAll(output);
                 //TODO check to see if this puts the list of messages in descending order, latest at the top
                 Collections.sort(messageRowItems, new Comparator<MessageRowItem>() {
                     @Override
                     public int compare(MessageRowItem messageRowItem, MessageRowItem messageRowItem2) {
-                        return messageRowItem.getMessageTimeStamp().compareTo(messageRowItem2.getMessageTimeStamp());
+                        return messageRowItem.getTimestamp().compareTo(messageRowItem2.getTimestamp());
                     }
                 });
                 //create message list view adapter for list view
@@ -134,25 +160,28 @@ public class MessageFragment extends Fragment {
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                         Intent startDialogue = new Intent(getActivity(), MessageDialogue.class);
                         Bundle dialogueBundle = new Bundle();
-                        if (messageRowItems.get(i).getMessageKandiID() == null) {
-                            if (messageRowItems.get(i).getMessageSenderID().equals(MY_KT_ID)) {
-                                System.out.println("MessageFragment.onItemClick = " + messageRowItems.get(i).getMessageRecipient());
-                                dialogueBundle.putString("username", messageRowItems.get(i).getMessageRecipient());
-                                dialogueBundle.putString("kt_id", messageRowItems.get(i).getMessageRecipientID());
-                            } else if (messageRowItems.get(i).getMessageRecipientID().equals(MY_KT_ID)) {
-                                System.out.println("MessageFragment.onItemClick = " + messageRowItems.get(i).getMessageSender());
-                                dialogueBundle.putString("username", messageRowItems.get(i).getMessageSender());
-                                dialogueBundle.putString("kt_id", messageRowItems.get(i).getMessageSenderID());
+                        if (messageRowItems.get(i).getTo_Kandi_Id() == null) {
+
+                            if (messageRowItems.get(i).getFrom_Id().equals(MY_KT_ID)) {
+                                // TODO so apparently its not even going inside this control
+                                System.out.println("MessageFragment.onItemClick = " + messageRowItems.get(i).getTo_Name());
+                                dialogueBundle.putString("username", messageRowItems.get(i).getTo_Name());
+                                dialogueBundle.putString("kt_id", messageRowItems.get(i).getTo_Id());
+                            } else if (messageRowItems.get(i).getTo_Id().equals(MY_KT_ID)) {
+                                System.out.println("MessageFragment.onItemClick = " + messageRowItems.get(i).getFrom_Name());
+                                dialogueBundle.putString("username", messageRowItems.get(i).getFrom_Name());
+                                dialogueBundle.putString("kt_id", messageRowItems.get(i).getFrom_Id());
                             }
-                        } else if (messageRowItems.get(i).getMessageKandiID() != null) {
+                        } else if (messageRowItems.get(i).getTo_Kandi_Id() != null) {
+                            Log.d(TAG, "inside group");
                             try {
-                                dialogueBundle.putString("kandi_id", messageRowItems.get(i).getMessageKandiID());
+                                dialogueBundle.putString("kandi_id", messageRowItems.get(i).getTo_Kandi_Id());
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
                             try {
-                                dialogueBundle.putString("kandi_name", messageRowItems.get(i).getKandiName());
-                                System.out.println("MessageFragment.onItemClick = " + messageRowItems.get(i).getKandiName());
+                                dialogueBundle.putString("kandi_name", messageRowItems.get(i).getTo_Kandi_Name());
+                                System.out.println("MessageFragment.onItemClick = " + messageRowItems.get(i).getTo_Kandi_Name());
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -169,7 +198,7 @@ public class MessageFragment extends Fragment {
         getLatestMessageRowsFromLocalDbAsyncTask = new GetLatestMessageRowsFromLocalDbAsyncTask(getActivity(), new ReturnMessageRowItemArrayListAsyncResponse() {
             @Override
             public void processFinish(final ArrayList<MessageRowItem> output) {
-                System.out.println("MessageFragment.displayLatestMessagesAsyncTask.processFinish.output.size() = " + output.size());
+                //System.out.println("MessageFragment.displayLatestMessagesAsyncTask.processFinish.output.size() = " + output.size());
                 // remove all messages before adding the new ones
                 messageRowItems.removeAll(messageRowItems);
                 //put all the latest messages into message row items list
@@ -185,6 +214,7 @@ public class MessageFragment extends Fragment {
             public void processFinish(ArrayList<KtUserObjectParcelable> output) {
                 System.out.println("MessageFragment.getAllUsersFromLocalDbAsyncTask.processFinish.output.size() = " + output.size());
                 usersForNewMessageList.addAll(output);
+                userListViewAdapter = new KtUserObjectListAdapter(getActivity(), R.layout.message_list_item, usersForNewMessageList);
             }
         });
 
@@ -193,7 +223,7 @@ public class MessageFragment extends Fragment {
         getAllGroupsFromLocalDbAsyncTask = new GetAllGroupsFromLocalDbAsyncTask(getActivity(), new ReturnKandiGroupObjectParcelableArrayList() {
             @Override
             public void processFinish(ArrayList<KandiGroupObjectParcelable> output) {
-                System.out.println("MessageFragment.getAllGroupsFromLocalDbAsyncTask.processFinish.output.size() = " + output.size());
+                //System.out.println("MessageFragment.getAllGroupsFromLocalDbAsyncTask.processFinish.output.size() = " + output.size());
                 groupsForNewMessageList.addAll(output);
             }
         });
@@ -202,7 +232,7 @@ public class MessageFragment extends Fragment {
         getAllKandiFromLocalDbAsyncTask = new GetAllKandiFromLocalDbAsyncTask(getActivity(), new ReturnKandiObjectArrayAsyncResponse() {
             @Override
             public void processFinish(ArrayList<KandiObject> output) {
-                System.out.println("MessageFragment.getAllKandiFromLocalAsyncTask.processFinish.output.size() = " + output.size());
+                //System.out.println("MessageFragment.getAllKandiFromLocalAsyncTask.processFinish.output.size() = " + output.size());
                 getAllGroupsFromLocalDbAsyncTask.execute(output);
             }
         });
@@ -253,25 +283,25 @@ public class MessageFragment extends Fragment {
                                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                                     Intent startDialogue = new Intent(getActivity(), MessageDialogue.class);
                                     Bundle dialogueBundle = new Bundle();
-                                    if (messageRowItems.get(i).getMessageKandiID() == null) {
-                                        if (messageRowItems.get(i).getMessageSenderID().equals(MY_KT_ID)) {
-                                            System.out.println("MessageFragment.onItemClick = " + messageRowItems.get(i).getMessageRecipient());
-                                            dialogueBundle.putString("username", messageRowItems.get(i).getMessageRecipient());
-                                            dialogueBundle.putString("kt_id", messageRowItems.get(i).getMessageRecipientID());
-                                        } else if (messageRowItems.get(i).getMessageRecipientID().equals(MY_KT_ID)) {
-                                            System.out.println("MessageFragment.onItemClick = " + messageRowItems.get(i).getMessageSender());
-                                            dialogueBundle.putString("username", messageRowItems.get(i).getMessageSender());
-                                            dialogueBundle.putString("kt_id", messageRowItems.get(i).getMessageSenderID());
+                                    if (messageRowItems.get(i).getTo_Kandi_Id() == null) {
+                                        if (messageRowItems.get(i).getFrom_Id().equals(MY_KT_ID)) {
+                                            //System.out.println("MessageFragment.onItemClick = " + messageRowItems.get(i).getTo_Name());
+                                            dialogueBundle.putString("username", messageRowItems.get(i).getTo_Name());
+                                            dialogueBundle.putString("kt_id", messageRowItems.get(i).getTo_Id());
+                                        } else if (messageRowItems.get(i).getTo_Id().equals(MY_KT_ID)) {
+                                            //System.out.println("MessageFragment.onItemClick = " + messageRowItems.get(i).getFrom_Name());
+                                            dialogueBundle.putString("username", messageRowItems.get(i).getFrom_Name());
+                                            dialogueBundle.putString("kt_id", messageRowItems.get(i).getFrom_Id());
                                         }
-                                    } else if (messageRowItems.get(i).getMessageKandiID() != null) {
+                                    } else if (messageRowItems.get(i).getTo_Kandi_Id() != null) {
                                         try {
-                                            dialogueBundle.putString("kandi_id", messageRowItems.get(i).getMessageKandiID());
+                                            dialogueBundle.putString("kandi_id", messageRowItems.get(i).getTo_Kandi_Id());
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
                                         try {
-                                            dialogueBundle.putString("kandi_name", messageRowItems.get(i).getKandiName());
-                                            System.out.println("MessageFragment.onItemClick = " + messageRowItems.get(i).getKandiName());
+                                            dialogueBundle.putString("kandi_name", messageRowItems.get(i).getTo_Kandi_Name());
+                                            //System.out.println("MessageFragment.onItemClick = " + messageRowItems.get(i).getTo_Kandi_Name());
                                         } catch (Exception e) {
                                             e.printStackTrace();
                                         }
@@ -284,6 +314,18 @@ public class MessageFragment extends Fragment {
                     }).execute(myDatabase.getKandi());
                 }
             }).execute(myDatabase.getKTIDsFromLocalDb());
+        }
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+
+        // Make sure that we are currently visible
+        if (this.isVisible()) {
+            // If we are becoming invisible, then...
+            if (!isVisibleToUser) {
+            }
         }
     }
 

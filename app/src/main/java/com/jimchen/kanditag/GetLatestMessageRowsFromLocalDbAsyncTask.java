@@ -13,12 +13,12 @@ public class GetLatestMessageRowsFromLocalDbAsyncTask extends AsyncTask<ArrayLis
 
     private Context context;
     private KtDatabase myDatabase;
-    SharedPreferences sharedPreferences;
+    private SharedPreferences sharedPreferences;
     private String MY_KT_ID, MY_FB_ID, MY_USER_NAME;
-    public static final String MyPreferences = "MyPrefs";
-    public static final String Name = "nameKey";
-    public static final String FbId = "fbidKey";
-    public static final String UserId = "userIdKey";
+    public static final String USER_PREFERENCES = "com.jimchen.kanditag.extra.PREFERENCES";
+    public static final String USERNAME = "com.jimchen.kanditag.extra.USERNAME";
+    public static final String FBID = "com.jimchen.kanditag.extra.FBID";
+    public static final String KTID = "com.jimchen.kanditag.extra.KTID";
 
     public ReturnMessageRowItemArrayListAsyncResponse delegate;
 
@@ -42,7 +42,7 @@ public class GetLatestMessageRowsFromLocalDbAsyncTask extends AsyncTask<ArrayLis
                 try {
                     MessageRowItem rowItem;
                     rowItem= myDatabase.getMessageRowItem(kt_idList.get(i), MY_KT_ID, MY_USER_NAME);
-                    if (!rowItem.getMessageText().equals("")) {
+                    if (!rowItem.getMessageContent().equals("")) {
                         messageRowItems.add(rowItem);
                     }
                 } catch (NullPointerException nullEx) {}
@@ -55,10 +55,10 @@ public class GetLatestMessageRowsFromLocalDbAsyncTask extends AsyncTask<ArrayLis
     @Override
     protected void onPreExecute() {
         myDatabase = new KtDatabase(context);
-        sharedPreferences = context.getSharedPreferences(MyPreferences, Context.MODE_PRIVATE);
-        MY_KT_ID = sharedPreferences.getString(UserId, "");
-        MY_USER_NAME = sharedPreferences.getString(Name, "");
-        MY_FB_ID = sharedPreferences.getString(FbId, "");
+        sharedPreferences = context.getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
+        MY_KT_ID = sharedPreferences.getString(KTID, "");
+        MY_USER_NAME = sharedPreferences.getString(USERNAME, "");
+        MY_FB_ID = sharedPreferences.getString(FBID, "");
         messageRowItems = new ArrayList<>();
         kt_idList = new ArrayList<>();
     }

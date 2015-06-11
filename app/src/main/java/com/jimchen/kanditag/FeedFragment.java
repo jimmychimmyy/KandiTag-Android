@@ -1,44 +1,78 @@
 package com.jimchen.kanditag;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.TextView;
 
+import com.github.nkzawa.emitter.Emitter;
+import com.github.nkzawa.socketio.client.IO;
+
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 
 
 public class FeedFragment extends Fragment {
 
+    public static final String ACTION_DOWNLOAD_FEED = "com.jimchen.kanditag.action.DOWNLOAD_FEED";
+    public static final String IMAGE_DATA = "com.jimchen.kanditag.data.IMAGE";
+
+    private String TAG = "FeedFragment";
+
     KtDatabase myDatabase;
-    SharedPreferences sharedPreferences;
-    public static final String MyPreferences = "MyPrefs";
-    public static final String Name = "nameKey";
-    public static final String FbId = "fbidKey";
-    public static final String UserId = "userIdKey";
+    // Shared Preferences
+    private SharedPreferences sharedPreferences;
+    public static final String USER_PREFERENCES = "com.jimchen.kanditag.extra.PREFERENCES";
+    public static final String USERNAME = "com.jimchen.kanditag.extra.USERNAME";
+    public static final String FBID = "com.jimchen.kanditag.extra.FBID";
+    public static final String KTID = "com.jimchen.kanditag.extra.KTID";
+    public static final String USER_PROFILE_IMAGE = "com.jimchen.kanditag.extra.USER_PROFILE_IMAGE";
     private String MY_KT_ID, MY_FB_ID, MY_USER_NAME;
 
     private Context context;
 
-    private int CONTAINER_TYPE;
+    // socket io
+    private static com.github.nkzawa.socketio.client.Socket socket;
+    private final String HOST = "http://kandi.jit.su/";
+    private final int portNumber = 3000;
 
+    //private int CONTAINER_TYPE;
+
+    // root view
     View rootView;
-    GridView kandiGridView;
-    TextView kandiTitleTextView;
+
+    // list view
+    private ListView feedListView;
+    private FeedListViewAdapter feedListViewAdapter;
 
     // exit button to return to main
     private ImageView exitButton;
 
     private ArrayList<FriendsGridItem> followerArray, followingArray;
     private FriendsGridViewAdapter followerGridViewAdapter, followingGridViewAdapter;
+
+
+    // Async Tasks
+    private GetAllUsersFromLocalDbAsyncTask getAllUsersFromLocalDbAsyncTask;
+
+    // downloaded images TODO will need to sort them by timestamp
+    private ArrayList<byte[]> images = new ArrayList<>();
+
+
 
     public static final FeedFragment newInstance() {
         FeedFragment feedFragment = new FeedFragment();
@@ -62,46 +96,50 @@ public class FeedFragment extends Fragment {
         this.context = getActivity();
 
         myDatabase = new KtDatabase(context);
-        sharedPreferences = getActivity().getSharedPreferences(MyPreferences, Context.MODE_PRIVATE);
-        MY_KT_ID = sharedPreferences.getString(UserId, "");
-        MY_USER_NAME = sharedPreferences.getString(Name, "");
-        MY_FB_ID = sharedPreferences.getString(FbId, "");
+        sharedPreferences = getActivity().getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
+        MY_KT_ID = sharedPreferences.getString(KTID, "");
+        MY_USER_NAME = sharedPreferences.getString(USERNAME, "");
+        MY_FB_ID = sharedPreferences.getString(FBID, "");
 
-        rootView.setId(CONTAINER_TYPE);
+        //rootView.setId(CONTAINER_TYPE);
 
-        kandiGridView = (GridView) rootView.findViewById(R.id.FeedFragment_GridView);
+        feedListView = (ListView) rootView.findViewById(R.id.FeedFragment_ListView);
+        feedListViewAdapter = new FeedListViewAdapter(getActivity(), R.layout.feed_list_item, images);
+        feedListView.setAdapter(feedListViewAdapter);
 
 
-        /**
-
-        kandiTitleTextView = (TextView) rootView.findViewById(R.id.kandiTagTextView);
-        kandiTitleTextView.setTextSize(40);
-        Typeface typeface = Typeface.createFromAsset(getActivity().getAssets(),"fonts/stalemate_regular.ttf");
-        kandiTitleTextView.setTypeface(typeface);
-
-         **/
-
-        /**
-        followerGridViewAdapter = new FollowGridViewAdapter(getActivity(), R.id.list_item, followerArray);
-        followingGridViewAdapter = new FollowGridViewAdapter(getActivity(), R.id.list_item, followingArray);
-
-        if (CONTAINER_TYPE == KandiTagConstants.FRAGMENT_FOLLOWERS) {
-            kandiGridView.setAdapter(followerGridViewAdapter);
-            kandiTitleTextView.setText("Followers");
-        }
-
-        if (CONTAINER_TYPE == KandiTagConstants.FRAGMENT_FOLLOWING) {
-            kandiGridView.setAdapter(followingGridViewAdapter);
-            kandiTitleTextView.setText("Following");
-        }
-
-        if (CONTAINER_TYPE == KandiTagConstants.FRAGMENT_FEED) {
-            kandiGridView.setAdapter(null);
-            kandiTitleTextView.setText("Feed");
-        }
-
-         **/
+        IntentFilter filter = new IntentFilter(ACTION_DOWNLOAD_FEED);
+        ResponseReceiver receiver = new ResponseReceiver();
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, filter);
 
         return rootView;
+    }
+
+    private class ResponseReceiver extends BroadcastReceiver {
+
+        private ResponseReceiver() {
+
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            byte[] image = intent.getByteArrayExtra(IMAGE_DATA);
+            images.add(image);
+            feedListViewAdapter.notifyDataSetChanged();
+            feedListView.invalidate();
+            Log.d(TAG, "received something");
+        }
+    }
+
+    @Override
+    public void setUserVisibleHint(boolean isVisibleToUser) {
+        super.setUserVisibleHint(isVisibleToUser);
+
+        // Make sure that we are currently visible
+        if (this.isVisible()) {
+            // If we are becoming invisible, then...
+            if (!isVisibleToUser) {
+            }
+        }
     }
 }
