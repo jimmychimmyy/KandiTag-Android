@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.AbsListView;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -24,12 +25,15 @@ import com.github.nkzawa.socketio.client.IO;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 
 
 public class FeedFragment extends Fragment {
 
     public static final String ACTION_DOWNLOAD_FEED = "com.jimchen.kanditag.action.DOWNLOAD_FEED";
     public static final String IMAGE_DATA = "com.jimchen.kanditag.data.IMAGE";
+    public static final String ACTION_ADD_NEW_POST = "com.jimchen.kanditag.action.ADD_NEW_POST";
+
 
     private String TAG = "FeedFragment";
 
@@ -71,7 +75,10 @@ public class FeedFragment extends Fragment {
 
     // downloaded images TODO will need to sort them by timestamp
     private ArrayList<byte[]> images = new ArrayList<>();
+    private ArrayList<KtMedia> media = new ArrayList<>();
+    //private ArrayList<String> filenames = new ArrayList<>();
 
+    private ImageView openCamera;
 
 
     public static final FeedFragment newInstance() {
@@ -103,14 +110,46 @@ public class FeedFragment extends Fragment {
 
         //rootView.setId(CONTAINER_TYPE);
 
+        // TODO will need to change images to media
+
         feedListView = (ListView) rootView.findViewById(R.id.FeedFragment_ListView);
-        feedListViewAdapter = new FeedListViewAdapter(getActivity(), R.layout.feed_list_item, images);
+        feedListViewAdapter = new FeedListViewAdapter(getActivity(), R.layout.feed_list_item, media);
         feedListView.setAdapter(feedListViewAdapter);
+        feedListView.setRecyclerListener(feedListViewAdapter.mRecycleListener);
+        feedListView.setOnScrollListener(new AbsListView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(AbsListView absListView, int scrollSt) {
+
+                // pause disk cache access to ensure smoother scrolling
+                if (scrollSt == SCROLL_STATE_FLING) {
+                    // TODO need to stop images from loading at this point
+                }
+            }
+
+            @Override
+            public void onScroll(AbsListView absListView, int i, int i2, int i3) {
+
+            }
+        });
+
+        /**
+
+        openCamera = (ImageView) rootView.findViewById(R.id.FeedFragment_OpenCamera);
+        openCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), CameraPreview.class);
+                startActivity(intent);
+                getActivity().overridePendingTransition(R.anim.abc_slide_in_bottom, R.anim.abc_slide_out_bottom);
+            }
+        }); **/
 
 
         IntentFilter filter = new IntentFilter(ACTION_DOWNLOAD_FEED);
+        IntentFilter addNewFilter = new IntentFilter(ACTION_ADD_NEW_POST);
         ResponseReceiver receiver = new ResponseReceiver();
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, filter);
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, addNewFilter);
 
         return rootView;
     }
@@ -123,13 +162,28 @@ public class FeedFragment extends Fragment {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            byte[] image = intent.getByteArrayExtra(IMAGE_DATA);
-            images.add(image);
-            feedListViewAdapter.notifyDataSetChanged();
-            feedListView.invalidate();
-            Log.d(TAG, "received something");
+
+            // this one gets the filename
+            if (intent.getAction().equals(ACTION_DOWNLOAD_FEED)) {
+                KtMedia file = intent.getParcelableExtra(IMAGE_DATA);
+                //String filename = intent.getStringExtra(IMAGE_DATA);
+                //media.add(file);
+
+                // TODO sort the Ktmedia files by date before adding into arraylist
+
+                media.add(file);
+                Collections.sort(media);
+                //filenames.add(filename);
+                feedListViewAdapter.notifyDataSetChanged();
+                feedListView.invalidate();
+                Log.d(TAG, "received a feed");
+            } else if (intent.getAction().equals(ACTION_ADD_NEW_POST)) {
+                Log.d(TAG, "addNew");
+            }
         }
     }
+
+    // TODO will connect the socket inside this fragment
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {

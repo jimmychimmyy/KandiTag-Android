@@ -1,9 +1,12 @@
 package com.jimchen.kanditag;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by Jim on 3/4/15.
  */
-public class KtMessageObject {
+public class KtMessageObject implements Parcelable {
 
     private String message, from_id, from_name, timestamp;
 
@@ -12,6 +15,24 @@ public class KtMessageObject {
 
     // for group message
     private String to_kandi_id, to_kandi_name;
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(message);
+        parcel.writeString(from_id);
+        parcel.writeString(from_name);
+        parcel.writeString(timestamp);
+        parcel.writeString(to_id);
+        parcel.writeString(to_name);
+        parcel.writeString(to_kandi_id);
+        parcel.writeString(to_kandi_name);
+    }
+
 
     public KtMessageObject() {}
 

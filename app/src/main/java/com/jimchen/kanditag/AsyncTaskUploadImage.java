@@ -92,10 +92,6 @@ public class AsyncTaskUploadImage extends AsyncTask<byte[], Void, String> {
     protected void onPostExecute(String response) {
         Log.d(TAG, "onPostExecute");
         Log.d(TAG, response);
-
-        try {
-            socket.disconnect();
-        } catch (Exception e) {}
     }
 
     private Emitter.Listener onUploadImage = new Emitter.Listener() {

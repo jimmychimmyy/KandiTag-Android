@@ -50,12 +50,12 @@ public class MessageListViewAdapter extends ArrayAdapter<MessageRowItem> {
             holder = new Holder();
             LayoutInflater vi = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            convertToView = vi.inflate(R.layout.message_row_item, null);
-            holder.message_text = (TextView) convertToView.findViewById(R.id.MessageRowItem_MessageText);
-            holder.message_sender = (TextView) convertToView.findViewById(R.id.MessageRowItem_SenderName);
-            holder.message_kandiname = (TextView) convertToView.findViewById(R.id.MessageRowItem_KandiName);
-            holder.message_timestamp = (TextView) convertToView.findViewById(R.id.MessageRowItem_TimeStamp);
-            holder.profileImage = (ImageView) convertToView.findViewById(R.id.MessageRowItem_SenderProfileImageContainer);
+            convertToView = vi.inflate(R.layout.message_fragment_row_item, null);
+            holder.message_text = (TextView) convertToView.findViewById(R.id.MessageFragmentRowItem_MessageText);
+            holder.message_sender = (TextView) convertToView.findViewById(R.id.MessageFragmentRowItem_SenderName);
+            //holder.message_kandiname = (TextView) convertToView.findViewById(R.id.MessageFragmentRowItem_KandiName);
+            holder.message_timestamp = (TextView) convertToView.findViewById(R.id.MessageFragmentRowItem_TimeStamp);
+            holder.profileImage = (ImageView) convertToView.findViewById(R.id.MessageFragmentRowItem_SenderProfileImageContainer);
             convertToView.setTag(holder);
         } else {
             holder = (Holder) convertToView.getTag();
@@ -73,7 +73,7 @@ public class MessageListViewAdapter extends ArrayAdapter<MessageRowItem> {
         } catch (NullPointerException e) {}
 
             if (rowItem.getTo_Kandi_Name() != null) {
-                holder.message_kandiname.setText(rowItem.getTo_Kandi_Name());
+                //holder.message_kandiname.setText(rowItem.getTo_Kandi_Name());
             }
 
 

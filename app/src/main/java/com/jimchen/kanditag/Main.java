@@ -1,6 +1,8 @@
 package com.jimchen.kanditag;
 
+import android.app.ActionBar;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -11,25 +13,28 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
-import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.Shader;
-import android.graphics.YuvImage;
+import android.graphics.drawable.ColorDrawable;
 import android.hardware.Camera;
 import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.View;
-import android.view.WindowManager;
+import android.view.*;
+import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.facebook.Session;
@@ -50,6 +55,7 @@ import com.google.zxing.Reader;
 import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
+import com.ikimuhendis.ldrawer.DrawerArrowDrawable;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -60,24 +66,24 @@ import org.apache.http.protocol.HTTP;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.Deflater;
 
 import eu.livotov.zxscan.ScannerView;
-import eu.livotov.zxscan.decoder.zxing.ZXRGBLuminanceSource;
 
 
-public class Main extends FragmentActivity {
+public class Main extends ActionBarActivity {
 
     private static final String TAG = "Main";
     private Context context;
@@ -88,6 +94,17 @@ public class Main extends FragmentActivity {
     public static final int PREVIEW_IMAGE_REQUEST = 2;
     public static final int RESULT_LOGGED_OUT = 9;
     public static final int DECODE_REQUEST = 3;
+
+    // actions
+    public static final String ACTION_POPULATE_KANDITAG_DISPLAY = "com.jimchen.kanditag.action.POPULATE_KT_DISPLAY";
+    public static final String ACTION_ADD_NEW_MESSAGE = "com.jimchen.kanditag.action.ADD_NEW_MESSAGE";
+    public static final String ACTION_ADD_NEW_EXCHANGE = "com.jimchen.kanditag.action.ADD_NEW_EXCHANGE";
+    public static final String ACTION_ADD_NEW_POST = "com.jimchen.kanditag.action.ADD_NEW_POST";
+
+
+    // extras
+    public static final String KT_USER_DATA = "com.jimchen.kanditag.extra.KT_USER";
+    public static final String DONE = "com.jimchen.kanditag.extra.DONE";
 
     //Gcm variables
     public static final String EXTRA_MESSAGE = "com.jimchen.kanditag.extra.EXTRA_MESSAGE";
@@ -126,7 +143,7 @@ public class Main extends FragmentActivity {
     public static final String CAPTURED_IMAGE = "com.jimchen.kanditag.extras.CAPTURED_IMAGE";
 
     // xml
-    private VerticalViewPager mainViewPager;
+    private ViewPager mainViewPager;
     private MyPageAdapter mainPageAdapter;
     private ImageView cameraButton;
     private ImageView capturedImageContainer;
@@ -135,6 +152,7 @@ public class Main extends FragmentActivity {
     // qr code reader vars
     // QrCode Variables
     private ScannerView scanner;
+    private boolean takenImage = false;
     private Result qrResult;
     private String decodedKandiID;
     private ArrayList<KtUserObject> ktUsersList; // list to hold kt users from kanditag
@@ -142,13 +160,82 @@ public class Main extends FragmentActivity {
     // variables
     private ArrayList<KtUserObject> scannedKtUsersList = new ArrayList<>();
 
+    // drawer
+    private ListView leftDrawer;
+
+    // drawer layout
+    private ImageView profileImageContainer;
+    private ListView listViewDrawer;
+    private DrawerLayout drawerLayout;
+    //private DrawerArrowDrawable mDrawerArrow;
+    //private com.ikimuhendis.ldrawer.ActionBarDrawerToggle mDrawerToggle;
+
+    private ActionBarDrawerToggle mDrawerToggle;
+
+    // int to tell what page view is on
+    private int currentPage = 0;
+
+    private FeedFragment feedFragment;
+    private MessageFragment messageFragment;
+    private ExchangeFragment exchangeFragment;
+
+    // open camera
+    private ImageView openCamera;
+
+    // add new
+    private ImageView addNew;
+
+    // download profile image async task
+    private DownloadProfileImageAsyncTask downloadProfileImage;
+
+    private int getScreenOrientation() {
+        return getResources().getConfiguration().orientation;
+    }
+
+    /**
+    private void setupOpenCamera() {
+        openCamera = (ImageView) findViewById(R.id.Main_openCamera);
+        openCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Main.this, CameraPreview.class);
+                startActivity(intent);
+                overridePendingTransition(R.anim.abc_slide_in_bottom, R.anim.abc_slide_out_bottom);
+            }
+        });
+    }
+
+    private void setupAddNew() {
+        addNew = (ImageView) findViewById(R.id.Main_addNew);
+        addNew.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                switch (currentPage) {
+                    case 0:
+                        Intent postIntent = new Intent(ACTION_ADD_NEW_POST);
+                        LocalBroadcastManager.getInstance(Main.this).sendBroadcast(postIntent);
+                        break;
+                    case 1:
+                        Intent messageIntent = new Intent(ACTION_ADD_NEW_MESSAGE);
+                        LocalBroadcastManager.getInstance(Main.this).sendBroadcast(messageIntent);
+                        break;
+                    case 2:
+                        Intent exchangeIntent = new Intent(ACTION_ADD_NEW_EXCHANGE);
+                        LocalBroadcastManager.getInstance(Main.this).sendBroadcast(exchangeIntent);
+                        break;
+                }
+            }
+        });
+    } **/
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.main_portrait);
         context = getApplicationContext();
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
 
         // open database and get user info from shared preferences
         myDatabase = new KtDatabase(this);
@@ -184,201 +271,199 @@ public class Main extends FragmentActivity {
             use.printStackTrace();
         }
 
-        // TODO this doesnt work bc all the ids in the db are using fb
-        //downloadMessagesFromServerAsyncTask.execute();
-
         /**
-        scanner = (ScannerView) findViewById(R.id.Main_Scanner);
-        scanner.startScanner();
-        scanner.setScannerViewEventListener(new ScannerView.ScannerViewEventListener() {
+        ActionBar ab = getActionBar();
+        ab.setDisplayHomeAsUpEnabled(true);
+        ab.setHomeButtonEnabled(true);
+        **/
+
+        // TODO grab profile image from server
+
+        // instantiate fragments and add feed to view
+
+        //setupOpenCamera();
+
+        //setupAddNew();
+
+        feedFragment = FeedFragment.newInstance();
+        messageFragment = MessageFragment.newInstance();
+        exchangeFragment = ExchangeFragment.newInstance();
+
+        getSupportFragmentManager().beginTransaction().add(R.id.Main_ContentContainer, messageFragment, "Message").commit();
+        getSupportFragmentManager().beginTransaction().add(R.id.Main_ContentContainer, exchangeFragment, "Exchange").commit();
+        getSupportFragmentManager().beginTransaction().add(R.id.Main_ContentContainer, feedFragment, "Feed").commit();
+
+
+        profileImageContainer = (ImageView) findViewById(R.id.Main_ProfileImageContainer);
+
+        // TODO will need to make sure the profile image downloads instead of getting it from facebook
+        byte[] image = getProfileImage(MY_FB_ID);
+        Bitmap pic = BitmapFactory.decodeByteArray(image, 0, image.length);
+        profileImageContainer.setImageBitmap(pic);
+
+        // list view drawer
+        drawerLayout = (DrawerLayout) findViewById(R.id.Main_DrawerLayout);
+        listViewDrawer = (ListView) findViewById(R.id.Main_ListViewDrawer);
+
+        ArrayList<NavDrawerItem> navDrawerItems = new ArrayList<>();
+        navDrawerItems.add(new NavDrawerItem(getResources().getDrawable(R.drawable.splash_screen_kt_logo_universal), "Home"));
+        navDrawerItems.add(new NavDrawerItem(getResources().getDrawable(R.drawable.splash_screen_kt_logo_universal), "Messages"));
+        navDrawerItems.add(new NavDrawerItem(getResources().getDrawable(R.drawable.splash_screen_kt_logo_universal), "Exchange"));
+        navDrawerItems.add(new NavDrawerItem(getResources().getDrawable(R.drawable.splash_screen_kt_logo_universal), "Settings"));
+
+        final NavDrawerAdapter drawerAdapter = new NavDrawerAdapter(Main.this, R.layout.nav_drawer_layout, navDrawerItems);
+
+        listViewDrawer.setAdapter(drawerAdapter);
+
+        listViewDrawer.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onScannerReady() {
-
-            }
-
-            @Override
-            public void onScannerFailure(int i) {
-
-            }
-
-            @Override
-            public boolean onCodeScanned(String data) {
-                Toast.makeText(Main.this, "Data scanned: " + data, Toast.LENGTH_SHORT).show();
-                return true;
-            }
-        });
-
-         **/
-
-        // init list to hold kanditag users
-        ktUsersList = new ArrayList();
-
-        // starting camera
-        myCamera = getCameraInstance(); // call to getCameraInstance method
-        myPreview = new Preview(Main.this, myCamera);
-        decodedKandiID = "";
-        ((FrameLayout) findViewById(R.id.Main_PreviewContainer)).addView(myPreview);
-        if (myCamera != null) {
-            myCamera.setPreviewCallback(new Camera.PreviewCallback() {
-                @Override
-                public void onPreviewFrame(byte[] data, Camera camera) {
-
-                    if (decodedKandiID.equals("")) {
-
-                        // it might be ok to keep this on the main thread
-                        // just move the picture taking, saving and other ui things to another thread
-                        // also remove preview callback on
-
-                         FileOutputStream outputStream = null;
-                         try {
-                         YuvImage yuvImage = new YuvImage(data, ImageFormat.NV21, camera.getParameters().getPreviewSize().width, camera.getParameters().getPreviewSize().height, null);
-                         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                         yuvImage.compressToJpeg(new Rect(0, 0, camera.getParameters().getPreviewSize().width, camera.getParameters().getPreviewSize().height), 80, baos);
-                         Bitmap bitmap = BitmapFactory.decodeByteArray(baos.toByteArray(), 0, baos.toByteArray().length);
-                         if (bitmap != null) {
-                         LuminanceSource source = new ZXRGBLuminanceSource(bitmap);
-                         BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(source));
-                         Reader reader = new QRCodeReader();
-
-                         try {
-                         Result result = reader.decode(binaryBitmap);
-                         decodedKandiID = result.getText();
-                         displayKandiTag(decodedKandiID);
-                         Toast.makeText(Main.this, decodedKandiID, Toast.LENGTH_SHORT).show();
-
-                         // TODO add profile view (list view maybe?)
-                         // when closing profile view set decodedKandiID to ""
-
-                         } catch (Exception e) {
-                         }
-                         }
-                         } catch (Exception e) {
-                         }
-
-
-                    }
-
-                }
-            });
-        }
-
-        // connect camera button
-        cameraButton = (ImageView) findViewById(R.id.Main_Camera);
-        cameraButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                myPreview.myCamera.takePicture(shutterCallback, rawCallback, pngCallback);
-            }
-        });
-
-
-        // connect image preview buttons
-        cancelImage = (Button) findViewById(R.id.Main_CancelImage);
-        postImage = (Button) findViewById(R.id.Main_PostImage);
-        cancelImage.setVisibility(View.GONE);
-        postImage.setVisibility(View.GONE);
-
-        capturedImageContainer = (ImageView) findViewById(R.id.Main_CapturedImagePreviewContainer);
-        capturedImageContainer.setVisibility(View.GONE);
-
-        // connect xml
-        mainViewPager = (VerticalViewPager) findViewById(R.id.Main_VerticalViewPager);
-        mainPageAdapter = new MyPageAdapter(getSupportFragmentManager(), getFragmentList());
-        mainViewPager.setAdapter(mainPageAdapter);
-        mainViewPager.setCurrentItem(1);
-        mainViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                Log.d(TAG, position + " has been selected");
                 switch (position) {
                     case 0:
-                        cameraButton.setImageResource(R.drawable.kanditag_cameraback);
-                        cameraButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                mainViewPager.setCurrentItem(1, true);
-                            }
-                        });
-                        myCamera.setPreviewCallback(null);
-                        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                        currentPage = 0;
+                        getSupportFragmentManager().beginTransaction().hide(exchangeFragment).hide(messageFragment).show(feedFragment).commit();
+
+                        // TODO may want to use a handler to delay the drawer closing, maybe
+                        drawerLayout.closeDrawers();
                         break;
                     case 1:
-                        cameraButton.setImageResource(R.drawable.kanditag_camera);
-                        cameraButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                myPreview.myCamera.takePicture(shutterCallback, rawCallback, pngCallback);
-                            }
-                        });
-                        if (myCamera != null) {
-                            myCamera.setPreviewCallback(new Camera.PreviewCallback() {
-                                @Override
-                                public void onPreviewFrame(byte[] data, Camera camera) {
-
-                                    if (decodedKandiID.equals("")) {
-
-                                        // it might be ok to keep this on the main thread
-                                        // just move the picture taking, saving and other ui things to another thread
-                                        // also remove preview callback on
-
-                                        FileOutputStream outputStream = null;
-                                        try {
-                                            YuvImage yuvImage = new YuvImage(data, ImageFormat.NV21, camera.getParameters().getPreviewSize().width, camera.getParameters().getPreviewSize().height, null);
-                                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                            yuvImage.compressToJpeg(new Rect(0, 0, camera.getParameters().getPreviewSize().width, camera.getParameters().getPreviewSize().height), 80, baos);
-                                            Bitmap bitmap = BitmapFactory.decodeByteArray(baos.toByteArray(), 0, baos.toByteArray().length);
-                                            if (bitmap != null) {
-                                                LuminanceSource source = new ZXRGBLuminanceSource(bitmap);
-                                                BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(source));
-                                                Reader reader = new QRCodeReader();
-
-                                                try {
-                                                    Result result = reader.decode(binaryBitmap);
-                                                    decodedKandiID = result.getText();
-                                                    displayKandiTag(decodedKandiID);
-                                                    Toast.makeText(Main.this, decodedKandiID, Toast.LENGTH_SHORT).show();
-
-                                                    // TODO add profile view (list view maybe?)
-                                                    // when closing profile view set decodedKandiID to ""
-
-                                                } catch (Exception e) {
-                                                }
-                                            }
-                                        } catch (Exception e) {
-                                        }
-
-
-                                    }
-
-                                }
-                            });
-                        }
-                        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                        currentPage = 1;
+                        getSupportFragmentManager().beginTransaction().hide(feedFragment).hide(exchangeFragment).show(messageFragment).commit();
+                        drawerLayout.closeDrawers();
+                        break;
+                    case 2:
+                        currentPage = 2;
+                        getSupportFragmentManager().beginTransaction().hide(feedFragment).hide(messageFragment).show(exchangeFragment).commit();
+                        drawerLayout.closeDrawers();
+                        break;
+                    case 3:
+                        drawerLayout.closeDrawers();
+                        Intent intent = new Intent(Main.this, SettingsActivity.class);
+                        startActivityForResult(intent, SIGN_OUT_REQUEST);
                         break;
                 }
             }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
         });
+
 
         // instantiate services
         IntentServiceDownloadFeed downloadFeed = new IntentServiceDownloadFeed();
         downloadFeed.startDownloadingFeed(Main.this, MY_KT_ID);
 
+        mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
+
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                //getSupportActionBar().setTitle("closed!");
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                invalidateOptionsMenu();
+            }
+
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                //getSupportActionBar().setTitle("open!");
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                invalidateOptionsMenu();
+            }
+
+        };
+
+        android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+
+        actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM | ActionBar.DISPLAY_SHOW_HOME);
+        actionBar.setDisplayUseLogoEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        //actionBar.setDisplayShowTitleEnabled(false);
+
+        actionBar.setIcon(R.drawable.kanditag_icon);
+        actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));
+
+        // TODO will need to create a custom action bar
+
+        mDrawerToggle.setDrawerIndicatorEnabled(true);
+        drawerLayout.setDrawerListener(mDrawerToggle);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
+        //getSupportActionBar().setLogo(R.drawable.splash_screen_kt_logo_universal);
+        //getSupportActionBar().invalidateOptionsMenu();
+        //downloadProfileImage(MY_KT_ID);
+
+    }
+
+
+    // TODO make sure that this works
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        /**
+        if (item.getItemId() == android.R.id.home) {
+            if (drawerLayout.isDrawerOpen(drawerLayout)) {
+                drawerLayout.closeDrawer(listViewDrawer);
+            } else {
+                drawerLayout.openDrawer(listViewDrawer);
+            }
+        } **/
+
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        if (id == R.id.action_camera) {
+            Log.d(TAG, "action camera");
+            Intent intent = new Intent(Main.this, CameraPreview.class);
+            startActivity(intent);
+            overridePendingTransition(R.anim.abc_slide_in_bottom, R.anim.abc_slide_out_bottom);
+        }
+
+        if (id == R.id.action_notification) {
+            Log.d(TAG, "action notification");
+        }
+
+        // Activate the navigation drawer toggle
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(android.view.Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.kanditag_actionbar, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        mDrawerToggle.onConfigurationChanged(newConfig);
+        // Checks the orientation of the screen
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show();
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+            Toast.makeText(this, "portrait", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mDrawerToggle.syncState();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         checkPlayServices();
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
     }
 
     @Override
@@ -425,6 +510,22 @@ public class Main extends FragmentActivity {
         return baos.toByteArray();
     }
 
+    private byte[] getProfileImage(String id) {
+        URL img_value = null;
+        Bitmap mIcon = null;
+        try {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+            img_value = new URL("https://graph.facebook.com/" + id + "/picture?width=1000&height=1000");
+            mIcon = BitmapFactory.decodeStream(img_value.openConnection().getInputStream());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        mIcon.compress(Bitmap.CompressFormat.PNG, 0, stream);
+        return stream.toByteArray();
+    }
+
     // socket io ***********************************************************************************
 
     private void uploadImage(final byte[] img, final String img_caption) {
@@ -463,26 +564,41 @@ public class Main extends FragmentActivity {
         }).start();
     }
 
+    // TODO honestly this shit is a mess
     private Emitter.Listener onDisplayKandiTag = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
             String message = (String) args[0];
-            GsonBuilder gsonBuilder = new GsonBuilder();
-            gsonBuilder.registerTypeAdapter(ResponseResults.class, new ResponseResultsDeserializer());
-            Gson gson = gsonBuilder.create();
-            ResponseResults results = gson.fromJson(message, ResponseResults.class);
+            try {
+                GsonBuilder gsonBuilder = new GsonBuilder();
+                gsonBuilder.registerTypeAdapter(ResponseResults.class, new ResponseResultsDeserializer());
+                Gson gson = gsonBuilder.create();
+                ResponseResults results = gson.fromJson(message, ResponseResults.class);
 
-            // build ktUsers based off of the json messages that come back
-            KtUserObject user = new KtUserObject();
-            user.setKt_id(results.getKt_id());
-            user.setUsername(results.getUsername());
-            user.setKandiId(results.getKandi_id());
-            user.setPlacement(results.getPlacement());
-            ktUsersList.add(user);
-            Log.d(TAG, "kt_id: " + user.getKt_id());
-            Log.d(TAG, "placement: " + user.getPlacement());
-            Log.d(TAG, "kandi_id: " + user.getKandiId());
-            Log.d(TAG, "username: " + user.getUsername());
+                // build ktUsers based off of the json messages that come back
+                KtUserObject user = new KtUserObject();
+                user.setKt_id(results.getKt_id());
+                user.setUsername(results.getUsername());
+                user.setKandiId(results.getKandi_id());
+                user.setPlacement(results.getPlacement());
+                // TODO this contain statement does not work
+
+                    ktUsersList.add(user);
+                    Log.d(TAG, "kt_id: " + user.getKt_id());
+                    Log.d(TAG, "placement: " + user.getPlacement());
+                    Log.d(TAG, "kandi_id: " + user.getKandiId());
+                    Log.d(TAG, "username: " + user.getUsername());
+                    Intent localIntent = new Intent(ACTION_POPULATE_KANDITAG_DISPLAY).putExtra(KT_USER_DATA, message);
+                    LocalBroadcastManager.getInstance(Main.this).sendBroadcast(localIntent);
+
+            } catch (Exception e) {}
+
+            try {
+                if (message.equals("done")) {
+                    Log.d(TAG, "done checking kanditag");
+                    decodedKandiID = "";
+                }
+            } catch (Exception e) {}
         }
     };
 
@@ -545,6 +661,64 @@ public class Main extends FragmentActivity {
         }
     };
 
+    private void uploadProfileImage(final byte[] image) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                socket.connect();
+                Log.d(TAG, "trying to upload profile image");
+                socket.on("upload_profile_image", onUploadProfileImage);
+                socket.emit("upload_profile_image", MY_KT_ID, image);
+
+            }
+        }).start();
+    }
+
+    private Emitter.Listener onUploadProfileImage = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            String response = (String) args[0];
+            Log.d(TAG, response);
+
+        }
+    };
+
+    private void downloadProfileImage(final String kt_id) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                socket.connect();
+                socket.on("download_profile_image", onDownloadProfileImage);
+                socket.emit("download_profile_image", kt_id);
+
+            }
+        }).start();
+    }
+
+    private Emitter.Listener onDownloadProfileImage = new Emitter.Listener() {
+        @Override
+        public void call(Object... args) {
+            byte[] data = (byte[]) args[0];
+            try {
+                final Bitmap image = BitmapFactory.decodeByteArray(data, 0, data.length);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        profileImageContainer.setImageBitmap(image);
+                        Log.d(TAG, "got the profile image");
+                        profileImageContainer.invalidate();
+                    }
+                });
+            } catch (NullPointerException e) {
+                Log.d(TAG, "error downloading profile image from server");
+                 byte[] image = getProfileImage(MY_FB_ID);
+                 Bitmap pic = BitmapFactory.decodeByteArray(image, 0, image.length);
+                 profileImageContainer.setImageBitmap(pic);
+            }
+            //socket.disconnect();
+        }
+    };
+
     // socket io end *******************************************************************************
 
 
@@ -554,6 +728,9 @@ public class Main extends FragmentActivity {
 
         if (!openedBefore) {
             Log.d(TAG, "not opened before");
+
+            // save profile image into the server
+            uploadProfileImage(compressByteArray(getProfileImage(MY_FB_ID)));
 
             //checkKtOwnershipForMeAsyncTask.execute();
             //checkKtOwnershipForUsersAsyncTask.execute();
@@ -587,8 +764,10 @@ public class Main extends FragmentActivity {
 
     private List<Fragment> getFragmentList() {
         List<android.support.v4.app.Fragment> fList = new ArrayList<>();
-        fList.add(DataFragment.newInstance());
-        fList.add(EmptyFragment.newInstance());
+        //fList.add(EmptyFragment.newInstance());
+        //fList.add(DataFragment.newInstance());
+        fList.add(FeedFragment.newInstance());
+       // fList.add(KandiTagDisplay.newInstance());
         return fList;
     }
 
@@ -603,7 +782,7 @@ public class Main extends FragmentActivity {
                 session.closeAndClearTokenInformation();
                 Intent loginIntent = new Intent(Main.this, LoginActivity.class);
                 startActivityForResult(loginIntent, SIGN_IN_REQUEST);
-                overridePendingTransition(R.anim.abc_slide_in_top, R.anim.abc_fade_out);
+                overridePendingTransition(R.anim.abc_slide_in_bottom, R.anim.abc_fade_out);
                 finish();
                 overridePendingTransition(R.anim.abc_slide_in_bottom, R.anim.abc_fade_out);
             }
@@ -877,7 +1056,85 @@ public class Main extends FragmentActivity {
         }
     };
 
-    @SuppressWarnings("null")
+    private Camera.PictureCallback pictureCallback = new Camera.PictureCallback() {
+        @Override
+        public void onPictureTaken(byte[] bytes, Camera camera) {
+
+            String image_path;
+
+            if (bytes != null) {
+
+                int screenWidth = getApplicationContext().getResources().getDisplayMetrics().widthPixels;
+                int screenHeight = getApplicationContext().getResources().getDisplayMetrics().heightPixels;
+                Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, (bytes != null) ? bytes.length : 0);
+
+                Bitmap scaledB = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth() / 2, bitmap.getHeight() / 2, true);
+                int width = scaledB.getWidth();
+                int height = scaledB.getHeight();
+
+                //rotate 90 degrees with matrix
+                Matrix matrix = new Matrix();
+                matrix.postRotate(90);
+                bitmap = Bitmap.createBitmap(scaledB, 0, 0, width, height, matrix, true);
+
+                // check to see if a kanditag was scanned
+                int[] intArray = new int[bitmap.getWidth() * bitmap.getHeight()];
+                bitmap.getPixels(intArray, 0, bitmap.getWidth(), 0, 0, bitmap.getWidth(), bitmap.getHeight());
+                LuminanceSource source = new RGBLuminanceSource(bitmap.getWidth(), bitmap.getHeight(), intArray);
+
+                BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(source));
+                Reader reader = new QRCodeReader();
+
+                try {
+                    qrResult = reader.decode(binaryBitmap);
+                    decodedKandiID = qrResult.getText();
+                } catch (NotFoundException nfe) {
+                    decodedKandiID = "";
+                    nfe.printStackTrace();
+                } catch (ChecksumException cse) {
+                    decodedKandiID = "";
+                    cse.printStackTrace();
+                } catch (FormatException fe) {
+                    decodedKandiID = "";
+                    fe.printStackTrace();
+                }
+
+                // if no kanditag was scanned
+                if (decodedKandiID.equals("")) {
+                    // upload image and save it internally
+                    // start activity for image preview
+                    DateFormat dateFormat = new SimpleDateFormat("_yyyy-MM-dd_HH-mm-ss");
+                    Date date = new Date();
+                    String filename = MY_KT_ID + dateFormat.format(date);
+
+                    uploadImage(compressByteArray(bytes), filename);
+                    image_path = saveImageInternally(bitmap, filename);
+
+                    Intent imagePreview = new Intent(Main.this, ImagePreview.class);
+                    Bundle extras = new Bundle();
+                    extras.putString("filepath", image_path);
+                    extras.putString("filename", filename);
+                    imagePreview.putExtras(extras);
+                    startActivityForResult(imagePreview, PREVIEW_IMAGE_REQUEST);
+
+                } else if (decodedKandiID.contains("dhc")) {
+
+                    // register kanditag
+
+                    myPreview.myCamera.startPreview();
+
+                    //TODO remove this before production
+                    Toast.makeText(Main.this, qrResult.getText(), Toast.LENGTH_SHORT).show();
+
+                    registerKandiTag(decodedKandiID);
+
+                }
+
+
+            }
+        }
+    };
+
     private Camera.PictureCallback pngCallback = new Camera.PictureCallback() {
 
 
@@ -995,6 +1252,29 @@ public class Main extends FragmentActivity {
             }
         }
     };
+
+    // method to save taken images into internal storage
+    // TODO save images into internal storage then open them up in another activity to add filters/etc
+    private String saveImageInternally(Bitmap bitmap, String filename) {
+        ContextWrapper wrapper = new ContextWrapper(getApplicationContext());
+
+        // path to /data/data/kanditag/app_data/tmp_images
+        File directory = wrapper.getDir("tmp_images", Context.MODE_PRIVATE);
+
+        //create tmp_images
+        File path = new File(directory, filename);
+
+        FileOutputStream fos = null;
+        try {
+            fos = new FileOutputStream(path);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return directory.getAbsolutePath();
+    }
 
     // end capture image methods *******************************************************************
 

@@ -3,11 +3,14 @@ package com.jimchen.kanditag;
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
+import android.os.AsyncTask;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.net.URISyntaxException;
 
@@ -78,7 +81,7 @@ public class IntentServiceDownloadFeed extends IntentService {
             IO.Options options = new IO.Options();
             options.forceNew = true;
             socket = IO.socket(HOST, options);
-            socket.on("test_download_my_own_feed", onDownloadFeed);
+            socket.on("get_image_filenames", onGetImageFilenames);
             socket.on(com.github.nkzawa.socketio.client.Socket.EVENT_CONNECT, new Emitter.Listener() {
                 @Override
                 public void call(Object... args) {
@@ -96,16 +99,44 @@ public class IntentServiceDownloadFeed extends IntentService {
 
         // connect socket
         socket.connect();
-        socket.emit("test_download_my_own_feed", kt_id);
+        socket.emit("get_image_filenames", kt_id);
     }
 
-    private Emitter.Listener onDownloadFeed = new Emitter.Listener() {
+    private Emitter.Listener onGetImageFilenames = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
-            byte[] img = (byte[]) args[0];
-            Log.d(TAG, "downloaded something");
-            Intent localIntent = new Intent(ACTION_DOWNLOAD_FEED).putExtra(IMAGE_DATA, img);
-            LocalBroadcastManager.getInstance(IntentServiceDownloadFeed.this).sendBroadcast(localIntent);
+            final String response = (String) args[0];
+
+
+            GsonBuilder gsonBuilder = new GsonBuilder();
+            gsonBuilder.registerTypeAdapter(ResponseResults.class, new ResponseResultsDeserializer());
+            Gson gson = gsonBuilder.create();
+
+            ResponseResults results = gson.fromJson(response, ResponseResults.class);
+
+            // TODO create ktmedia object and pass to feed fragment
+            // also make sure that final does not change the way it is broadcasted
+
+            final KtMedia media = new KtMedia();
+
+            String filename = results.getFilename();
+            filename = filename.replace("\"", "");
+
+            String uploadDate = results.getUploadDate();
+            uploadDate = uploadDate.replace("\"", "");
+
+            media.setFilename(filename);
+            media.setUploadDate(uploadDate);
+
+            AsyncTask<Void, Void, Void> task = new AsyncTask<Void, Void, Void>() {
+                @Override
+                protected Void doInBackground(Void... voids) {
+                    Intent localIntent = new Intent(ACTION_DOWNLOAD_FEED).putExtra(IMAGE_DATA, media);
+                    LocalBroadcastManager.getInstance(IntentServiceDownloadFeed.this).sendBroadcast(localIntent);
+                    return null;
+                }
+            };
+            task.execute();
         }
     };
 

@@ -84,4 +84,27 @@ public class KtUserObject implements Parcelable {
     public int getPlacement() {
         return placement;
     }
+
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + placement;
+        return result;
+    }
+
+    @Override
+    public boolean equals (Object object) {
+        if (this == object)
+            return true;
+        if (object == null)
+            return false;
+        if (getClass() != object.getClass())
+            return false;
+        KtUserObject user = (KtUserObject) object;
+        if (kt_id != user.kt_id && kandi_id != user.kandi_id && placement != user.placement)
+            return false;
+        return true;
+    }
 }

@@ -45,6 +45,10 @@
     <string name="title_activity_group_fragment">GroupFragment</string>
     <string name="title_activity_nav_bar_scaleable">NavBarScaleable</string>
     <string name="title_activity_post_new_exchange">PostNewExchangeActivity</string>
+    <string name="title_activity_add_new_message">AddNewMessage</string>
+    <string name="title_activity_ktmain">KtMain</string>
+    <string name="action_notification">Notification</string>
+    <string name="action_camera">Camera</string>
 
     <string-array name="ticket_type">
         <item>Online E-Ticket</item>
@@ -52,5 +56,8 @@
     </string-array>
     <string name="title_activity_main">Main</string>
     <string name="title_activity_captured_image_preview">CapturedImagePreviewActivity</string>
+    <string name="title_activity_image_preview">ImagePreview</string>
+    <string name="title_activity_post_to">PostTo</string>
+    <string name="title_activity_post_options">PostOptions</string>
 
 </resources>

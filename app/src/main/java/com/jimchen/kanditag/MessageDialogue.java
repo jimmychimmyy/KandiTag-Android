@@ -1,13 +1,23 @@
 package com.jimchen.kanditag;
 
 import android.annotation.TargetApi;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -21,15 +31,22 @@ import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
+import com.github.ksoichiro.android.observablescrollview.ObservableListView;
+import com.github.ksoichiro.android.observablescrollview.ObservableScrollView;
+import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
+import com.github.ksoichiro.android.observablescrollview.ScrollState;
+import com.github.ksoichiro.android.observablescrollview.ScrollUtils;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import java.io.ByteArrayOutputStream;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 
-public class MessageDialogue extends FragmentActivity {
+public class MessageDialogue extends ActionBarActivity implements ObservableScrollViewCallbacks {
 
     // boolean for group message
     private boolean isGroupDialogue = false;
@@ -43,7 +60,9 @@ public class MessageDialogue extends FragmentActivity {
     public static final String USERNAME = "com.jimchen.kanditag.extra.USERNAME";
     public static final String FBID = "com.jimchen.kanditag.extra.FBID";
     public static final String KTID = "com.jimchen.kanditag.extra.KTID";
-    public static final String NEW_MESSAGE = "com.jimchen.kanditag.action.NEW_MESSAGE";
+
+    public static final String ACTION_NEW_MESSAGE = "com.jimchen.kanditag.action.NEW_MESSAGE";
+    public static final String NEW_MESSAGE_EXTRA = "com.jimchen.kanditag.extra.NEW_MESSAGE";
 
     private String MY_KT_ID, MY_FB_ID, MY_USER_NAME;
     private String kt_id, fb_id, user_name;
@@ -119,8 +138,9 @@ public class MessageDialogue extends FragmentActivity {
         public void processFinish(final ArrayList<MessageRowItem> output) {
             System.out.println("MessageDialogue.getMessageTask.output.size() = " + output.size());
             messageRowItems.addAll(output);
-            messageDialogueListViewAdapter = new MessageDialogueListViewAdapter(MessageDialogue.this, R.layout.message_row_item, messageRowItems);
-            listView.setAdapter(messageDialogueListViewAdapter);
+            messageDialogueListViewAdapter = new MessageDialogueListViewAdapter(MessageDialogue.this, R.layout.message_dialogue_row_item, messageRowItems);
+            //listView.setAdapter(messageDialogueListViewAdapter);
+            obListView.setAdapter(messageDialogueListViewAdapter);
         }
     });
 
@@ -129,8 +149,9 @@ public class MessageDialogue extends FragmentActivity {
         @Override
         public void processFinish(ArrayList<MessageRowItem> output) {
             messageRowItems.addAll(output);
-            messageDialogueListViewAdapter = new MessageDialogueListViewAdapter(MessageDialogue.this, R.layout.message_row_item, messageRowItems);
-            listView.setAdapter(messageDialogueListViewAdapter);
+            messageDialogueListViewAdapter = new MessageDialogueListViewAdapter(MessageDialogue.this, R.layout.message_dialogue_row_item, messageRowItems);
+            //listView.setAdapter(messageDialogueListViewAdapter);
+            obListView.setAdapter(messageDialogueListViewAdapter);
         }
     });
 
@@ -139,15 +160,47 @@ public class MessageDialogue extends FragmentActivity {
     //adapter for list view
     private MessageDialogueListViewAdapter messageDialogueListViewAdapter;
 
+    // observable list view callbacks
+    @Override
+    public void onScrollChanged(int scrollY, boolean firstScroll, boolean dragging) {
+        int baseColor = getResources().getColor(R.color.gold);
+        float alpha = Math.min(1, (float) scrollY / mParallaxImageHeight);
+        mToolbarView.setBackgroundColor(ScrollUtils.getColorWithAlpha(alpha, baseColor));
+        ViewHelper.setTranslationY(mImageView, -scrollY / 2);
+
+        // Translate list background
+        ViewHelper.setTranslationY(mListBackgroundView, Math.max(0, -scrollY + mParallaxImageHeight));
+    }
+
+    @Override
+    public void onDownMotionEvent() {
+        Log.d(TAG, "ondownmotionevent");
+    }
+
+    @Override
+    public void onUpOrCancelMotionEvent(ScrollState scrollstate) {
+        Log.d(TAG, "onuporcancel");
+    }
+
+    private ObservableListView obListView;
+
+    private ImageView mImageView;
+    private Toolbar mActionToolbar;
+    private View mToolbarView;
+    private View mListBackgroundView;
+    private int mParallaxImageHeight;
+
+    private EditText mEditText;
 
 // OnCreate ****************************************************************************************
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_message_dialogue);
+        //setContentView(R.layout.activity_message_dialogue);
+        setContentView(R.layout.message_dialogue_ob);
         //getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
-        System.out.println("MessageDialogue.onCreate");
+        //this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        System.out.println("MessageDialogueOb.onCreate");
 
         myDatabase = new KtDatabase(this);
 
@@ -155,6 +208,7 @@ public class MessageDialogue extends FragmentActivity {
         MY_KT_ID = sharedPreferences.getString(KTID, "");
         MY_USER_NAME = sharedPreferences.getString(USERNAME, "");
         MY_FB_ID = sharedPreferences.getString(FBID, "");
+
 
         //LocalBroadcastManager.getInstance(this).registerReceiver(newMessageBroadcastReceiver, new IntentFilter("new_message"));
 
@@ -175,6 +229,10 @@ public class MessageDialogue extends FragmentActivity {
         try {
             user_name = bundleParams.getString("username");
             Log.d(TAG, user_name);
+            mActionToolbar = (Toolbar) findViewById(R.id.MessageDialogueOb_toolbar);
+            mActionToolbar.setTitle(user_name);
+            setSupportActionBar((Toolbar) findViewById(R.id.MessageDialogueOb_toolbar));
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             if (!user_name.equals("")) {
                 System.out.println(user_name);
                 isGroupDialogue = false;
@@ -195,6 +253,10 @@ public class MessageDialogue extends FragmentActivity {
         try {
             kandi_name = bundleParams.getString("kandi_name");
             if (!kandi_name.equals("")) {
+                mActionToolbar = (Toolbar) findViewById(R.id.MessageDialogueOb_toolbar);
+                mActionToolbar.setTitle(kandi_name);
+                setSupportActionBar((Toolbar) findViewById(R.id.MessageDialogueOb_toolbar));
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
                 isGroupDialogue = true;
                 getGroupMessagesTask.execute(kandi_id);
                 System.out.println(kandi_name);
@@ -204,7 +266,44 @@ public class MessageDialogue extends FragmentActivity {
             e.printStackTrace();
         }
 
+        //setSupportActionBar((Toolbar) findViewById(R.id.MessageDialogueOb_toolbar));
 
+        mImageView = (ImageView) findViewById(R.id.MessageDialogueOb_image);
+        mToolbarView = findViewById(R.id.MessageDialogueOb_toolbar);
+        mToolbarView.setBackgroundColor(ScrollUtils.getColorWithAlpha(0, getResources().getColor(R.color.gold)));
+
+        mParallaxImageHeight = getResources().getDimensionPixelSize(R.dimen.parallax_image_height);
+
+        obListView = (ObservableListView) findViewById(R.id.MessageDialogueOb_list);
+        obListView.setScrollViewCallbacks(this);
+
+        View paddingView = new View(this);
+        AbsListView.LayoutParams lp = new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT,
+                mParallaxImageHeight);
+        paddingView.setLayoutParams(lp);
+
+        // This is required to disable header's list selector effect
+        paddingView.setClickable(true);
+
+        obListView.addHeaderView(paddingView);
+
+        // mListBackgroundView makes ListView's background except header view.
+        mListBackgroundView = findViewById(R.id.MessageDialogueOb_list_background);
+
+        mEditText = (EditText) findViewById(R.id.MessageDialogueOb_TextEdit);
+        mEditText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // TODO need to scroll to bottom of listview
+                obListView.smoothScrollToPosition(messageDialogueListViewAdapter.getCount());
+            }
+        });
+
+        byte[] image = getProfileImage(MY_FB_ID);
+        Bitmap pic = BitmapFactory.decodeByteArray(image, 0, image.length);
+        mImageView.setImageBitmap(pic);
+
+        /**
         // find exit button in xml and set on click to return to MessageActivity
         exitButton = (ImageView) findViewById(R.id.MessageDialogue_ExitButton);
         exitButton.setOnClickListener(new View.OnClickListener() {
@@ -262,11 +361,27 @@ public class MessageDialogue extends FragmentActivity {
 
                 }
             }
-        });
+        }); **/
 
     }
 
 // end of OnCreate *********************************************************************************
+
+    private byte[] getProfileImage(String id) {
+        URL img_value = null;
+        Bitmap mIcon = null;
+        try {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+            img_value = new URL("https://graph.facebook.com/" + id + "/picture?width=1000&height=1000");
+            mIcon = BitmapFactory.decodeStream(img_value.openConnection().getInputStream());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        mIcon.compress(Bitmap.CompressFormat.PNG, 0, stream);
+        return stream.toByteArray();
+    }
 
     private void connectSocket() {
         try {
@@ -310,30 +425,65 @@ public class MessageDialogue extends FragmentActivity {
     }
 
     private void newGroupMessage(String message, String from_id, String from_name, String to_kandi_id, String to_kandi_name) {
-        System.out.println("MessageDialogue.newGroupMessage");
+
+        KtMessageObject mssg = new KtMessageObject();
+        mssg.setMessage(message);
+        mssg.setFrom_id(from_id);
+        mssg.setFrom_name(from_name);
+        mssg.setTo_Kandi_Id(to_kandi_id);
+        mssg.setTo_Kandi_Name(to_kandi_name);
+
+        Log.d(TAG, "newGroupMessage");
+
         JsonQrObject json = new JsonQrObject();
         json.setMessage(message);
         json.setFrom_id(from_id);
         json.setFrom_name(from_name);
         json.setTo_kandi_id(to_kandi_id);
         json.setTo_kandi_name(to_kandi_name);
+
         socket.emit("group_message", json);
     }
 
     private void newMessage(String message, String from_id, String from_name, String to_id, String to_name) {
-        System.out.println("MessageDialogue.newMessage");
+
+        // TODO send local broadcast to self and update listview
+        // add message to list
+        // when response is heard from message listener
+        // remove message from list
+        // if no response then alert that message was not sent
+
+        KtMessageObject mssg = new KtMessageObject();
+        mssg.setMessage(message);
+        mssg.setFrom_id(from_id);
+        mssg.setFrom_name(from_name);
+        mssg.setTo_id(to_id);
+        mssg.setTo_name(to_name);
+
+        // TODO
+        // add this mssg into the listview
+        // wait for response from the socket
+        // check to make sure the response matches up to one the the rows
+        // if there is no response after 30 seconds, show send failed
+
+
+        Log.d(TAG, "newMessage");
+
         JsonQrObject json = new JsonQrObject();
         json.setMessage(message);
         json.setFrom_id(from_id);
         json.setFrom_name(from_name);
         json.setTo_id(to_id);
         json.setTo_name(to_name);
+
         socket.emit("message", json);
     }
 
     private Emitter.Listener onGroupMessage =  new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
+
+            // TODO this should not be running on the main thread
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -394,6 +544,8 @@ public class MessageDialogue extends FragmentActivity {
     private Emitter.Listener onNewMessage = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
+
+            // TODO why is this running on the main thread?
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -513,6 +665,7 @@ public class MessageDialogue extends FragmentActivity {
         listView.invalidate();
     }
 
+
     @Override
     public void onResume() {
         super.onResume();
@@ -534,6 +687,18 @@ public class MessageDialogue extends FragmentActivity {
     public void onPause() {
         super.onPause();
         socket.disconnect();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                Log.d(TAG, "clicked");
+                finish();
+                overridePendingTransition(R.anim.right_slide_in, R.anim.right_slide_out);
+        }
+
+        return (super.onOptionsItemSelected(item));
     }
 
 }

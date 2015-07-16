@@ -68,14 +68,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MyFragment"
-            android:label="@string/title_activity_my_fragment" >
-        </activity>
-        <activity
-            android:name=".QRScanner"
-            android:label="@string/title_activity_qrscanner" >
-        </activity>
-        <activity
             android:name=".LoginActivity"
             android:configChanges="orientation"
             android:label="@string/title_activity_login"
@@ -97,16 +89,8 @@
             android:label="@string/title_activity_settings" >
         </activity>
         <activity
-            android:name=".Message"
-            android:label="@string/title_activity_message" >
-        </activity>
-        <activity
             android:name=".Kandi"
             android:label="@string/title_activity_kandi" >
-        </activity>
-        <activity
-            android:name=".Feed"
-            android:label="@string/title_activity_feed" >
         </activity>
         <activity
             android:name=".Browse"
@@ -118,7 +102,8 @@
         </activity>
         <activity
             android:name=".MessageDialogue"
-            android:label="@string/title_activity_messaging_ui" >
+            android:label="@string/title_activity_messaging_ui"
+            android:theme="@style/Theme.AppCompat.NoActionBar">
         </activity>
         <activity
             android:name=".TakenPictureContainer"
@@ -152,9 +137,9 @@
 
         <activity
             android:name=".Main"
-            android:label="@string/title_activity_main"
             android:configChanges="orientation"
-            android:screenOrientation="portrait">
+            android:label="@string/title_activity_main"
+            android:theme="@style/BlackActionBar">
         </activity>
         <activity
             android:name=".CapturedImagePreviewActivity"
@@ -165,6 +150,32 @@
             android:name=".DownloadArchivedIntentService"
             android:exported="false" >
         </service>
+
+        <activity
+            android:name=".ImagePreview"
+            android:label="@string/title_activity_image_preview" >
+        </activity>
+        <activity
+            android:name=".PostOptions"
+            android:label="@string/title_activity_post_options" >
+        </activity>
+        <activity
+            android:name=".CameraPreview"
+            android:label="@string/title_activity_camera_preview" >
+        </activity>
+
+        <activity
+            android:name=".AddNewMessage"
+            android:label="@string/title_activity_add_new_message">
+        </activity>
+
+
+        <service
+            android:name=".DownloadImagesService"
+            android:enabled="true"
+            android:exported="true" >
+        </service>
+
     </application>
 
 </manifest>

@@ -1,12 +1,15 @@
 package com.jimchen.kanditag;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +17,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+
+import com.github.ksoichiro.android.observablescrollview.ObservableScrollView;
+import com.github.ksoichiro.android.observablescrollview.ObservableScrollViewCallbacks;
+import com.github.ksoichiro.android.observablescrollview.ScrollState;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -25,6 +32,9 @@ import java.util.Comparator;
 public class MessageFragment extends Fragment {
 
     private String TAG = "MessageFragment";
+
+    // actions
+    public static final String ACTION_ADD_NEW_MESSAGE = "com.jimchen.kanditag.action.ADD_NEW_MESSAGE";
 
     // bool to check if messages have already been loaded
     private boolean messagesLoaded = false;
@@ -99,6 +109,22 @@ public class MessageFragment extends Fragment {
         messagesLoaded = false;
     }
 
+    private class AddNewReceiver extends BroadcastReceiver {
+
+        private AddNewReceiver() {
+
+        }
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(ACTION_ADD_NEW_MESSAGE)) {
+                Log.d(TAG, "addNew");
+                Intent startAdd = new Intent(getActivity(), AddNewMessage.class);
+                startActivity(startAdd);
+                getActivity().overridePendingTransition(R.anim.right_slide_in, R.anim.right_slide_out);
+            }
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -115,6 +141,11 @@ public class MessageFragment extends Fragment {
         myListView = (ListView) rootView.findViewById(R.id.MessageFragment_ListView);
         myListView.setOverScrollMode(View.OVER_SCROLL_ALWAYS);
 
+        IntentFilter filter = new IntentFilter(ACTION_ADD_NEW_MESSAGE);
+        AddNewReceiver receiver = new AddNewReceiver();
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, filter);
+
+        /**
         newMessageButton = (ImageView) rootView.findViewById(R.id.MessageFragment_NewMessageButton);
         newMessageButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -133,7 +164,7 @@ public class MessageFragment extends Fragment {
                     }
                 });
             }
-        });
+        }); **/
 
         //gets latest group message from local db
         getLatestGroupMessageRowsFromLocalDbAsyncTask = new GetLatestGroupMessageRowsFromLocalDbAsyncTask(getActivity(), new ReturnMessageRowItemArrayListAsyncResponse() {
@@ -150,7 +181,7 @@ public class MessageFragment extends Fragment {
                     }
                 });
                 //create message list view adapter for list view
-                messageListViewAdapter = new MessageListViewAdapter(getActivity(), R.layout.message_row_item, messageRowItems);
+                messageListViewAdapter = new MessageListViewAdapter(getActivity(), R.layout.message_fragment_row_item, messageRowItems);
                 myListView.setAdapter(messageListViewAdapter);
                 messageListViewAdapter.notifyDataSetChanged();
                 myListView.invalidate();
@@ -214,7 +245,7 @@ public class MessageFragment extends Fragment {
             public void processFinish(ArrayList<KtUserObjectParcelable> output) {
                 System.out.println("MessageFragment.getAllUsersFromLocalDbAsyncTask.processFinish.output.size() = " + output.size());
                 usersForNewMessageList.addAll(output);
-                userListViewAdapter = new KtUserObjectListAdapter(getActivity(), R.layout.message_list_item, usersForNewMessageList);
+                userListViewAdapter = new KtUserObjectListAdapter(getActivity(), R.layout.message_fragment_row_item, usersForNewMessageList);
             }
         });
 
@@ -273,7 +304,7 @@ public class MessageFragment extends Fragment {
                             // add the latest group message into message row items list
                             messageRowItems.addAll(output);
                             //create message list view adapter for list view
-                            messageListViewAdapter = new MessageListViewAdapter(getActivity(), R.layout.message_row_item, messageRowItems);
+                            messageListViewAdapter = new MessageListViewAdapter(getActivity(), R.layout.message_fragment_row_item, messageRowItems);
                             myListView.setAdapter(messageListViewAdapter);
                             messageListViewAdapter.notifyDataSetChanged();
                             myListView.invalidate();

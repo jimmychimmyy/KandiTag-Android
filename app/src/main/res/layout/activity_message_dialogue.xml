@@ -5,10 +5,6 @@
     android:background="@color/black"
     tools:context="com.jimchen.kanditag.MessageDialogue">
 
-    <View
-        android:layout_width="fill_parent"
-        android:layout_height="66dp"
-        android:background="@color/gold"/>
 
     <View
         android:layout_width="fill_parent"
@@ -103,7 +99,51 @@
         android:layout_alignParentBottom="true"/>
 
     </LinearLayout>
+    
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        
+        <ImageView
+            android:id="@+id/MessageDialogue_image"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/splash_screen_kt_logo_universal"/>
 
+        <View
+            android:id="@+id/MessageDialogue_overlay"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+        <com.github.ksoichiro.android.observablescrollview.ObservableScrollView
+            android:id="@+id/MessageDialogue_obScrollView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <!-- ... -->
+
+                </LinearLayout>
+
+            </com.github.ksoichiro.android.observablescrollview.ObservableScrollView>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/MessageDialogue_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+        </FrameLayout>
 
 
 </RelativeLayout>

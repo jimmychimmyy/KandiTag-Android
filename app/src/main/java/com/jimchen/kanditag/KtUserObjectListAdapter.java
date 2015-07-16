@@ -60,6 +60,10 @@ public class KtUserObjectListAdapter extends ArrayAdapter<KtUserObjectParcelable
 
         URL img_value = null;
 
+        // TODO will need an async task to get the profile image from server
+
+        /**
+
         try {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
@@ -78,7 +82,7 @@ public class KtUserObjectListAdapter extends ArrayAdapter<KtUserObjectParcelable
 
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        } **/
 
         return convertView1;
 

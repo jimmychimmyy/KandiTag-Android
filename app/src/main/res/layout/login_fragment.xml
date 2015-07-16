@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="12dp"
+        android:layout_marginRight="12dp"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:hint="Username"
+            android:layout_width="fill_parent"
+            android:layout_height="50dp" />
+
+        <EditText
+            android:hint="Password"
+            android:layout_width="fill_parent"
+            android:layout_height="50dp" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="5dp"/>
+
+        <Button
+            android:textSize="20dp"
+            android:background="@color/gold"
+            android:text="Login"
+            android:layout_width="fill_parent"
+            android:layout_height="50dp" />
+
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="10dp"/>
+
+        <Button
+            android:textSize="15dp"
+            android:text="Login With Facebook"
+            android:background="@color/com_facebook_blue"
+            android:layout_width="fill_parent"
+            android:layout_height="50dp" />
+
+    </LinearLayout>
+
+</RelativeLayout>

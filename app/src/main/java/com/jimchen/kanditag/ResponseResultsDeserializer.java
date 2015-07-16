@@ -1,12 +1,16 @@
 package com.jimchen.kanditag;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
+import org.json.JSONArray;
+
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 
 /**
  * Created by Jim on 6/9/15.
@@ -21,6 +25,14 @@ public class ResponseResultsDeserializer implements JsonDeserializer<ResponseRes
     private String message, from_id, from_name, timestamp;
     private String to_id, to_name;
     private String to_kandi_id, to_kandi_name;
+
+    // image
+    private String filename;
+    private String uploadDate;
+    private byte[] image;
+    private ArrayList<String> metadata;
+
+    private JsonArray metadata_json;
 
     public ResponseResults deserialize (JsonElement json, Type type, JsonDeserializationContext context) throws JsonParseException {
 
@@ -58,6 +70,18 @@ public class ResponseResultsDeserializer implements JsonDeserializer<ResponseRes
 
         }
 
+        try {
+            filename = object.get("filename").toString();
+            uploadDate = object.get("uploadDate").toString();
+            image = object.toString().getBytes("image");
+            metadata_json = object.get("metadata").getAsJsonArray();
+            if (metadata_json != null) {
+                for (int i = 0; i < metadata_json.size(); i++) {
+                    metadata.add(metadata_json.get(i).toString());
+                }
+            }
+        } catch (Exception e) {}
+
 
         ResponseResults results = new ResponseResults();
         try {
@@ -88,6 +112,15 @@ public class ResponseResultsDeserializer implements JsonDeserializer<ResponseRes
         try {
             results.setTo_kandi_id(to_kandi_id);
             results.setTo_kandi_name(to_kandi_name);
+        } catch (NullPointerException e) {
+
+        }
+
+        try {
+            results.setFilename(filename);
+            results.setUploadDate(uploadDate);
+            results.setImage(image);
+            results.setMetadata(metadata);
         } catch (NullPointerException e) {
 
         }

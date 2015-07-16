@@ -14,6 +14,7 @@
       <w>ktdatabase</w>
       <w>ktid</w>
       <w>ktids</w>
+      <w>listview</w>
       <w>mssg</w>
       <w>myktid</w>
       <w>mypreferences</w>
@@ -23,6 +24,7 @@
       <w>privatemessage</w>
       <w>qrcode</w>
       <w>rancho</w>
+      <w>rootview</w>
       <w>runnables</w>
       <w>sqlite</w>
       <w>zoombar</w>

@@ -1,5 +1,7 @@
 package com.jimchen.kanditag;
 
+import java.util.ArrayList;
+
 /**
  * Created by Jim on 6/9/15.
  */
@@ -106,5 +108,44 @@ public class ResponseResults {
 
     public String getTimestamp() {
         return timestamp;
+    }
+
+    // image
+
+    private String filename;
+    private String uploadDate;
+    private byte[] image;
+    private ArrayList<String> metadata;
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+    public void setUploadDate(String date) {
+        this.uploadDate = date;
+    }
+
+    public void setImage(byte[] image) {
+        this.image = image;
+    }
+
+    public void setMetadata(ArrayList<String> metadata){
+        this.metadata = metadata;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public String getUploadDate() {
+        return uploadDate;
+    }
+
+    public byte[] getImage() {
+        return image;
+    }
+
+    public ArrayList<String> getMetadata() {
+        return metadata;
     }
 }

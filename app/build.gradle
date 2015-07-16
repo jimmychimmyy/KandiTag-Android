@@ -21,6 +21,11 @@ android {
             debuggable true
         }
     }
+
+    packagingOptions {
+        exclude 'META-INF/NOTICE'
+        exclude 'META-INF/LICENSE'
+    }
 }
 
 repositories {
@@ -36,12 +41,24 @@ dependencies {
     compile 'com.google.android.gms:play-services:3.1.+'
     compile 'com.github.nkzawa:socket.io-client:0.4.1'
 
+    compile 'com.github.ksoichiro:android-observablescrollview:+'
+
+    compile 'com.ikimuhendis:ldrawer:0.1'
+
     compile project(':libraries:facebook')
 
     compile files(':libraries/json-simple-1.1.1')
     compile files(':libraries/android-directionalviewpager-1.2.0.jar')
     compile files(':libraries/core-3.2.0.jar')
 
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.4'
+
     //compile 'com.google.zxing:core:2.2'
     compile ('eu.livotov.labs:zxscanlib:2.0.1@aar') {transitive=true}
+
+    compile group: 'org.apache.httpcomponents' , name: 'httpclient-android' , version: '4.3.5.1'
+
+    compile('org.apache.httpcomponents:httpmime:4.3') {
+        exclude module: "httpclient"
+    }
 }

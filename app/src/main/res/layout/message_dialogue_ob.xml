@@ -1,0 +1,74 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/black">
+
+    <ImageView
+        android:id="@+id/MessageDialogueOb_image"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/flexible_space_image_height"
+        android:scaleType="centerCrop"
+        android:src="@drawable/splash_screen_kt_logo_universal"
+        android:background="@color/black"/>
+
+    <View
+        android:id="@+id/MessageDialogueOb_list_background"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/white" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.github.ksoichiro.android.observablescrollview.ObservableListView
+            android:layout_above="@+id/MessageDialogueOb_MessageBar"
+            android:id="@+id/MessageDialogueOb_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="@color/black"
+            android:dividerHeight="0dp"/>
+
+        <LinearLayout
+            android:layout_alignParentBottom="true"
+            android:id="@+id/MessageDialogueOb_MessageBar"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:layout_weight="4"
+                android:paddingLeft="10dp"
+                android:hint="Say Hello!"
+                android:textColor="@color/black"
+                android:id="@+id/MessageDialogueOb_TextEdit"
+                android:background="@color/white"
+                android:layout_width="0dp"
+                android:layout_height="50dp" />
+
+            <ImageView
+                android:id="@+id/MessageDialogueOb_sendMessageBtn"
+                android:src="@drawable/send_icon"
+                android:background="@color/gold"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="50dp" />
+
+            </LinearLayout>
+
+
+
+        </RelativeLayout>
+
+    <include layout="@layout/gradient_header" />
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/MessageDialogueOb_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorPrimary"
+        android:minHeight="?attr/actionBarSize"
+        app:popupTheme="@style/Theme.AppCompat.Light.DarkActionBar"
+        app:theme="@style/Toolbar" />
+
+</FrameLayout>

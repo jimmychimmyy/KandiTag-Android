@@ -3,7 +3,10 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/transparent">
+    android:background="@color/dark_charcoal_gray">
+
+
+
 
     <!---
 
@@ -113,17 +116,30 @@
     -->
 
     <android.support.v4.view.ViewPager
+        android:layout_below="@+id/DataFragment_KandiTagTitleBar"
         android:id="@+id/DataFragment_ViewPager"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:nestedScrollingEnabled="true"/>
         <!--android:layout_below="@+id/DataFragment_ButtonsBottomLinearLayout"-->
 
+    <ImageView
+        android:id="@+id/DataFragment_KandiTagTitleBar"
+        android:layout_width="fill_parent"
+        android:layout_height="70dp"
+        android:paddingRight="150dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="25dp"
+        android:paddingBottom="10dp"
+        android:src="@drawable/kanditag_splashscreenlogo"
+        android:background="@color/black"/>
+
+
     <FrameLayout
         android:id="@+id/DataFragment_NavigationBarContainer"
         android:layout_alignParentBottom="true"
         android:layout_width="fill_parent"
-        android:layout_height="40dp"></FrameLayout>
+        android:layout_height="55dp"></FrameLayout>
 
     <FrameLayout
         android:id="@+id/DataFragment_CreateNewPostContainer"

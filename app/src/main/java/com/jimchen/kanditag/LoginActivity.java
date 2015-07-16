@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
+import android.hardware.Camera;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -13,7 +15,9 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v4.view.ViewPager;
 
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -91,6 +95,10 @@ public class LoginActivity extends Activity {
     // login progress spinner
     private ProgressDialog progressDialog;
 
+    // Camera Variables
+    private Camera myCamera;
+    private Preview myPreview;
+
     private UiLifecycleHelper uiHelper;
     private Session.StatusCallback callback = new Session.StatusCallback() {
         @Override
@@ -104,11 +112,27 @@ public class LoginActivity extends Activity {
         return (session != null && session.isOpened());
     }
 
+    private static Camera getCameraInstance() {
+        Camera camera = null;
+        try {
+            camera = Camera.open();
+        } catch (Exception e) {
+            e.printStackTrace();
+            //TODO check to make sure to catch the camera cannot be connected error
+            // show alert dialogue that user needs to restart camera
+        }
+
+        return camera;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
         sharedPreferences = getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
+
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+
 
         if (!isConnectedToNetwork()) {
             Toast.makeText(LoginActivity.this, "No Internet Connection", Toast.LENGTH_LONG).show();
@@ -117,6 +141,7 @@ public class LoginActivity extends Activity {
         Log.d(TAG, "user logged in? : " + isLoggedIn() );
 
         if (isLoggedIn()) {
+
             Intent intent_to_start = new Intent(this, Main.class);
             startActivity(intent_to_start);
             //overridePendingTransition(R.anim.abc_slide_in_bottom, R.anim.abc_slide_out_bottom);
@@ -125,10 +150,35 @@ public class LoginActivity extends Activity {
             setResult(RESULT_OK, dismissSplash);
         }
 
-        fbLoginButton = (LoginButton) findViewById(R.id.login_fbLoginButton);
+        fbLoginButton = (LoginButton) findViewById(R.id.LoginActivity_FBLoginButton);
         fbLoginButton.setVisibility(View.INVISIBLE);
-        loginButtonBackground = (ImageView) findViewById(R.id.Login_loginButtonImageViewBackground);
 
+        Typeface kt_font = Typeface.createFromAsset(getAssets(),"fonts/kanditagfont-sth.ttf");
+
+        loginButton = (Button) findViewById(R.id.LoginActivity_Login);
+        loginButton.setTypeface(kt_font);
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openFacebookSession();
+                progressDialog = ProgressDialog.show(LoginActivity.this, "", "Logging in..");
+
+            }
+        });
+
+        // TODO login button should open up the login fragment
+        // user will provide their username/email and password to login
+        // should also have the facebook login option?
+
+        signUpButton = (Button) findViewById(R.id.LoginActivity_SignUp);
+        signUpButton.setTypeface(kt_font);
+
+        // TODO sign up button should open up the sign in fragment
+        // this should allow the user the option to
+        // type in their email, password, confirmed password, username
+        // also should give them the option to login through their facebook
+
+        /**
         loginWithFacebookButton = (Button) findViewById(R.id.Login_LoginWithFacebookButton);
         loginWithFacebookButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -137,7 +187,12 @@ public class LoginActivity extends Activity {
                 progressDialog = ProgressDialog.show(LoginActivity.this, "", "Logging in..");
 
             }
-        });
+        }); **/
+
+        /**
+        myCamera = getCameraInstance(); // call to getCameraInstance method
+        myPreview = new Preview(LoginActivity.this, myCamera);
+        ((FrameLayout) findViewById(R.id.LoginActivity_PreviewContainer)).addView(myPreview); **/
 
         uiHelper = new UiLifecycleHelper(this, callback);
         uiHelper.onCreate(savedInstanceState);
@@ -335,6 +390,9 @@ public class LoginActivity extends Activity {
     public void onResume() {
         super.onResume();
         uiHelper.onResume();
+        if (myCamera != null) {
+            myCamera.startPreview();
+        }
     }
 
     @Override
@@ -356,6 +414,10 @@ public class LoginActivity extends Activity {
         uiHelper.onDestroy();
         Intent dismissSplash = new Intent();
         setResult(RESULT_OK, dismissSplash);
+        if (myCamera != null) {
+            myCamera.stopPreview();
+            myCamera.release();
+        }
     }
 
     @Override

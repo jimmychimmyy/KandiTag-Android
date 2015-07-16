@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/transparent">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/black">
+
+        <TextView
+            android:id="@+id/PostOptionsRow_UsernameContainer"
+            android:layout_weight="8"
+            android:text="KandiTag User"
+            android:textSize="15dp"
+            android:textColor="@color/white"
+            android:paddingLeft="12dp"
+            android:paddingRight="10dp"
+            android:lines="1"
+            android:layout_width="1dp"
+            android:layout_height="20dp" />
+
+        <CheckBox
+            android:layout_weight="1"
+            android:layout_width="1dp"
+            android:layout_height="40dp" />
+
+        </LinearLayout>
+
+</RelativeLayout>

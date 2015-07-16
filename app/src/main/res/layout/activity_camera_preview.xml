@@ -2,12 +2,52 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:id="@+id/cameraPreviewRelativeLayout"
-    android:background="@color/black"
+    android:background="@color/white"
     tools:context="com.jimchen.kanditag.CameraPreview">
 
     <FrameLayout
         android:id="@+id/CameraPreview_PreviewContainer"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"/>
+
+    <ImageView
+        android:background="@color/transparent"
+        android:src="@drawable/kanditag_camera"
+        android:id="@+id/CameraPreview_Camera"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="30dp"/>
+
+    <ImageView
+        android:background="@color/transparent"
+        android:src="@drawable/kanditag_flash"
+        android:id="@+id/CameraPreview_FlashlightButton"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginLeft="40dp"
+        android:layout_marginBottom="40dp"/>
+
+    <ImageView
+        android:background="@color/transparent"
+        android:src="@drawable/kanditag_switchcamera"
+        android:id="@+id/CameraPreview_FlipCamera"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="40dp"
+        android:layout_marginBottom="40dp"/>
+
+    <ImageView
+        android:id="@+id/CameraPreview_closeCameraPreview"
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:padding="5dp"
+        android:src="@drawable/com_facebook_close"/>
 
 </RelativeLayout>

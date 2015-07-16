@@ -6,6 +6,19 @@
     </style>
     <style name="AppTheme2" parent="Theme.AppCompat.Light"></style>
 
+    <style name="BlackActionBar" parent="Theme.AppCompat">
+        <item name="android:actionBarStyle">@style/blackbar</item>
+    </style>
+
+    <style name="blackbar">
+        <item name="android:background">@color/black</item>
+    </style>
+
+    <style name="KandiTag" parent="Widget.AppCompat.ActionBar">
+        <item name="android:icon">@drawable/splash_screen_kt_logo_universal</item>
+        <item name="android:padding">50dp</item>
+    </style>
+
     <style name="Theme.Transparent" parent="android:Theme">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
@@ -13,6 +26,12 @@
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsFloating">true</item>
         <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
+    <style name="Toolbar" parent="Theme.AppCompat">
+        <item name="colorPrimary">@color/red</item>
+        <item name="colorPrimaryDark">@color/charcoal</item>
+        <item name="colorAccent">@color/light_gray</item>
     </style>
 
 </resources>

@@ -3,28 +3,17 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/transparent_gray" >
+    android:background="@color/light_gray" >
 
-    <ImageView
-        android:layout_alignParentBottom="true"
-        android:id="@+id/MessageFragment_NewMessageButton"
-        android:layout_width="fill_parent"
-        android:layout_height="75dp"
-        android:background="@color/black"
-        android:src="@drawable/kanditag_splashscreenlogo"
-        android:paddingLeft="220dp"
-        android:paddingRight="10dp"/>
 
     <com.jimchen.kanditag.BounceListView
-        android:layout_above="@+id/MessageFragment_NewMessageButton"
         android:id="@+id/MessageFragment_ListView"
-        android:background="@color/transparent"
+        android:background="@color/light_gray"
         android:dividerHeight="0dp"
         android:divider="@color/transparent"
         android:footerDividersEnabled="false"
         android:listSelector="@color/transparent"
         android:fastScrollEnabled="true"
-        android:stackFromBottom="true"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"/>
 

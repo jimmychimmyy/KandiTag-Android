@@ -5,11 +5,15 @@
     tools:context="com.jimchen.kanditag.LoginActivity">
 
     <!--
-    <ImageView
+    <FrameLayout
+        android:id="@+id/LoginActivity_PreviewContainer"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"/>
+
+    <View
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:src="@drawable/moderndark_splash640x1136"/>
-        -->
+        android:background="@color/transparent_gray"/> -->
 
     <android.support.v4.view.ViewPager
         android:id="@+id/login_viewPager"
@@ -19,195 +23,110 @@
 
     <com.facebook.widget.LoginButton
         android:background="@color/transparent"
-        android:id="@+id/login_fbLoginButton"
+        android:id="@+id/LoginActivity_FBLoginButton"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="12dp"/>
 
-
-    <TextView
-        android:textColor="@color/gray"
-        android:textSize="9dp"
-        android:gravity="center"
-        android:layout_marginBottom="10dp"
-        android:layout_alignParentBottom="true"
-        android:layout_marginRight="40dp"
-        android:layout_marginLeft="40dp"
-        android:text="*By signing up or connecting through facebook™, you are agreeing to the Terms and Conditions concerning the usage of KandiTag™"
-        android:layout_width="fill_parent"
-        android:layout_height="80dp" />
-
-    <ImageView
-        android:id="@+id/Login_loginButtonImageViewBackground"
-        android:layout_width="fill_parent"
-        android:layout_height="50dp"
-        android:background="@color/transparent"
-        android:layout_alignParentBottom="true"/>
-
-    <EditText
-        android:hint="Username"
-        android:gravity="center"
-        android:background="@drawable/usernname_password_login_background"
-        android:layout_marginRight="35dp"
-        android:layout_marginLeft="35dp"
-        android:layout_marginTop="200dp"
-        android:layout_width="fill_parent"
-        android:layout_height="45dp" />
-
-    <EditText
-        android:hint="Password"
-        android:gravity="center"
-        android:password="true"
-        android:background="@drawable/usernname_password_login_background"
-        android:layout_marginRight="35dp"
-        android:layout_marginLeft="35dp"
-        android:layout_marginTop="255dp"
-        android:layout_width="fill_parent"
-        android:layout_height="45dp" />
-
-    <Button
-        android:id="@+id/Login_LoginButton"
-        android:text="Login"
-        android:textColor="@color/black"
-        android:layout_marginTop="315dp"
-        android:background="@drawable/kanditag_login_button"
-        android:layout_marginRight="35dp"
-        android:layout_marginLeft="35dp"
-        android:layout_width="fill_parent"
-        android:layout_height="45dp" />
-
-    <Button
-        android:text="Create an Account"
-        android:textSize="12dp"
-        android:textColor="@color/gray"
-        android:background="@color/transparent"
-        android:layout_marginTop="370dp"
-        android:gravity="center"
-        android:layout_width="fill_parent"
-        android:layout_height="30dp" />
-
-    <TextView
-        android:text="or"
-        android:textColor="@color/gray"
-        android:layout_marginTop="397dp"
-        android:gravity="center"
-        android:layout_width="fill_parent"
-        android:layout_height="30dp" />
-
-    <Button
-        android:textColor="@color/white"
-        android:id="@+id/Login_LoginWithFacebookButton"
-        android:text="Connect with Facebook"
-        android:layout_marginTop="440dp"
-        android:background="@drawable/facebook_login_button"
-        android:layout_marginRight="35dp"
-        android:layout_marginLeft="35dp"
-        android:layout_width="fill_parent"
-        android:layout_height="45dp" />
-
-    <!--
-    <Button
-        android:textColor="@color/white"
-        android:id="@+id/Login_LoginWithFacebookButton"
-        android:text="Connect with Facebook"
-        android:layout_marginTop="250dp"
-        android:background="@drawable/facebook_login_button"
-        android:layout_marginRight="25dp"
-        android:layout_marginLeft="25dp"
-        android:layout_width="fill_parent"
-        android:layout_height="50dp" />
-
-    <Button
-        android:id="@+id/Login_LoginButton"
-        android:text="Login"
-        android:textColor="@color/black"
-        android:layout_marginTop="325dp"
-        android:background="@drawable/kanditag_login_button"
-        android:layout_marginRight="25dp"
-        android:layout_marginLeft="25dp"
-        android:layout_width="fill_parent"
-        android:layout_height="50dp" />
-
-    <Button
-        android:id="@+id/Login_SignUpButton"
-        android:text="Sign Up"
-        android:textColor="@color/black"
-        android:layout_marginTop="400dp"
-        android:background="@drawable/kanditag_signup_button"
-        android:layout_marginRight="25dp"
-        android:layout_marginLeft="25dp"
-        android:layout_width="fill_parent"
-        android:layout_height="50dp" />
-
-    <Button
-        android:id="@+id/Login_SeeMoreButton"
-        android:layout_marginRight="125dp"
-        android:layout_marginLeft="140dp"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="70dp"
-        android:textSize="11dp"
-        android:text="See More >>"
-        android:textColor="@color/white"
-        android:background="@color/transparent"
-        android:layout_width="fill_parent"
-        android:layout_height="35dp" />
-
-    <Button
-        android:layout_width="fill_parent"
-        android:layout_height="46dp"
-        android:layout_alignParentBottom="true"
-        android:textStyle="bold"
-        android:textColor="@color/black"
-        android:background="@color/transparent"
-        android:id="@+id/login_ktLoginButton"
-        android:layout_marginBottom="2dp"/>
-
-        -->
-
-    <!--
-    <ProgressBar
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:indeterminate="true"/>
-        -->
-
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="80dp">
+        android:layout_height="fill_parent">
 
-    <ImageView
-        android:id="@+id/LoginActivity_kanditaglogo"
-        android:src="@drawable/kanditag_splashscreenlogo"
-        android:layout_width="wrap_content"
-        android:layout_height="70dp" />
+        <View
+            android:layout_width="fill_parent"
+            android:layout_height="80dp"/>
 
-    </LinearLayout>
+        <ImageView
+            android:id="@+id/LoginActivity_kanditaglogo"
+            android:src="@drawable/kanditag_splashscreenlogo_clear"
+            android:padding="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="70dp" />
 
-    <!--
+        <RelativeLayout
+            android:id="@+id/LoginActivity_FacebookConnect"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
 
-    <ImageView
-        android:layout_marginTop="70dp"
-        android:paddingLeft="30dp"
-        android:paddingRight="50dp"
-        android:layout_marginRight="40dp"
-        android:src="@drawable/kanditag_login_title"
+        <TextView
+            android:layout_above="@+id/LoginActivity_LoginLinearLayout"
+            android:textColor="@color/gold"
+            android:textSize="9dp"
+            android:gravity="center|bottom"
+            android:paddingBottom="20dp"
+            android:layout_marginRight="40dp"
+            android:layout_marginLeft="40dp"
+            android:text="*By signing up or connecting through facebook™, you are agreeing to the Terms and Conditions concerning the usage of KandiTag™"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:layout_alignParentBottom="true"
+                android:id="@+id/LoginActivity_LoginLinearLayout"
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:background="@color/transparent"
+                    android:layout_weight="10"
+                    android:id="@+id/LoginActivity_SignUp"
+                    android:text="Sign Up"
+                    android:textColor="@color/gold"
+                    android:layout_width="1dp"
+                    android:layout_height="50dp" />
+
+                <View
+                    android:layout_gravity="center"
+                    android:layout_weight=".05"
+                    android:layout_width="1dp"
+                    android:layout_height="30dp"
+                    android:background="@color/gold"/>
+
+                <Button
+                    android:background="@color/transparent"
+                    android:layout_weight="10"
+                    android:id="@+id/LoginActivity_Login"
+                    android:text="Login"
+                    android:textColor="@color/gold"
+                    android:layout_width="1dp"
+                    android:layout_height="50dp" />
+
+
+            </LinearLayout>
+
+            <!--
+
+      <View
+          android:layout_marginRight="5dp"
+          android:layout_marginLeft="5dp"
+          android:layout_width="fill_parent"
+          android:layout_height="51dp"
+          android:layout_alignParentBottom="true"
+          android:background="@color/gold"/>
+
+      <Button
+          android:layout_alignParentBottom="true"
+          android:textColor="@color/gold"
+          android:id="@+id/Login_LoginWithFacebookButton"
+          android:text="Connect with Facebook"
+          android:background="@color/dark_charcoal_gray"
+          android:layout_marginTop="1dp"
+          android:layout_width="fill_parent"
+          android:layout_height="50dp" /> -->
+
+        </RelativeLayout>
+
+
+        </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/LoginActivity_LoginFragmentContainer"
         android:layout_width="fill_parent"
-        android:layout_height="100dp" />
-
-    <ImageView
-        android:layout_marginTop="85dp"
-        android:layout_marginRight="30dp"
-        android:layout_alignParentRight="true"
-        android:layout_width="65dp"
-        android:layout_height="65dp"
-        android:id="@+id/login_logo"
-        android:src="@drawable/splash_screen_kt_logo_universal" />
-
-        -->
+        android:layout_height="fill_parent"/>
 
 
 </RelativeLayout>

@@ -14,6 +14,7 @@ import java.util.Dictionary;
 public class JsonQrObject extends JSONObject {
 
     private String kandi_id, kt_id, fb_id, user_name, kandi_name, token, img_caption;
+    private String filename;
     private Bitmap img;
     private byte[] image;
     private ArrayList<String> tags;
@@ -21,6 +22,15 @@ public class JsonQrObject extends JSONObject {
     // for message
     private String message, from_id, from_name;
     private String to_id, to_name, to_kandi_id, to_kandi_name;
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+        try {
+            this.put("filename", filename);
+        } catch (JSONException e) {
+
+        }
+    }
 
     public void setMessage(String message) {
         this.message = message;
@@ -106,6 +116,10 @@ public class JsonQrObject extends JSONObject {
 
     public byte[] getImage() {
         return image;
+    }
+
+    public String getFilename() {
+        return filename;
     }
 
     public void setTags(ArrayList<String> list) {

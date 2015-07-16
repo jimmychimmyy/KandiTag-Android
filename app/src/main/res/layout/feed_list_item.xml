@@ -2,63 +2,78 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:background="@color/transparent"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp"
-    android:paddingLeft="8dp"
-    android:paddingRight="8dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:paddingRight="10dp"
+    android:paddingLeft="10dp"
+    android:paddingBottom="3dp"
+    android:paddingTop="3dp"
     android:id="@+id/FeedListItemRelativeLayout">
+
+    <FrameLayout
+        android:id="@+id/FeedListItem_Frame"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
 
     <com.jimchen.kanditag.DynamicImageView
         android:id="@+id/FeedListItem_mediaContainer"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:scaleType="centerCrop"/>
+        android:scaleType="fitCenter"
+        android:background="@color/white"
+        android:src="@drawable/feedlistitem_empty_background"/>
 
     <LinearLayout
-        android:background="@color/black"
-        android:layout_below="@+id/FeedListItem_mediaContainer"
+        android:background="@color/transparent_charcoal"
+        android:layout_gravity="bottom"
         android:id="@+id/FeedListItem_LinearLayout"
         android:orientation="horizontal"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content">
 
         <View
-            android:layout_width="10dp"
-            android:layout_height="70dp"/>
+            android:layout_width="5dp"
+            android:layout_height="50dp"/>
 
     <ImageView
-        android:background="@color/black"
         android:id="@+id/FeedListItem_profileImageContainer"
-        android:layout_width="50dp"
-        android:layout_height="65dp"
+        android:layout_width="45dp"
+        android:layout_height="50dp"
+        android:padding="5dp"
         android:src="@drawable/golden_kt_logo"/>
 
         <LinearLayout
-            android:layout_marginTop="12dp"
+            android:layout_gravity="center_vertical"
             android:orientation="vertical"
             android:layout_marginLeft="8dp"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
 
-    <TextView
-        android:background="@color/black"
-        android:id="@+id/FeedListItem_usernameContainer"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:text="Name"/>
+            <TextView
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                android:id="@+id/FeedListItem_usernameContainer"
+                android:layout_width="wrap_content"
+                android:paddingRight="10dp"
+                android:layout_height="wrap_content"
+                android:lines="1"
+                android:text="Name"/>
 
-    <TextView
-        android:background="@color/black"
-        android:id="@+id/FeedListItem_captionContainer"
-        android:layout_width="100dp"
-        android:layout_height="wrap_content"
-        android:text="Caption"/>
+            <TextView
+                android:layout_weight="1"
+                android:textColor="@color/white"
+                android:id="@+id/FeedListItem_captionContainer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingRight="10dp"
+                android:lines="1"
+                android:text="Caption"/>
 
-        </LinearLayout>
+            </LinearLayout>
 
     </LinearLayout>
+
+    </FrameLayout>
 
 
 </RelativeLayout>
