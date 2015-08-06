@@ -49,6 +49,7 @@
     <string name="title_activity_ktmain">KtMain</string>
     <string name="action_notification">Notification</string>
     <string name="action_camera">Camera</string>
+    <string name="action_contact">Contact Us</string>
 
     <string-array name="ticket_type">
         <item>Online E-Ticket</item>

@@ -13,6 +13,8 @@ import java.util.Dictionary;
  */
 public class JsonQrObject extends JSONObject {
 
+    // TODO will need to change user_name to username
+
     private String kandi_id, kt_id, fb_id, user_name, kandi_name, token, img_caption;
     private String filename;
     private Bitmap img;
@@ -204,7 +206,7 @@ public class JsonQrObject extends JSONObject {
     public void setUser_name(String name) {
         this.user_name = name;
         try {
-            this.put("user_name", name);
+            this.put("username", name);
         } catch (JSONException jsonEx) {}
     }
 

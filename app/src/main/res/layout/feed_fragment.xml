@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/not_as_light_gray"
+    android:background="@color/light_gray"
     tools:context="com.jimchen.kanditag.FeedFragment">
 
 

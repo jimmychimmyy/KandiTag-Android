@@ -296,11 +296,6 @@ public class Main extends ActionBarActivity {
 
         profileImageContainer = (ImageView) findViewById(R.id.Main_ProfileImageContainer);
 
-        // TODO will need to make sure the profile image downloads instead of getting it from facebook
-        byte[] image = getProfileImage(MY_FB_ID);
-        Bitmap pic = BitmapFactory.decodeByteArray(image, 0, image.length);
-        profileImageContainer.setImageBitmap(pic);
-
         // list view drawer
         drawerLayout = (DrawerLayout) findViewById(R.id.Main_DrawerLayout);
         listViewDrawer = (ListView) findViewById(R.id.Main_ListViewDrawer);
@@ -309,7 +304,9 @@ public class Main extends ActionBarActivity {
         navDrawerItems.add(new NavDrawerItem(getResources().getDrawable(R.drawable.splash_screen_kt_logo_universal), "Home"));
         navDrawerItems.add(new NavDrawerItem(getResources().getDrawable(R.drawable.splash_screen_kt_logo_universal), "Messages"));
         navDrawerItems.add(new NavDrawerItem(getResources().getDrawable(R.drawable.splash_screen_kt_logo_universal), "Exchange"));
-        navDrawerItems.add(new NavDrawerItem(getResources().getDrawable(R.drawable.splash_screen_kt_logo_universal), "Settings"));
+        navDrawerItems.add(new NavDrawerItem(getResources().getDrawable(R.drawable.splash_screen_kt_logo_universal), "Friends"));
+        navDrawerItems.add(new NavDrawerItem(getResources().getDrawable(R.drawable.splash_screen_kt_logo_universal), "Meet"));
+        //navDrawerItems.add(new NavDrawerItem(getResources().getDrawable(R.drawable.splash_screen_kt_logo_universal), "Settings"));
 
         final NavDrawerAdapter drawerAdapter = new NavDrawerAdapter(Main.this, R.layout.nav_drawer_layout, navDrawerItems);
 
@@ -337,11 +334,12 @@ public class Main extends ActionBarActivity {
                         getSupportFragmentManager().beginTransaction().hide(feedFragment).hide(messageFragment).show(exchangeFragment).commit();
                         drawerLayout.closeDrawers();
                         break;
+                    /**
                     case 3:
                         drawerLayout.closeDrawers();
                         Intent intent = new Intent(Main.this, SettingsActivity.class);
                         startActivityForResult(intent, SIGN_OUT_REQUEST);
-                        break;
+                        break; **/
                 }
             }
         });
@@ -349,25 +347,26 @@ public class Main extends ActionBarActivity {
 
         // instantiate services
         IntentServiceDownloadFeed downloadFeed = new IntentServiceDownloadFeed();
-        downloadFeed.startDownloadingFeed(Main.this, MY_KT_ID);
+        downloadFeed.startDownloadingFeed(Main.this);
 
         mDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
 
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
-                //getSupportActionBar().setTitle("closed!");
+                //getSupportActionBar().setTitle("");
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-                invalidateOptionsMenu();
+                //invalidateOptionsMenu();
             }
 
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                //getSupportActionBar().setTitle("open!");
+                //getSupportActionBar().setTitle("username");
                 invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-                invalidateOptionsMenu();
+                //invalidateOptionsMenu();
             }
 
         };
+
 
         android.support.v7.app.ActionBar actionBar = getSupportActionBar();
 
@@ -376,7 +375,8 @@ public class Main extends ActionBarActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         //actionBar.setDisplayShowTitleEnabled(false);
 
-        actionBar.setIcon(R.drawable.kanditag_icon);
+        //actionBar.setLogo(R.drawable.kanditag_icon);
+        actionBar.setCustomView(R.layout.kanditag_actionbar);
         actionBar.setBackgroundDrawable(new ColorDrawable(getResources().getColor(R.color.black)));
 
         // TODO will need to create a custom action bar
@@ -390,6 +390,11 @@ public class Main extends ActionBarActivity {
         //getSupportActionBar().setLogo(R.drawable.splash_screen_kt_logo_universal);
         //getSupportActionBar().invalidateOptionsMenu();
         //downloadProfileImage(MY_KT_ID);
+
+        // TODO will need to make sure the profile image downloads instead of getting it from facebook
+        getProfileImage(MY_FB_ID);
+        //Bitmap pic = BitmapFactory.decodeByteArray(image, 0, image.length);
+        //profileImageContainer.setImageBitmap(pic);
 
     }
 
@@ -414,14 +419,25 @@ public class Main extends ActionBarActivity {
         }
 
         if (id == R.id.action_camera) {
-            Log.d(TAG, "action camera");
+            Log.i(TAG, "action camera");
             Intent intent = new Intent(Main.this, CameraPreview.class);
             startActivity(intent);
             overridePendingTransition(R.anim.abc_slide_in_bottom, R.anim.abc_slide_out_bottom);
         }
 
         if (id == R.id.action_notification) {
-            Log.d(TAG, "action notification");
+            Log.i(TAG, "action notification");
+        }
+
+        if (id == R.id.action_open_settings) {
+            Log.i(TAG, "action settings");
+            drawerLayout.closeDrawers();
+            Intent intent = new Intent(Main.this, SettingsActivity.class);
+            startActivityForResult(intent, SIGN_OUT_REQUEST);
+        }
+
+        if (id == R.id.action_contact) {
+            Log.i(TAG, "action contact us");
         }
 
         // Activate the navigation drawer toggle
@@ -510,20 +526,43 @@ public class Main extends ActionBarActivity {
         return baos.toByteArray();
     }
 
-    private byte[] getProfileImage(String id) {
-        URL img_value = null;
-        Bitmap mIcon = null;
-        try {
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-            StrictMode.setThreadPolicy(policy);
-            img_value = new URL("https://graph.facebook.com/" + id + "/picture?width=1000&height=1000");
-            mIcon = BitmapFactory.decodeStream(img_value.openConnection().getInputStream());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        mIcon.compress(Bitmap.CompressFormat.PNG, 0, stream);
-        return stream.toByteArray();
+    private void getProfileImage(final String id) {
+
+        AsyncTask<String, Void, Bitmap> getProfilePic = new AsyncTask<String, Void, Bitmap>() {
+            @Override
+            protected Bitmap doInBackground(String... params) {
+
+                String _id = params[0];
+
+                Log.d(TAG, "downloading profile image");
+                URL img_value = null;
+                Bitmap mIcon = null;
+                try {
+                    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                    StrictMode.setThreadPolicy(policy);
+                    img_value = new URL("https://graph.facebook.com/" + _id + "/picture?width=1000&height=1000");
+                    mIcon = BitmapFactory.decodeStream(img_value.openConnection().getInputStream());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                try {
+                    mIcon.compress(Bitmap.CompressFormat.PNG, 0, stream);
+                } catch (NullPointerException e) {
+
+                }
+                return mIcon;
+            }
+
+            @Override
+            protected void onPostExecute(Bitmap bitmap) {
+                profileImageContainer.setImageBitmap(bitmap);
+            }
+        };
+
+        getProfilePic.execute(id);
+
+        //return stream.toByteArray();
     }
 
     // socket io ***********************************************************************************
@@ -711,9 +750,9 @@ public class Main extends ActionBarActivity {
                 });
             } catch (NullPointerException e) {
                 Log.d(TAG, "error downloading profile image from server");
-                 byte[] image = getProfileImage(MY_FB_ID);
-                 Bitmap pic = BitmapFactory.decodeByteArray(image, 0, image.length);
-                 profileImageContainer.setImageBitmap(pic);
+                 //byte[] image = getProfileImage(MY_FB_ID);
+                 //Bitmap pic = BitmapFactory.decodeByteArray(image, 0, image.length);
+                 //profileImageContainer.setImageBitmap(pic);
             }
             //socket.disconnect();
         }
@@ -730,7 +769,7 @@ public class Main extends ActionBarActivity {
             Log.d(TAG, "not opened before");
 
             // save profile image into the server
-            uploadProfileImage(compressByteArray(getProfileImage(MY_FB_ID)));
+            //uploadProfileImage(compressByteArray(getProfileImage(MY_FB_ID)));
 
             //checkKtOwnershipForMeAsyncTask.execute();
             //checkKtOwnershipForUsersAsyncTask.execute();

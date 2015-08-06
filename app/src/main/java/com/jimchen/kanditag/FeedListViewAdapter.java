@@ -1,6 +1,7 @@
 package com.jimchen.kanditag;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
@@ -12,6 +13,7 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.StrictMode;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.util.LruCache;
 import android.view.LayoutInflater;
@@ -22,15 +24,25 @@ import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.FailReason;
+import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
+import com.nostra13.universalimageloader.core.listener.SimpleImageLoadingListener;
 
+import org.apache.http.HttpConnection;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
 import org.apache.http.entity.StringEntity;
@@ -38,11 +50,20 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.EntityUtils;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.zip.Inflater;
 
@@ -51,7 +72,9 @@ import java.util.zip.Inflater;
  */
 public class FeedListViewAdapter extends ArrayAdapter {
 
-    private final String TAG = "FeedListViewAdapter";
+    int PROGRESS_BAR_MAX = 100;
+
+    private static final String TAG = "FeedListViewAdapter";
 
     private SharedPreferences sharedPreferences;
     public static final String USER_PREFERENCES = "com.jimchen.kanditag.extra.PREFERENCES";
@@ -59,28 +82,22 @@ public class FeedListViewAdapter extends ArrayAdapter {
     private String MY_KT_ID;
 
     private Context context;
-    private ArrayList<byte[]> images;
-    private ArrayList<KtMedia> files;
+    private ArrayList<String> _ids = new ArrayList<String>();
     private LruCache<String, Bitmap> mMemoryCache;
 
-    //private ArrayList<String> filenames;
-
-    //private ArrayList<String> inProcessFilenames = new ArrayList<>();
-
-    private Bitmap final_image;
-
-    private Bitmap[] bitmapList;
-    private ArrayList<byte[]> bitmapPlaceholder;
+    private static final String URL = "http://kandi.jit.su/kt_media/";
+    //private ImageLoader imageLoader;
+    private ViewHolder viewHolder;
 
     // socket variables
     private static com.github.nkzawa.socketio.client.Socket socket;
-    private final String HOST = "http://kandi.jit.su/";
+    private final String HOST = "http://www.kandi.jit.su/";
     private final int portNumber = 3000;
 
-    public FeedListViewAdapter(Context context, int layoutResourceId, ArrayList<KtMedia> files) {
+    public FeedListViewAdapter(Context context, int layoutResourceId, ArrayList<String> _ids) {
         super(context, layoutResourceId);
         this.context = context;
-        this.files = files;
+        this._ids = _ids;
 
         sharedPreferences = context.getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
         MY_KT_ID = sharedPreferences.getString(KTID, "");
@@ -95,6 +112,8 @@ public class FeedListViewAdapter extends ArrayAdapter {
             }
         };
 
+        //imageLoader = ImageLoader.getInstance();
+        //imageLoader.init(ImageLoaderConfiguration.createDefault(context));
     }
 
     public static int getSizeInBytes(Bitmap bitmap) {
@@ -104,6 +123,29 @@ public class FeedListViewAdapter extends ArrayAdapter {
             return bitmap.getRowBytes() * bitmap.getHeight();
         }
     }
+
+    public void addBitmapToMemoryCache(String key, Bitmap bitmap) {
+        if (getBitmapFromMemCache(key) == null) {
+            mMemoryCache.put(key, bitmap);
+        }
+    }
+
+    /**
+
+    public void loadBitmap(int resId, ImageView imageView) {
+        final String imageKey = String.valueOf(resId);
+
+        final Bitmap bitmap = getBitmapFromMemCache(imageKey);
+        if (bitmap != null) {
+            imageView.setImageBitmap(bitmap);
+        } else {
+            imageView.setImageResource(R.drawable.feedlistitem_empty_background);
+            // start task to download image
+
+        }
+    }
+
+     **/
 
     public Bitmap getBitmapFromMemCache(String key) {
         return mMemoryCache.get(key);
@@ -115,34 +157,107 @@ public class FeedListViewAdapter extends ArrayAdapter {
     // create an optimized bitmap from the image
     // display the image
 
+
+    static class ViewHolder {
+        public DynamicImageView media;
+        public TextView _id;
+        public TextView username;
+        public TextView caption;
+        public ProgressBar progress;
+        public LinearLayout layout;
+        public boolean isOpen = false;
+    }
+
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
 
+        String _id = getItem(position);
 
-        KtMedia file = getItem(position);
-        //final String filename = getItem(position);
-
-        //final byte[] img =  this.decompressByteArray(getItem(position));
         View rowView = convertView;
-        ViewHolder viewHolder = new ViewHolder();
+        viewHolder = new ViewHolder();
 
         if (rowView == null) {
             LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             rowView = inflater.inflate(R.layout.feed_list_item, null, false);
-            viewHolder.media = (ImageView) rowView.findViewById(R.id.FeedListItem_mediaContainer);
-            viewHolder.caption = (TextView) rowView.findViewById(R.id.FeedListItem_captionContainer);
+            viewHolder.media = (DynamicImageView) rowView.findViewById(R.id.FeedListItem_mediaContainer);
+            viewHolder._id = (TextView) rowView.findViewById(R.id.FeedListItem_URI);
+            viewHolder.username = (TextView) rowView.findViewById(R.id.FeedListItem_Username);
+            viewHolder.caption = (TextView) rowView.findViewById(R.id.FeedListItem_Caption);
+            viewHolder.progress = (ProgressBar) rowView.findViewById(R.id.FeedListItem_ProgressBar);
+            viewHolder.layout = (LinearLayout) rowView.findViewById(R.id.FeedListItem_LinearLayout);
             rowView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
 
+
         viewHolder.media.setTag(position);
-        viewHolder.caption.setText(file.getFilename());
-        viewHolder.position = position;
-        viewHolder.downloadImage = new DownloadImage(position, viewHolder);
-        if (!viewHolder.downloadImage.isCancelled()) {
-            viewHolder.downloadImage.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, file.getFilename());
+        //viewHolder._id.setText(uri);
+
+        if (_id != null) {
+
+            String uri = URL + _id;
+
+            if (uri != null) {
+
+                Bitmap bm = getBitmapFromMemCache(uri);
+
+                if (bm == null) {
+
+                    //iewHolder.media.setImageResource(R.drawable.feedlistitem_empty_background);
+                    new ImageLoadTask(viewHolder).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, uri);
+
+                } else {
+
+                    viewHolder.media.setImageBitmap(bm);
+                    viewHolder.progress.setVisibility(View.GONE);
+
+                }
+
+            } else {
+
+                viewHolder.media.setImageResource(R.drawable.feedlistitem_empty_background);
+
+            }
         }
+        //viewHolder.username.setText();
+        //viewHolder.caption.setText();
+
+
+        /**
+
+        if (_ids.get(position) == null) {
+
+            try {
+
+                imageLoader.displayImage(uri, viewHolder.media, new ImageLoadingListener() {
+                    @Override
+                    public void onLoadingStarted(String imageUri, View view) {
+                        viewHolder.progress.setVisibility(View.VISIBLE);
+
+                    }
+
+                    @Override
+                    public void onLoadingFailed(String imageUri, View view, FailReason failReason) {
+                        viewHolder.progress.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onLoadingComplete(String imageUri, View view, Bitmap loadedImage) {
+                        viewHolder.progress.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onLoadingCancelled(String imageUri, View view) {
+                        viewHolder.progress.setVisibility(View.GONE);
+                    }
+                });
+
+            } catch (Exception e) {
+
+            }
+
+        } **/
 
         return rowView;
     }
@@ -151,129 +266,225 @@ public class FeedListViewAdapter extends ArrayAdapter {
         @Override
         public void onMovedToScrapHeap(View view) {
             ViewHolder holder = (ViewHolder) view.getTag();
-            DownloadImage downloadImage = holder.downloadImage;
-
             /**
-            if (downloadImage != null) {
-                downloadImage.cancel(true);
+            DownloadFeedTask downloadTask = holder.downloadFeedTask;
+
+            if (downloadTask != null) {
+                downloadTask.cancel(true);
             } **/
 
         }
     };
 
-    private class DownloadImage extends AsyncTask<String, Void, Bitmap> {
+    private class ImageLoadTask extends AsyncTask<String, Integer, Bitmap> {
 
-        private int position;
-        private ViewHolder holder;
-        private Bitmap image;
+        private String url;
+        private final WeakReference<ViewHolder> holderWeakReference;
+        //private final WeakReference<DynamicImageView> imageViewWeakReference;
 
-        public DownloadImage(int position, ViewHolder holder) {
-            this.position = position;
-            this.holder = holder;
+        int progress;
+
+        public ImageLoadTask(ViewHolder holder) {
+            holderWeakReference = new WeakReference<ViewHolder>(holder);
+            //imageViewWeakReference = new WeakReference<DynamicImageView>(imageView);
         }
 
         @Override
         protected Bitmap doInBackground(String... params) {
-            String filename = params[0];
-            downloadImage(filename, this.position, this.holder);
-            return image;
+
+            Bitmap bm;
+
+            url = params[0];
+
+            Log.i(TAG, "attempting to download image with URL: " + url);
+
+            //return  downloadBitmap(url);
+
+            HttpURLConnection connection = null;
+
+            try {
+
+                java.net.URL reqURL = new URL(url);
+
+                connection = (HttpURLConnection) reqURL.openConnection();
+
+                int length = connection.getContentLength();
+
+                InputStream inputStream = (InputStream) reqURL.getContent();
+
+                byte[] imageData = new byte[length];
+
+                int bufferSize = (int) Math.ceil(length / (double) PROGRESS_BAR_MAX);
+
+                int downloaded = 0;
+
+                for (int i = 1; i < PROGRESS_BAR_MAX; i++) {
+
+                    int read = inputStream.read(imageData, downloaded, bufferSize);
+
+                    downloaded += read;
+
+                    publishProgress(i);
+                }
+
+                BufferedInputStream bufferedInputStream = new BufferedInputStream(connection.getInputStream());
+
+                bm = BitmapFactory.decodeStream(bufferedInputStream);
+
+                int data = inputStream.read();
+
+                while (data != -1) {
+                    data = inputStream.read();
+                }
+            } catch (Exception e) {
+
+                Log.e(TAG, "error loading: " + e);
+                return null;
+
+            } finally {
+
+                if (connection == null) {
+                    connection.disconnect();
+                }
+
+                publishProgress(PROGRESS_BAR_MAX);
+            }
+
+            return bm;
+
         }
 
         @Override
-        protected void onPostExecute(Bitmap image) {
-            super.onPostExecute(image);
-            if (image != null && holder.position == this.position) {
-                holder.media.setImageBitmap(image);
-                holder.media.invalidate();
+        protected void onPreExecute() {
+            holderWeakReference.get().progress.setMax(PROGRESS_BAR_MAX);
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+            super.onProgressUpdate(progress);
+            holderWeakReference.get().progress.setProgress(progress[0]);
+        }
+
+
+        @Override
+        protected void onPostExecute(final Bitmap bm) {
+            addBitmapToMemoryCache(url, bm);
+            if (bm == null) {
+                //holderWeakReference.get().media.setImageResource(R.drawable.feedlistitem_empty_background);
+                holderWeakReference.get().layout.setBackgroundColor(R.color.red);
+                holderWeakReference.get().progress.setVisibility(View.GONE);
+                //imageViewWeakReference.get().setImageResource(R.drawable.feedlistitem_empty_background);
+            } else {
+                holderWeakReference.get().layout.setBackgroundColor(R.color.gold);
+                holderWeakReference.get().media.setImageBitmap(bm);
+                holderWeakReference.get().media.setVisibility(View.GONE);
+                holderWeakReference.get().layout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        if (!holderWeakReference.get().isOpen) {
+                            holderWeakReference.get().media.setVisibility(View.VISIBLE);
+                            holderWeakReference.get().isOpen = true;
+                        } else if (holderWeakReference.get().isOpen) {
+                            holderWeakReference.get().media.setVisibility(View.GONE);
+                            holderWeakReference.get().isOpen = false;
+                        }
+                    }
+                });
+                holderWeakReference.get().progress.setVisibility(View.GONE);
+                //imageViewWeakReference.get().setImageBitmap(bm);
             }
+        }
+
+        private Bitmap downloadBitmap(String url) {
+
+            final DefaultHttpClient client = new DefaultHttpClient();
+
+            Log.i(TAG, url);
+
+            final HttpGet httpGet = new HttpGet(url);
+
+            try {
+
+                HttpResponse response = client.execute(httpGet);
+
+                final int statusCode = response.getStatusLine().getStatusCode();
+
+                if (statusCode != HttpStatus.SC_OK) {
+
+                    Log.w(TAG, "Error " + statusCode + " while getting bitmap from " + url);
+                    return null;
+
+                }
+
+                final HttpEntity entity = response.getEntity();
+
+                if (entity != null) {
+
+                    InputStream inputStream = null;
+                    try {
+
+                        inputStream = entity.getContent();
+                        final Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+
+                        return bitmap;
+
+                    } finally {
+
+                        if (inputStream != null) {
+                            inputStream.close();
+                        }
+
+                        entity.consumeContent();
+                    }
+                }
+            } catch (Exception e) {
+
+                Log.e(TAG, "something went wrong: " + e);
+            }
+
+            return null;
 
         }
     }
 
-    // when position and holder are final, the imageview container cannot be changed
-    private void downloadImage(String filename, final int position, final ViewHolder holder) {
 
-        // set up socket
-        try {
-            IO.Options options = new IO.Options();
-            options.forceNew = true;
-            socket = IO.socket(HOST, options);
-            //socket.on("test_download_my_own_feed", onDownloadFeed);
-            socket.on("download_image", new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    byte[] img = (byte[]) args[0];
-                    // TODO call load image and convert the byte[] into a bitmap for display
-                    byte[] image = decompressByteArray(img);
-                    LoadImage loadImage = new LoadImage(position, holder);
-                    loadImage.execute(image);
-                    Log.d(TAG, "got a feed to display");
-                }
-            });
-            socket.on(com.github.nkzawa.socketio.client.Socket.EVENT_CONNECT, new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    Log.d(TAG, "socket connected");
-                }
-            }).on(com.github.nkzawa.socketio.client.Socket.EVENT_DISCONNECT, new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    Log.d(TAG, "socket disconnected");
-                }
-            });
-        } catch (URISyntaxException use) {
-            use.printStackTrace();
-        }
-
-        // connect socket
-        socket.connect();
-        socket.emit("download_image", filename, MY_KT_ID);
-    }
-
-    private class LoadImage extends AsyncTask<byte[], Void, Bitmap> {
-
-        private int position;
-        private ViewHolder holder;
-
-        public LoadImage(int position, ViewHolder holder) {
-            this.position = position;
-            this.holder = holder;
-        }
+    class DownloadFeedTask extends AsyncTask<String, Void, Void> {
 
         @Override
-        protected Bitmap doInBackground(byte[]... params) {
+        protected Void doInBackground(String... params) {
+
+            String _id = params[0];
+
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+
+            BufferedReader in = null;
+
+            String URL = "http://kandi.jit.su/kt_media/";
+
+            try {
+
+                HttpClient httpClient = new DefaultHttpClient();
+
+                HttpGet req = new HttpGet();
+
+                URI dest = new URI(URL + _id);
+
+                req.setURI(dest);
+
+                HttpResponse res = httpClient.execute(req);
+
+                InputStream data = res.getEntity().getContent();
 
 
-            Log.d(TAG, "loadImage in background");
-            byte[] bytes = params[0];
+            } catch (URISyntaxException e) {
 
-            // TODO then before calling this task, make sure that no task exists with the same filename
+            } catch (IOException e) {
 
-            Bitmap final_bitmap = null;
-            Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-            if (context.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT && bitmap != null) {
-                Bitmap scaledB = Bitmap.createScaledBitmap(bitmap, bitmap.getWidth() / 5, bitmap.getHeight() / 5, true);
-                int width = scaledB.getWidth();
-                int height = scaledB.getHeight();
-                //rotate 90 degrees with matrix
-                Matrix matrix = new Matrix();
-                matrix.postRotate(90);
-                final_bitmap = Bitmap.createBitmap(scaledB, 0, 0, width, height, matrix, true);
-
-                // TODO will need to scale the bitmap before returning it
             }
 
-            return final_bitmap;
-        };
-
-        @Override
-        protected void onPostExecute(Bitmap result) {
-            super.onPostExecute(result);
-            if (result != null && holder.position == this.position) {
-                holder.media.setImageBitmap(result);
-                holder.media.invalidate();
-                Log.d(TAG, "Are we here yet?");
-            }
+            return null;
         }
     }
 
@@ -303,12 +514,12 @@ public class FeedListViewAdapter extends ArrayAdapter {
 
     @Override
     public int getCount() {
-        return files.size();
+        return _ids.size();
     }
 
     @Override
-    public KtMedia getItem(int position) {
-        return files.get(position);
+    public String getItem(int position) {
+        return _ids.get(position);
     }
 
     // not sure if this is needed
@@ -317,18 +528,11 @@ public class FeedListViewAdapter extends ArrayAdapter {
         return arg0;
     }
 
-    public void setArrayList(ArrayList<KtMedia> list) {
-        this.files = list;
+    public void setArrayList(ArrayList<String> list) {
+        this._ids = list;
         notifyDataSetChanged();
     }
 
-    static class ViewHolder {
-        public ImageView media;
-        public TextView caption, user_name;
-        public int position;
-        public LoadImage loadTask;
-        public DownloadImage downloadImage;
-    }
 
     /**
 

@@ -3,8 +3,8 @@
 
     <item
         android:drawable="@drawable/ic_launcher"
-        android:bottom="8dp"
-        android:top="8dp"
+        android:bottom="12dp"
+        android:top="12dp"
         android:right="10dp"></item>
 
 </layer-list>

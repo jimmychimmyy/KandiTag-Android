@@ -51,6 +51,8 @@ import org.apache.http.entity.mime.content.StringBody;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.protocol.BasicHttpContext;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.util.EntityUtils;
 
 import java.io.ByteArrayOutputStream;
@@ -451,9 +453,9 @@ public class CameraPreview extends Activity {
             MultipartEntityBuilder builder = MultipartEntityBuilder.create();
             builder.setMode(HttpMultipartMode.BROWSER_COMPATIBLE);
 
-            builder.addTextBody("filename", sourceFile.getName(), ContentType.TEXT_PLAIN);
+            //builder.addTextBody("filename", sourceFile.getName(), ContentType.TEXT_PLAIN);
+            builder.addTextBody("kt_id", MY_KT_ID, ContentType.TEXT_PLAIN);
             builder.addBinaryBody("file", sourceFile, ContentType.create("image/png"), sourceFile.getName());
-
 
             HttpEntity entity = builder.build();
             post.setEntity(entity);

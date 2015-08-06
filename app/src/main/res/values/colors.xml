@@ -18,5 +18,6 @@
     <color name="transparent">#0000</color>
     <color name="dark_charcoal_gray">#141414</color>
     <color name="transparent_charcoal">#8C000000</color>
+    <color name="opaque_black">#CC000000</color>
 
 </resources>

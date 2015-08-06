@@ -103,7 +103,8 @@
         <activity
             android:name=".MessageDialogue"
             android:label="@string/title_activity_messaging_ui"
-            android:theme="@style/Theme.AppCompat.NoActionBar">
+            android:theme="@style/Theme.AppCompat.NoActionBar"
+            android:windowSoftInputMode="stateHidden|adjustResize">
         </activity>
         <activity
             android:name=".TakenPictureContainer"

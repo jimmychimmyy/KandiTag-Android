@@ -32,7 +32,10 @@ public class FeedFragment extends Fragment {
 
     public static final String ACTION_DOWNLOAD_FEED = "com.jimchen.kanditag.action.DOWNLOAD_FEED";
     public static final String IMAGE_DATA = "com.jimchen.kanditag.data.IMAGE";
+    public static final String FILE_ID = "com.jimchen.kanditag.data.FILEID";
     public static final String ACTION_ADD_NEW_POST = "com.jimchen.kanditag.action.ADD_NEW_POST";
+
+    private ArrayList<String> file_ids = new ArrayList<>();
 
 
     private String TAG = "FeedFragment";
@@ -113,7 +116,7 @@ public class FeedFragment extends Fragment {
         // TODO will need to change images to media
 
         feedListView = (ListView) rootView.findViewById(R.id.FeedFragment_ListView);
-        feedListViewAdapter = new FeedListViewAdapter(getActivity(), R.layout.feed_list_item, media);
+        feedListViewAdapter = new FeedListViewAdapter(getActivity(), R.layout.feed_list_item, file_ids);
         feedListView.setAdapter(feedListViewAdapter);
         feedListView.setRecyclerListener(feedListViewAdapter.mRecycleListener);
         feedListView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -123,6 +126,7 @@ public class FeedFragment extends Fragment {
                 // pause disk cache access to ensure smoother scrolling
                 if (scrollSt == SCROLL_STATE_FLING) {
                     // TODO need to stop images from loading at this point
+
                 }
             }
 
@@ -163,6 +167,15 @@ public class FeedFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
 
+            if (intent.getAction().equals(ACTION_DOWNLOAD_FEED)) {
+                String file_id = intent.getStringExtra(FILE_ID);
+
+                file_ids.add(file_id);
+                feedListViewAdapter.notifyDataSetChanged();
+                feedListView.invalidate();
+            }
+
+            /**
             // this one gets the filename
             if (intent.getAction().equals(ACTION_DOWNLOAD_FEED)) {
                 KtMedia file = intent.getParcelableExtra(IMAGE_DATA);
@@ -179,7 +192,7 @@ public class FeedFragment extends Fragment {
                 Log.d(TAG, "received a feed");
             } else if (intent.getAction().equals(ACTION_ADD_NEW_POST)) {
                 Log.d(TAG, "addNew");
-            }
+            } **/
         }
     }
 

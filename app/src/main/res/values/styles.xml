@@ -8,15 +8,78 @@
 
     <style name="BlackActionBar" parent="Theme.AppCompat">
         <item name="android:actionBarStyle">@style/blackbar</item>
+        <item name="android:windowActionBarOverlay">true</item>
     </style>
 
     <style name="blackbar">
         <item name="android:background">@color/black</item>
     </style>
 
-    <style name="KandiTag" parent="Widget.AppCompat.ActionBar">
-        <item name="android:icon">@drawable/splash_screen_kt_logo_universal</item>
-        <item name="android:padding">50dp</item>
+    <style name="KandiTag"
+        parent="@android:style/Theme.Holo">
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:background">@color/opaque_black</item>
+        <!-- not sure if setting windowActionBarOverlay actually does anything to this layout -->
+        <!--<item name="android:icon">@drawable/splash_screen_kt_logo_universal</item>
+        <item name="android:padding">50dp</item> -->
+    </style>
+
+    <style name="Theme.Kanditagmaster" parent="@android:style/Theme.Holo">
+        <item name="android:actionBarItemBackground">@drawable/selectable_background_kanditagmaster</item>
+        <item name="android:popupMenuStyle">@style/PopupMenu.Kanditagmaster</item>
+        <item name="android:dropDownListViewStyle">@style/DropDownListView.Kanditagmaster</item>
+        <item name="android:actionBarTabStyle">@style/ActionBarTabStyle.Kanditagmaster</item>
+        <item name="android:actionDropDownStyle">@style/DropDownNav.Kanditagmaster</item>
+        <item name="android:actionBarStyle">@style/ActionBar.Transparent.Kanditagmaster</item>
+        <item name="android:actionModeBackground">@drawable/cab_background_top_kanditagmaster</item>
+        <item name="android:actionModeSplitBackground">@drawable/cab_background_bottom_kanditagmaster</item>
+        <item name="android:actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Kanditagmaster</item>
+
+
+    </style>
+
+    <style name="ActionBar.Solid.Kanditagmaster" parent="@android:style/Widget.Holo.ActionBar.Solid">
+        <item name="android:background">@drawable/ab_solid_kanditagmaster</item>
+        <item name="android:backgroundStacked">@drawable/ab_stacked_solid_kanditagmaster</item>
+        <item name="android:backgroundSplit">@drawable/ab_bottom_solid_kanditagmaster</item>
+        <item name="android:progressBarStyle">@style/ProgressBar.Kanditagmaster</item>
+    </style>
+
+    <style name="ActionBar.Transparent.Kanditagmaster" parent="@android:style/Widget.Holo.ActionBar">
+        <item name="android:background">@drawable/ab_transparent_kanditagmaster</item>
+        <item name="android:progressBarStyle">@style/ProgressBar.Kanditagmaster</item>
+    </style>
+
+    <style name="PopupMenu.Kanditagmaster" parent="@android:style/Widget.Holo.ListPopupWindow">
+        <item name="android:popupBackground">@drawable/menu_dropdown_panel_kanditagmaster</item>
+    </style>
+
+    <style name="DropDownListView.Kanditagmaster" parent="@android:style/Widget.Holo.ListView.DropDown">
+        <item name="android:listSelector">@drawable/selectable_background_kanditagmaster</item>
+    </style>
+
+    <style name="ActionBarTabStyle.Kanditagmaster" parent="@android:style/Widget.Holo.ActionBar.TabView">
+        <item name="android:background">@drawable/tab_indicator_ab_kanditagmaster</item>
+    </style>
+
+    <style name="DropDownNav.Kanditagmaster" parent="@android:style/Widget.Holo.Spinner">
+        <item name="android:background">@drawable/spinner_background_ab_kanditagmaster</item>
+        <item name="android:popupBackground">@drawable/menu_dropdown_panel_kanditagmaster</item>
+        <item name="android:dropDownSelector">@drawable/selectable_background_kanditagmaster</item>
+    </style>
+
+    <style name="ProgressBar.Kanditagmaster" parent="@android:style/Widget.Holo.ProgressBar.Horizontal">
+        <item name="android:progressDrawable">@drawable/progress_horizontal_kanditagmaster</item>
+    </style>
+
+    <style name="ActionButton.CloseMode.Kanditagmaster" parent="@android:style/Widget.Holo.ActionButton.CloseMode">
+        <item name="android:background">@drawable/btn_cab_done_kanditagmaster</item>
+    </style>
+
+    <!-- this style is only referenced in a Light.DarkActionBar based theme -->
+    <style name="Theme.Kanditagmaster.Widget" parent="@android:style/Theme.Holo">
+        <item name="android:popupMenuStyle">@style/PopupMenu.Kanditagmaster</item>
+        <item name="android:dropDownListViewStyle">@style/DropDownListView.Kanditagmaster</item>
     </style>
 
     <style name="Theme.Transparent" parent="android:Theme">
@@ -29,7 +92,7 @@
     </style>
 
     <style name="Toolbar" parent="Theme.AppCompat">
-        <item name="colorPrimary">@color/red</item>
+        <item name="colorPrimary">@color/black</item>
         <item name="colorPrimaryDark">@color/charcoal</item>
         <item name="colorAccent">@color/light_gray</item>
     </style>

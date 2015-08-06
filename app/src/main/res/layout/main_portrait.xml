@@ -1,7 +1,8 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="fill_parent"
-    android:layout_width="fill_parent">
+    android:layout_width="fill_parent"
+    android:background="@color/dark_charcoal">
 
     <!--
     <View
@@ -72,6 +73,17 @@
             android:id="@+id/Main_ProfileImageContainer"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"/>
+
+        <TextView
+            android:text="Jim Chen"
+            android:paddingRight="10dp"
+            android:gravity="end"
+            android:textAlignment="viewEnd"
+            android:id="@+id/Main_Username"
+            android:layout_above="@+id/Main_ListViewDrawer"
+            android:layout_width="fill_parent"
+            android:layout_height="25dp"
+            android:lines="1"/>
 
         <ListView
             android:id="@+id/Main_ListViewDrawer"

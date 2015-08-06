@@ -2,13 +2,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@color/black">
+    android:background="@color/black"
+    android:clipChildren="false">
 
     <ImageView
         android:id="@+id/MessageDialogueOb_image"
         android:layout_width="match_parent"
         android:layout_height="@dimen/flexible_space_image_height"
         android:scaleType="centerCrop"
+        android:adjustViewBounds="true"
         android:src="@drawable/splash_screen_kt_logo_universal"
         android:background="@color/black"/>
 
@@ -44,7 +46,9 @@
                 android:id="@+id/MessageDialogueOb_TextEdit"
                 android:background="@color/white"
                 android:layout_width="0dp"
-                android:layout_height="50dp" />
+                android:layout_height="50dp"
+                android:focusable="true"
+                android:focusableInTouchMode="true"/>
 
             <ImageView
                 android:id="@+id/MessageDialogueOb_sendMessageBtn"

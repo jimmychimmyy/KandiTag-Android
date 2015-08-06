@@ -464,8 +464,8 @@ public class MainActivity extends FragmentActivity {
 
 
         // instantiate services
-        IntentServiceDownloadFeed downloadFeed = new IntentServiceDownloadFeed();
-        downloadFeed.startDownloadingFeed(MainActivity.this, MY_KT_ID);
+        //IntentServiceDownloadFeed downloadFeed = new IntentServiceDownloadFeed();
+        //downloadFeed.startDownloadingFeed(MainActivity.this, MY_KT_ID);
 
         myScaleGestureDetector = new ScaleGestureDetector(this, new ScaleListener());
 

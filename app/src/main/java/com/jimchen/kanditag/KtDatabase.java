@@ -75,7 +75,7 @@ public class KtDatabase extends SQLiteOpenHelper {
         db.execSQL(CREATE_TABLE + GROUP_MESSAGE_TABLE + " (_id integer primary key, message text, from_id VARCHAR(32), from_name VARCHAR(32), to_kandi_id VARCHAR(32), to_kandi_name VARCHAR(32), timestamp integer);");
         db.execSQL(CREATE_TABLE + KT_USERS_TABLE + " (_id integer primary key, kt_id VARCHAR(32), username VARCHAR(32), kandi_id VARCHAR(32), placement integer);");
 
-        db.execSQL(CREATE_TABLE + FEED_TABLE + " (_id integer primary key, image BLOB, filename VARCHAR(32), user_id VARCHAR(32));");
+        //db.execSQL(CREATE_TABLE + FEED_TABLE + " (_id integer primary key, image BLOB, filename VARCHAR(32), user_id VARCHAR(32));");
 
 
         //will not be needing these tables anymore but double check to make sure that the getters and setters for these tables are not being used

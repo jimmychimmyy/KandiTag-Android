@@ -10,25 +10,45 @@
     android:paddingTop="3dp"
     android:id="@+id/FeedListItemRelativeLayout">
 
+    <TextView
+        android:id="@+id/FeedListItem_URI"
+        android:layout_width="0dp"
+        android:layout_height="0dp" />
+
     <FrameLayout
         android:id="@+id/FeedListItem_Frame"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">
+
+    <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-    <com.jimchen.kanditag.DynamicImageView
-        android:id="@+id/FeedListItem_mediaContainer"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:scaleType="fitCenter"
-        android:background="@color/white"
-        android:src="@drawable/feedlistitem_empty_background"/>
+        <com.jimchen.kanditag.DynamicImageView
+            android:id="@+id/FeedListItem_mediaContainer"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:scaleType="fitCenter"
+            android:background="@color/white"/>
+
+        <!-- android:src="@drawable/feedlistitem_empty_background" -->
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleHorizontal"
+            android:visibility="visible"
+            android:id="@+id/FeedListItem_ProgressBar"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"/>
+
+        </RelativeLayout>
 
     <LinearLayout
         android:background="@color/transparent_charcoal"
         android:layout_gravity="bottom"
         android:id="@+id/FeedListItem_LinearLayout"
         android:orientation="horizontal"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
         <View
@@ -43,6 +63,7 @@
         android:src="@drawable/golden_kt_logo"/>
 
         <LinearLayout
+            android:id="@+id/FeedListItem_NestedLinearLayout"
             android:layout_gravity="center_vertical"
             android:orientation="vertical"
             android:layout_marginLeft="8dp"
@@ -52,7 +73,7 @@
             <TextView
                 android:layout_weight="1"
                 android:textColor="@color/white"
-                android:id="@+id/FeedListItem_usernameContainer"
+                android:id="@+id/FeedListItem_Username"
                 android:layout_width="wrap_content"
                 android:paddingRight="10dp"
                 android:layout_height="wrap_content"
@@ -62,7 +83,7 @@
             <TextView
                 android:layout_weight="1"
                 android:textColor="@color/white"
-                android:id="@+id/FeedListItem_captionContainer"
+                android:id="@+id/FeedListItem_Caption"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:paddingRight="10dp"

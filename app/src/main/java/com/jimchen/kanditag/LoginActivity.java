@@ -17,7 +17,6 @@ import android.support.v4.view.ViewPager;
 
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -63,10 +62,7 @@ public class LoginActivity extends Activity {
 
     private Button loginWithFacebookButton, loginButton, signUpButton;
 
-    private String resEndKt_id, resEndFb_id, resEndUserName;
-
-    private String SUCCESS = "success";
-    private String USERID = "user_id";
+    private String resKTID, resFBID, resUSERNAME;
 
     // Shared Preferences
     private SharedPreferences sharedPreferences;
@@ -77,6 +73,7 @@ public class LoginActivity extends Activity {
     public static final String USER_PROFILE_IMAGE = "com.jimchen.kanditag.extra.USER_PROFILE_IMAGE";
     public static final String OPENED_BEFORE = "com.jimchen.kanditag.extra.OPENED_BEFORE";
     public static final String NEW_MESSAGE = "com.jimchen.kanditag.extra.NEW_MESSAGE";
+    private String MY_KT_ID;
 
     String Pref_Name;
     String Pref_FbId;
@@ -108,8 +105,21 @@ public class LoginActivity extends Activity {
     };
 
     public boolean isLoggedIn() {
+
+        // TODO will need to make sure that the user is actually logged out
         Session session = Session.getActiveSession();
-        return (session != null && session.isOpened());
+
+        boolean bool = (session != null && session.isOpened());
+
+        sharedPreferences = this.getSharedPreferences(USER_PREFERENCES, Context.MODE_PRIVATE);
+        MY_KT_ID = sharedPreferences.getString(KTID, "");
+
+        if (MY_KT_ID == null || MY_KT_ID.equals("")) {
+            bool = false;
+        }
+
+        return bool;
+        //return (session != null && session.isOpened());
     }
 
     private static Camera getCameraInstance() {
@@ -284,16 +294,16 @@ public class LoginActivity extends Activity {
             JsonObject jsonObj = json.getAsJsonObject();
             Boolean success = jsonObj.get("success").getAsBoolean();
             try {
-                resEndKt_id = jsonObj.get("user_id").getAsString();
-                resEndUserName = jsonObj.get("username").getAsString();
-                resEndFb_id = jsonObj.get("facebookid").getAsString();
+                resKTID = jsonObj.get("kt_id").getAsString();
+                resUSERNAME = jsonObj.get("username").getAsString();
+                resFBID = jsonObj.get("fb_id").getAsString();
             } catch (NullPointerException nullex) {}
 
             Login_Res_End resEndObj = new Login_Res_End();
             resEndObj.setSuccess(success);
-            resEndObj.setKt_id(resEndKt_id);
-            resEndObj.setUsername(resEndUserName);
-            resEndObj.setFb_id(resEndFb_id);
+            resEndObj.setKt_id(resKTID);
+            resEndObj.setUsername(resUSERNAME);
+            resEndObj.setFb_id(resFBID);
 
             return resEndObj;
         }
@@ -314,7 +324,7 @@ public class LoginActivity extends Activity {
             HttpPost post = new HttpPost(Url);
 
             JSONObject loginObj = new JSONObject();
-            loginObj.put("facebookid", id);
+            loginObj.put("fb_id", id);
             loginObj.put("username", name);
 
             StringEntity entity = new StringEntity(loginObj.toString(), HTTP.UTF_8);
@@ -326,7 +336,7 @@ public class LoginActivity extends Activity {
             BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
             String line = "";
             while ((line = reader.readLine()) != null) {
-                //Log.i(TAG, line);
+                Log.i(TAG, line);
 
                 GsonBuilder gsonBuilder = new GsonBuilder();
                 gsonBuilder.registerTypeAdapter(Login_Res_End.class, new Login_Res_End_Deserializer());
@@ -334,21 +344,17 @@ public class LoginActivity extends Activity {
 
                 Login_Res_End resEndObj = gson.fromJson(line, Login_Res_End.class);
 
-                String resEndKt_id = resEndObj.getKt_id();
-                String resEndUserName = resEndObj.getUsername();
-                String resEndFb_id = resEndObj.getFb_id();
-
                 SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString(KTID, resEndKt_id);
-                editor.putString(FBID, resEndFb_id);
-                editor.putString(USERNAME, resEndUserName);
+                editor.putString(KTID, resEndObj.getKt_id());
+                editor.putString(FBID, resEndObj.getFb_id());
+                editor.putString(USERNAME, resEndObj.getUsername());
                 editor.commit();
 
-                String myKt_id = sharedPreferences.getString(KTID, "");
-                String myFb_id = sharedPreferences.getString(FBID, "");
-                String myUserName = sharedPreferences.getString(USERNAME, "");
+                String mKTID = sharedPreferences.getString(KTID, "");
+                String mFBID = sharedPreferences.getString(FBID, "");
+                String mUSERNAME = sharedPreferences.getString(USERNAME, "");
 
-                System.out.println("Login: " + myUserName + " (" + myKt_id + ") " + "(" + myFb_id + ") " + "is logged in");
+                System.out.println("Login: " + mUSERNAME + " (" + mKTID + ") " + "(" + mFBID + ") " + "is logged in");
 
                 Intent intent_to_start = new Intent(this, Main.class);
                 startActivity(intent_to_start);

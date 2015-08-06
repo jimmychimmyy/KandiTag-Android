@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -166,10 +167,11 @@ public class MessageDialogue extends ActionBarActivity implements ObservableScro
         int baseColor = getResources().getColor(R.color.gold);
         float alpha = Math.min(1, (float) scrollY / mParallaxImageHeight);
         mToolbarView.setBackgroundColor(ScrollUtils.getColorWithAlpha(alpha, baseColor));
-        ViewHelper.setTranslationY(mImageView, -scrollY / 2);
+        ViewHelper.setTranslationY(mImageView, -scrollY / 10);
 
         // Translate list background
-        ViewHelper.setTranslationY(mListBackgroundView, Math.max(0, -scrollY + mParallaxImageHeight));
+        //ViewHelper.setTranslationY(mListBackgroundView, Math.max(0, -scrollY + mParallaxImageHeight));
+        ViewHelper.setTranslationY(mListBackgroundView, Math.max(mParallaxImageHeight/2,  scrollY + mParallaxImageHeight));
     }
 
     @Override
@@ -191,15 +193,13 @@ public class MessageDialogue extends ActionBarActivity implements ObservableScro
     private int mParallaxImageHeight;
 
     private EditText mEditText;
+    private ImageView sendMssg;
 
 // OnCreate ****************************************************************************************
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_message_dialogue);
         setContentView(R.layout.message_dialogue_ob);
-        //getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        //this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
         System.out.println("MessageDialogueOb.onCreate");
 
         myDatabase = new KtDatabase(this);
@@ -208,9 +208,6 @@ public class MessageDialogue extends ActionBarActivity implements ObservableScro
         MY_KT_ID = sharedPreferences.getString(KTID, "");
         MY_USER_NAME = sharedPreferences.getString(USERNAME, "");
         MY_FB_ID = sharedPreferences.getString(FBID, "");
-
-
-        //LocalBroadcastManager.getInstance(this).registerReceiver(newMessageBroadcastReceiver, new IntentFilter("new_message"));
 
         //TODO need to change all fb_ids usage to kt_id
 
@@ -299,52 +296,12 @@ public class MessageDialogue extends ActionBarActivity implements ObservableScro
             }
         });
 
-        byte[] image = getProfileImage(MY_FB_ID);
-        Bitmap pic = BitmapFactory.decodeByteArray(image, 0, image.length);
-        mImageView.setImageBitmap(pic);
-
-        /**
-        // find exit button in xml and set on click to return to MessageActivity
-        exitButton = (ImageView) findViewById(R.id.MessageDialogue_ExitButton);
-        exitButton.setOnClickListener(new View.OnClickListener() {
+        sendMssg = (ImageView) findViewById(R.id.MessageDialogueOb_sendMessageBtn);
+        sendMssg.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                finish();
-                MessageDialogue.this.overridePendingTransition(R.anim.right_slide_in, R.anim.right_slide_out);
-            }
-        });
-
-        // find list view and change the display mode from latest message at the bottom
-        listView = (ListView) findViewById(R.id.MessageDialogue_ListView);
-        listView.setTranscriptMode(ListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
-        //messagingUIListView.setOnScrollListener(messageWithUserScrollListener);
-
-
-        // find xml container for username
-        // set text as user's name
-        userNameTextView = (TextView) findViewById(R.id.MessageDialogue_UserNameTextView);
-        Typeface typeface = Typeface.createFromAsset(getAssets(), "fonts/kanditagfont-sth.ttf");
-        userNameTextView.setTypeface(typeface);
-        if (!isGroupDialogue) {
-            userNameTextView.setText(user_name);
-        } else if (isGroupDialogue) {
-            userNameTextView.setText(kandi_name);
-        }
-
-        // edit text to write message
-        //TODO need to make this expand when message gets long
-        messageUIEditText = (EditText) findViewById(R.id.MessageDialogue_EditText);
-
-        messageUISendButton = (Button) findViewById(R.id.MessageDialogue_SendButton);
-        messageUISendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (messageUIEditText.getText().toString().length() > 1) {
-                    messageToSend = messageUIEditText.getText().toString();
-                    //TODO brush up on the animations
-                    Animation anim = AnimationUtils.loadAnimation(MessageDialogue.this, R.anim.left_slide_out);
-                    messageUISendButton.startAnimation(anim);
-                    //Send the message
+            public void onClick(View view) {
+                if (mEditText.getText().toString().length() > 1) {
+                    messageToSend = mEditText.getText().toString();
                     if (!isGroupDialogue) {
                         newMessage(messageToSend, MY_KT_ID, MY_USER_NAME, kt_id, user_name);
                     } else if (isGroupDialogue) {
@@ -352,7 +309,7 @@ public class MessageDialogue extends ActionBarActivity implements ObservableScro
                     }
 
                     if (messageToSend != null) {
-                        messageUIEditText.setText("");
+                        mEditText.setText("");
                     }
 
                     //TODO send message and have emitter listener notify the changes to the db
@@ -361,7 +318,24 @@ public class MessageDialogue extends ActionBarActivity implements ObservableScro
 
                 }
             }
-        }); **/
+        });
+
+        AsyncTask<Void, Void, Bitmap> getProfileImageTask = new AsyncTask<Void, Void, Bitmap>() {
+            @Override
+            protected Bitmap doInBackground(Void... voids) {
+                byte[] image = getProfileImage(MY_FB_ID);
+                Bitmap pic = BitmapFactory.decodeByteArray(image, 0, image.length);
+                return pic;
+            }
+
+            @Override
+            protected void onPostExecute(Bitmap bm) {
+                mImageView.setImageBitmap(bm);
+
+            }
+        };
+
+        getProfileImageTask.execute();
 
     }
 
@@ -531,7 +505,9 @@ public class MessageDialogue extends ActionBarActivity implements ObservableScro
 
                         //messagingUIListViewArrayItems.add(conversationListItem);
                         //conversationListAdapter.notifyDataSetChanged();
-                        listView.invalidate();
+                        obListView.invalidate();
+                        obListView.smoothScrollToPosition(messageDialogueListViewAdapter.getCount());
+
 
                     } else {
                         Log.d(TAG, "already exists in db");
@@ -593,7 +569,9 @@ public class MessageDialogue extends ActionBarActivity implements ObservableScro
 
                         //messagingUIListViewArrayItems.add(conversationListItem);
                         //conversationListAdapter.notifyDataSetChanged();
-                        listView.invalidate();
+                        obListView.invalidate();
+                        obListView.smoothScrollToPosition(messageDialogueListViewAdapter.getCount());
+
 
                     } else {
                         Log.d(TAG, "already exists in db");
@@ -662,7 +640,7 @@ public class MessageDialogue extends ActionBarActivity implements ObservableScro
 
     public void invalidateMessageUIListView() {
         conversationListAdapter.notifyDataSetChanged();
-        listView.invalidate();
+        obListView.invalidate();
     }
 
 

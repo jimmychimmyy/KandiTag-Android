@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.os.StrictMode;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -12,6 +13,15 @@ import com.github.nkzawa.socketio.client.IO;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
@@ -25,20 +35,19 @@ public class IntentServiceDownloadFeed extends IntentService {
 
     private String TAG = "IntentServiceDownloadFeed";
 
-    // socket io variables
-    private static com.github.nkzawa.socketio.client.Socket socket;
-    private final String HOST = "http://kandi.jit.su/";
-    private final int portNumber = 3000;
+    private final String URL = "http://kandi.jit.su/kt_media";
 
     // TODO: Rename actions, choose action names that describe tasks that this
     // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
     public static final String ACTION_DOWNLOAD_FEED = "com.jimchen.kanditag.action.DOWNLOAD_FEED";
 
+    public static final String FILE_ID = "com.jimchen.kanditag.data.FILEID";
+
     // parameters
-    private static final String MY_KT_ID = "com.jimchen.kanditag.extra.MYKTID";
+    //private static final String MY_KT_ID = "com.jimchen.kanditag.extra.MYKTID";
 
     // data to send with the broadcast intent
-    public static final String IMAGE_DATA = "com.jimchen.kanditag.data.IMAGE";
+    //public static final String IMAGE_DATA = "com.jimchen.kanditag.data.IMAGE";
 
     /**
      * Starts this service to perform action Baz with the given parameters. If
@@ -47,10 +56,9 @@ public class IntentServiceDownloadFeed extends IntentService {
      * @see IntentService
      */
     // download feed customized helper method
-    public static void startDownloadingFeed(Context context, String kt_id) {
+    public static void startDownloadingFeed(Context context) {
         Intent intent = new Intent(context, IntentServiceDownloadFeed.class);
         intent.setAction(ACTION_DOWNLOAD_FEED);
-        intent.putExtra(MY_KT_ID, kt_id);
         context.startService(intent);
     }
 
@@ -63,9 +71,7 @@ public class IntentServiceDownloadFeed extends IntentService {
         if (intent != null) {
             final String action = intent.getAction();
             if (ACTION_DOWNLOAD_FEED.equals(action)) {
-                final String my_kt_id = intent.getStringExtra(MY_KT_ID);
-                Log.d(TAG, my_kt_id);
-                handleDownloadingFeed(my_kt_id);
+                handleDownloadingFeed();
             }
         }
     }
@@ -75,33 +81,65 @@ public class IntentServiceDownloadFeed extends IntentService {
      * Handle action download feed in the provided background thread with the provided
      * parameters.
      */
-    private void handleDownloadingFeed(String kt_id) {
-        // set up socket
-        try {
-            IO.Options options = new IO.Options();
-            options.forceNew = true;
-            socket = IO.socket(HOST, options);
-            socket.on("get_image_filenames", onGetImageFilenames);
-            socket.on(com.github.nkzawa.socketio.client.Socket.EVENT_CONNECT, new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    Log.d(TAG, "socket connected");
-                }
-            }).on(com.github.nkzawa.socketio.client.Socket.EVENT_DISCONNECT, new Emitter.Listener() {
-                @Override
-                public void call(Object... args) {
-                    Log.d(TAG, "socket disconnected");
-                }
-            });
-        } catch (URISyntaxException use) {
-            use.printStackTrace();
-        }
+    private void handleDownloadingFeed() {
 
-        // connect socket
-        socket.connect();
-        socket.emit("get_image_filenames", kt_id);
+        DownloadFeedTask downloadFeedTask = new DownloadFeedTask();
+        downloadFeedTask.execute();
     }
 
+    class DownloadFeedTask extends AsyncTask<Void, Void, Void> {
+
+        @Override
+        protected Void doInBackground(Void... params) {
+
+
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+
+            BufferedReader in = null;
+
+            try {
+
+                HttpClient httpClient = new DefaultHttpClient();
+
+                HttpGet req = new HttpGet();
+
+                URI dest = new URI(URL);
+
+                req.setURI(dest);
+
+                HttpResponse res = httpClient.execute(req);
+
+                in = new BufferedReader(new InputStreamReader(res.getEntity().getContent()));
+
+                String line = in.readLine();
+
+                //System.out.println(line);
+
+                line = line.replace("[", "");
+                line = line.replace("]", "");
+                line = line.replace("\"", "");
+
+                String[] items = line.split(",");
+
+                for (int i = 0; i < items.length; i++) {
+                    System.out.println(items[i]);
+                    Intent localIntent = new Intent(ACTION_DOWNLOAD_FEED).putExtra(FILE_ID, items[i]);
+                    LocalBroadcastManager.getInstance(IntentServiceDownloadFeed.this).sendBroadcast(localIntent);
+                }
+
+
+            } catch (URISyntaxException e) {
+
+            } catch (IOException e) {
+
+            }
+
+            return null;
+        }
+    }
+
+    /**
     private Emitter.Listener onGetImageFilenames = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
@@ -139,5 +177,6 @@ public class IntentServiceDownloadFeed extends IntentService {
             task.execute();
         }
     };
+     **/
 
 }

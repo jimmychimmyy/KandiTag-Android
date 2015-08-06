@@ -110,12 +110,17 @@ public class ResponseResults {
         return timestamp;
     }
 
-    // image
+    // file
 
+    private String _id;
     private String filename;
     private String uploadDate;
     private byte[] image;
     private ArrayList<String> metadata;
+
+    public void setID(String _id) {
+        this._id = _id;
+    }
 
     public void setFilename(String filename) {
         this.filename = filename;
@@ -133,6 +138,10 @@ public class ResponseResults {
         this.metadata = metadata;
     }
 
+    public String getID() {
+        return _id;
+    }
+
     public String getFilename() {
         return filename;
     }
@@ -148,4 +157,5 @@ public class ResponseResults {
     public ArrayList<String> getMetadata() {
         return metadata;
     }
+
 }
